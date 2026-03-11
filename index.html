@@ -26,18 +26,21 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   background: #1a110a;
   font-family: 'IM Fell English', Georgia, serif;
   font-size: 14px;
   color: var(--ink);
-  min-height: 100vh;
-  overflow-x: hidden;
 }
 
 /* Outer frame — dark wood surround */
 #frame {
-  min-height: 100vh;
+  height: 100vh;
   background:
     radial-gradient(ellipse at 20% 50%, #2a1a08 0%, transparent 60%),
     radial-gradient(ellipse at 80% 50%, #1a0c04 0%, transparent 60%),
@@ -54,6 +57,8 @@ body {
   grid-template-rows: auto 1fr;
   width: 100%;
   max-width: 1160px;
+  height: 100%;
+  min-height: 0;
   background: var(--parch);
   box-shadow:
     0 0 0 3px #6b4c12,
@@ -130,9 +135,11 @@ body {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 16px 14px;
   gap: 12px;
   background: linear-gradient(135deg, rgba(180,140,60,0.06) 0%, transparent 60%);
+  min-height: 0;
 }
 
 #left-panel::-webkit-scrollbar { width: 4px; }
@@ -227,6 +234,7 @@ body {
   flex-direction: column;
   overflow: hidden;
   position: relative; z-index: 1;
+  min-height: 0;
 }
 
 /* ── LOG ── */
@@ -237,6 +245,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1px;
+  min-height: 0;
 }
 
 #log::-webkit-scrollbar { width: 6px; }
@@ -491,8 +500,9 @@ body {
 }
 
 @media (max-width: 680px) {
-  #app { grid-template-columns: 1fr; }
-  #left-panel { border-right: none; border-bottom: 2px solid var(--border-ink); max-height: 260px; }
+  #frame { padding: 0; }
+  #app { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr auto; }
+  #left-panel { border-right: none; border-bottom: 2px solid var(--border-ink); max-height: 200px; }
 }
 </style>
 </head>
