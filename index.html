@@ -34,7 +34,7 @@ html, body {
 body {
   background: #1a110a;
   font-family: 'IM Fell English', Georgia, serif;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--ink);
 }
 
@@ -53,10 +53,10 @@ body {
 
 #app {
   display: grid;
-  grid-template-columns: 300px 1fr;
+  grid-template-columns: 260px 1fr 320px;
   grid-template-rows: auto 1fr;
   width: 100%;
-  max-width: 1160px;
+  max-width: 1300px;
   height: 100%;
   min-height: 0;
   background: var(--parch);
@@ -228,33 +228,104 @@ body {
 
 .mats-text { font-size: 11px; color: var(--ink-light); font-style: italic; line-height: 1.6; }
 
-/* ── RIGHT PANEL ── */
-#right-panel {
+/* ── CENTER PANEL (action/buttons) ── */
+#center-panel {
   display: flex;
   flex-direction: column;
   overflow: hidden;
   position: relative; z-index: 1;
   min-height: 0;
+  border-right: 2px solid var(--border-ink);
+}
+
+/* ── ACTION AREA (center, fills full height) ── */
+#action-area {
+  flex: 1;
+  padding: 28px 26px 24px;
+  background: linear-gradient(160deg, var(--parch) 60%, rgba(180,140,60,0.07) 100%);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+#action-area::-webkit-scrollbar { width: 4px; }
+#action-area::-webkit-scrollbar-track { background: var(--parch-dark); }
+#action-area::-webkit-scrollbar-thumb { background: var(--border-ink); border-radius: 2px; }
+
+#action-title {
+  font-family: 'MedievalSharp', serif;
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  color: var(--ink-faded);
+  text-transform: uppercase;
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--parch-deep);
+}
+
+#pending-banner {
+  display: none;
+  background: rgba(42,74,46,0.08);
+  border: 1px solid var(--forest);
+  padding: 7px 12px;
+  font-size: 13px;
+  color: var(--forest);
+  font-style: italic;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 16px;
+}
+#pending-banner.visible { display: flex; }
+
+#btn-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── RIGHT LOG PANEL ── */
+#log-panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative; z-index: 1;
+  min-height: 0;
+  background: linear-gradient(135deg, rgba(180,140,60,0.04) 0%, transparent 60%);
 }
 
 /* ── LOG ── */
 #log {
   flex: 1;
   overflow-y: auto;
-  padding: 18px 22px 10px;
+  padding: 18px 20px 14px;
   display: flex;
   flex-direction: column;
   gap: 1px;
   min-height: 0;
 }
 
-#log::-webkit-scrollbar { width: 6px; }
+#log::-webkit-scrollbar { width: 5px; }
 #log::-webkit-scrollbar-track { background: var(--parch-dark); }
 #log::-webkit-scrollbar-thumb { background: var(--border-ink); border-radius: 3px; }
 
+/* Log panel header label */
+#log-label {
+  font-family: 'MedievalSharp', serif;
+  font-size: 9px;
+  letter-spacing: 2.5px;
+  color: var(--ink-faded);
+  text-transform: uppercase;
+  padding: 10px 20px 8px;
+  border-bottom: 1px solid var(--parch-deep);
+  background: linear-gradient(180deg, var(--parch-dark) 0%, var(--parch) 100%);
+  flex-shrink: 0;
+}
+
+/* Log lines */
 .log-line {
   line-height: 1.75;
-  font-size: 13.5px;
+  font-size: 13px;
   animation: inkdrop 0.2s ease forwards;
   opacity: 0;
 }
@@ -271,7 +342,7 @@ body {
   opacity: 0.7;
 }
 
-/* Log colors — parchment-appropriate palette */
+/* Log colors */
 .lc-default { color: var(--ink); }
 .lc-dim     { color: var(--ink-ghost); font-style: italic; }
 .lc-atk     { color: var(--ink); }
@@ -284,66 +355,23 @@ body {
 .lc-head    {
   color: var(--burgundy);
   font-family: 'MedievalSharp', serif;
-  font-size: 13px;
+  font-size: 12px;
   letter-spacing: 1px;
 }
-
-/* ── ACTION AREA ── */
-#action-area {
-  border-top: 2px solid var(--border-ink);
-  padding: 14px 22px;
-  background: linear-gradient(0deg, var(--parch-dark) 0%, var(--parch) 100%);
-  min-height: 115px;
-  position: relative;
-}
-
-/* Torn parchment top edge illusion */
-#action-area::before {
-  content: '';
-  position: absolute; top: -6px; left: 0; right: 0; height: 6px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='6'%3E%3Cpath d='M0 6 C2 2 4 5 6 3 C8 1 10 4 12 2 C14 0 16 4 18 2 L20 6Z' fill='%23f2e8c9'/%3E%3C/svg%3E") repeat-x;
-  background-size: 20px 6px;
-  pointer-events: none;
-}
-
-#action-title {
-  font-family: 'MedievalSharp', serif;
-  font-size: 10px;
-  letter-spacing: 2.5px;
-  color: var(--ink-faded);
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-
-#pending-banner {
-  display: none;
-  background: rgba(42,74,46,0.08);
-  border: 1px solid var(--forest);
-  padding: 6px 10px;
-  font-size: 11px;
-  color: var(--forest);
-  font-style: italic;
-  flex-direction: column;
-  gap: 3px;
-  margin-bottom: 10px;
-}
-#pending-banner.visible { display: flex; }
-
-#btn-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-
-/* Parchment buttons */
 .btn {
   background: linear-gradient(180deg, var(--parch) 0%, var(--parch-dark) 100%);
   border: 1px solid var(--border-ink);
   color: var(--ink-light);
   font-family: 'IM Fell English', Georgia, serif;
-  font-size: 12.5px;
-  padding: 6px 16px;
+  font-size: 14px;
+  padding: 10px 18px;
   cursor: pointer;
   transition: all 0.18s ease;
   position: relative;
   box-shadow: 0 2px 4px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.4);
   letter-spacing: 0.3px;
+  width: 100%;
+  text-align: left;
 }
 
 .btn::before {
@@ -499,10 +527,26 @@ body {
   margin-top: 4px;
 }
 
+@media (max-width: 900px) {
+  #app { grid-template-columns: 240px 1fr; grid-template-rows: auto 1fr auto; }
+  #log-panel { display: none; }
+  #center-panel { border-right: none; }
+}
+
 @media (max-width: 680px) {
   #frame { padding: 0; }
-  #app { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr auto; }
+  #app { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; }
   #left-panel { border-right: none; border-bottom: 2px solid var(--border-ink); max-height: 200px; }
+  body { font-size: 13px; }
+}
+
+/* Desktop: larger fonts throughout */
+@media (min-width: 901px) {
+  .stat-row { font-size: 13px; }
+  .stat-label { font-size: 12px; }
+  .log-line { font-size: 13.5px; }
+  .btn { font-size: 14px; padding: 9px 20px; }
+  #action-title { font-size: 12px; }
 }
 </style>
 </head>
@@ -583,14 +627,19 @@ body {
 
 </div><!-- /left-panel -->
 
-<!-- RIGHT PANEL -->
-<div id="right-panel">
-  <div id="log"></div>
+<!-- CENTER PANEL (action/buttons) -->
+<div id="center-panel">
   <div id="action-area">
     <div id="pending-banner"></div>
     <div id="action-title">Awaiting Command</div>
     <div id="btn-grid"></div>
   </div>
+</div>
+
+<!-- RIGHT LOG PANEL -->
+<div id="log-panel">
+  <div id="log-label">Chronicle</div>
+  <div id="log"></div>
 </div>
 
 </div><!-- /app -->
@@ -928,19 +977,19 @@ function runCombat(zid,onWin,onLose){
 // ════════════════════════════════════════════
 // MENUS
 // ════════════════════════════════════════════
-function mainMenu(){renderStatus();showPending();setTitle("What shall you do?");clearBtns();
+function mainMenu(){clearLog();_logQ=[];renderStatus();showPending();setTitle("What shall you do?");clearBtns();
   addBtn("World Map",worldMap);
   if(P.last_zone)addBtn("Venture Forth — "+ZONES[P.last_zone].name,()=>fight(P.last_zone),"btn-gold");
   addBtn("Town of Eugor",town,"btn-green");addBtn("Inventory",inventory,"btn-blue");addBtn("Settings",settings,"btn-blue");}
 
-function worldMap(){setTitle("World Map");clearBtns();log("— Lands of the Realm —","lc-dim");
+function worldMap(){clearLog();_logQ=[];setTitle("World Map");clearBtns();log("— Lands of the Realm —","lc-dim");
   for(const[id,z]of Object.entries(ZONES))addBtn(z.name+"  ("+z.range+")",()=>fight(id));
   addBtn("Return",mainMenu,"btn-red");}
 
-function fight(zid){clearBtns();setTitle("In Battle...");runCombat(zid,()=>mainMenu(),deathScreen);}
+function fight(zid){clearLog();_logQ=[];clearBtns();setTitle("In Battle...");runCombat(zid,()=>mainMenu(),deathScreen);}
 
 // TOWN
-function town(){setTitle("Town of Eugor");clearBtns();log("— Town of Eugor —","lc-dim");
+function town(){clearLog();_logQ=[];setTitle("Town of Eugor");clearBtns();log("— Town of Eugor —","lc-dim");
   addBtn("Rest at the Inn  ("+innCost(P)+" gold)",doInn,"btn-gold");
   addBtn("Blacksmith",blacksmith,"btn-gold");addBtn("Beastmaster",beastmaster,"btn-green");
   addBtn("Witch's Hut",witch,"btn-mag");addBtn("Craftsman",craftsman,"btn-blue");
@@ -950,10 +999,10 @@ function doInn(){if(P.gold<innCost(P)){log("You cannot afford to rest here.","lc
   P.gold-=innCost(P);P.hp=P.max_hp;let msg="You rest deeply. All wounds healed.";
   if(P.awakened){const mg=rnd(5,20);P.mana=Math.min(P.max_mana,P.mana+mg);msg+="  Mana restored (+"+mg+").";}
   if(P.pet){P.pet.hp=petMaxHp(P.pet);msg+="  "+PET_DEFS[P.pet.name].icon+" Your companion rests well.";}
-  log(msg,"lc-good");renderStatus();}
+  clearLog();_logQ=[];log(msg,"lc-good");renderStatus();}
 
 // BLACKSMITH
-function blacksmith(){setTitle("Blacksmith's Forge");clearBtns();log("— The Forge —","lc-dim");
+function blacksmith(){clearLog();_logQ=[];setTitle("Blacksmith's Forge");clearBtns();log("— The Forge —","lc-dim");
   for(const wn of Object.keys(P.inventory)){const wd=P.inventory[wn];const maxT=WEAPON_MAX_TIER[wd[3]]||3;
     const cost=wd[2]===0?40:(wd[2]+1)*P.level*25;const tag=wn===P.equipped?" ✦":"";
     if(wd[2]<maxT)addBtn("Upgrade: "+wn+tag+"  ("+cost+" gold)",()=>doUpgrade(wn),"btn-gold");
@@ -965,10 +1014,10 @@ function doUpgrade(wn){const wd=P.inventory[wn];const maxT=WEAPON_MAX_TIER[wd[3]
   if(P.gold<cost){log("You cannot afford this upgrade.","lc-warn");return;}
   P.gold-=cost;const nup=wd[2]+1;const nn=UPGRADE_PREFIXES[wd[3]][nup];
   const wasEq=P.equipped===wn;delete P.inventory[wn];P.inventory[nn]=[wd[0]+1,wd[1]+1,nup,wd[3],wd[4]];
-  if(wasEq)P.equipped=nn;log("The hammer falls. "+nn+" is forged!","lc-gold");renderStatus();blacksmith();}
+  if(wasEq)P.equipped=nn;clearLog();_logQ=[];log("The hammer falls. "+nn+" is forged!","lc-gold");renderStatus();blacksmith();}
 
 // BEASTMASTER
-function beastmaster(){setTitle("Beastmaster's Lodge");clearBtns();log("— The Lodge —","lc-dim");
+function beastmaster(){clearLog();_logQ=[];setTitle("Beastmaster's Lodge");clearBtns();log("— The Lodge —","lc-dim");
   const mM=ZONES["1"].monsters.map(m=>m.name);const cM=ZONES["2"].monsters.map(m=>m.name);
   const mD=mM.every(n=>P.seen_monsters.has(n));const cD=cM.every(n=>P.seen_monsters.has(n));
   if(mD&&!P.has_sapphire_amulet&&!P.awakened&&!P.beastmaster_snarked.has("1")){log('"Oh, you again. Ever heard of checking your quest status? Just a thought."',"lc-warn");P.beastmaster_snarked.add("1");}
@@ -977,37 +1026,37 @@ function beastmaster(){setTitle("Beastmaster's Lodge");clearBtns();log("— The 
   if(P.pets_unlocked)addBtn("🐾 Companions",petsMenu,"btn-gold");
   addBtn("Leave",town,"btn-red");}
 
-function bestiary(){setTitle("Bestiary");clearBtns();
+function bestiary(){clearLog();_logQ=[];setTitle("Bestiary");clearBtns();
   for(const[zid,z]of Object.entries(ZONES))addBtn(z.name,()=>{
-    log("— "+z.name+" —","lc-dim");
+    clearLog();_logQ=[];log("— "+z.name+" —","lc-dim");
     for(const m of z.monsters){if(P.seen_monsters.has(m.name))log("  "+m.name+": "+m.hp+" HP, "+m.atk+" ATK","lc-info");else log("  "+m.name+": Unknown","lc-dim");}
     bestiary();});
   addBtn("Back",beastmaster,"btn-red");}
 
-function questStatus(){const mM=ZONES["1"].monsters.map(m=>m.name);
+function questStatus(){clearLog();_logQ=[];const mM=ZONES["1"].monsters.map(m=>m.name);
   if(mM.every(n=>P.seen_monsters.has(n))&&!P.has_sapphire_amulet&&!P.awakened){P.has_sapphire_amulet=true;log('"Fine work. Take this Sapphire Amulet."',"lc-info");renderStatus();}
   else log("Your journal is not yet complete.","lc-warn");}
 
 // PETS
-function petsMenu(){setTitle("Companions");clearBtns();
+function petsMenu(){clearLog();_logQ=[];setTitle("Companions");clearBtns();
   if(P.pet){const pd=PET_DEFS[P.pet.name];const t=P.pet.tier;const mhp=petMaxHp(P.pet);
     log(pd.icon+"  "+P.pet.name+"  (Tier "+(t+1)+")  —  HP: "+P.pet.hp+" / "+mhp,"lc-info");
     log("  "+pd.desc,"lc-dim");
-    if(t<2){const cost=pd.upgrade_costs[t];addBtn("Upgrade Companion  ("+cost+" gold)  → Tier "+(t+2),()=>{if(P.gold<cost){log("Not enough gold.","lc-warn");return;}P.gold-=cost;P.pet.tier++;P.pet.hp=petMaxHp(P.pet);log(pd.icon+" "+P.pet.name+" grows stronger — Tier "+(P.pet.tier+1)+"!","lc-good");renderStatus();petsMenu();},"btn-gold");}
-    else log("  (This companion has reached their full potential.)",  "lc-dim");
+    if(t<2){const cost=pd.upgrade_costs[t];addBtn("Upgrade Companion  ("+cost+" gold)  → Tier "+(t+2),()=>{if(P.gold<cost){log("Not enough gold.","lc-warn");return;}P.gold-=cost;P.pet.tier++;P.pet.hp=petMaxHp(P.pet);clearLog();_logQ=[];log(pd.icon+" "+P.pet.name+" grows stronger — Tier "+(P.pet.tier+1)+"!","lc-good");renderStatus();petsMenu();},"btn-gold");}
+    else log("  (This companion has reached their full potential.)","lc-dim");
     addBtn("Back",beastmaster,"btn-red");
   } else {
     log('"Choose your companion wisely."',"lc-warn");
     for(const[pn,pd]of Object.entries(PET_DEFS)){
       log(pd.icon+"  "+pn+"  ("+pd.base_hp+" HP)","lc-info");log("  "+pd.desc,"lc-dim");
-      addBtn("Choose  "+pd.icon+"  "+pn,()=>{P.pet={name:pn,hp:pd.base_hp,tier:0};log(pd.icon+" "+pn+" has chosen you as their companion.","lc-good");renderStatus();petsMenu();},"btn-gold");}
+      addBtn("Choose  "+pd.icon+"  "+pn,()=>{P.pet={name:pn,hp:pd.base_hp,tier:0};clearLog();_logQ=[];log(pd.icon+" "+pn+" has chosen you as their companion.","lc-good");renderStatus();petsMenu();},"btn-gold");}
     addBtn("Decide Later",beastmaster,"btn-red");}}
 
 // WITCH
-function witch(){setTitle("Witch's Hut");clearBtns();log("— The Witch's Hut —","lc-dim");
+function witch(){clearLog();_logQ=[];setTitle("Witch's Hut");clearBtns();log("— The Witch's Hut —","lc-dim");
   if(!P.awakened){
     if(P.has_sapphire_amulet){log('"Oh what a wonderful amulet! I can use this to awaken your magic power!"',"lc-mag");
-      addBtn("Awaken the Spirit within",()=>{P.awakened=true;P.has_sapphire_amulet=false;P.mana=20;log("✦ Spirit Awakened. Mana flows through your veins.","lc-mag");P.pending_messages.push("Visit the Witch to enchant your weapon.");renderStatus();witch();},"btn-mag");}
+      addBtn("Awaken the Spirit within",()=>{P.awakened=true;P.has_sapphire_amulet=false;P.mana=20;clearLog();_logQ=[];log("✦ Spirit Awakened. Mana flows through your veins.","lc-mag");P.pending_messages.push("Visit the Witch to enchant your weapon.");renderStatus();witch();},"btn-mag");}
     else log('"Begone! Bring me the scholar\'s stone."',"lc-warn");
     addBtn("Leave",town,"btn-red");
   } else {
@@ -1015,7 +1064,7 @@ function witch(){setTitle("Witch's Hut");clearBtns();log("— The Witch's Hut �
     addBtn("Add Enchantment  (2 SP)",addEnchant,"btn-mag");addBtn("Upgrade Enchantment  (1 SP)",upgradeEnchant,"btn-mag");
     addBtn("Study the Grimoire",grimoire);addBtn("Leave",town,"btn-red");}}
 
-function grimoire(){log("— The Grimoire —","lc-dim");
+function grimoire(){clearLog();_logQ=[];log("— The Grimoire —","lc-dim");
   for(const[wt,es]of Object.entries(ENCHANTMENTS)){log("[ "+wt+" ]","lc-head");
     for(const[en,ed]of Object.entries(es)){log("  "+ed.icon+"  "+en+": "+ed.desc,"lc-info");log("    Tier 1: "+ed.t1.label+"  ·  Tier 2: "+ed.t2.label+"  ·  Tier 3: "+ed.t3.label,"lc-dim");}}
   witch();}
@@ -1023,25 +1072,25 @@ function grimoire(){log("— The Grimoire —","lc-dim");
 function addEnchant(){if(P.skill_points<2){log("You need 2 Skill Points.","lc-warn");witch();return;}
   const elig=Object.entries(P.inventory).filter(([,w])=>w[2]>=ENCHANT_MIN_TIER&&ENCHANTMENTS[w[3]]);
   if(!elig.length){log("No eligible weapons. Upgrade to tier 2 first.","lc-warn");witch();return;}
-  setTitle("Add Enchantment");clearBtns();
+  clearLog();_logQ=[];setTitle("Add Enchantment");clearBtns();
   for(const[wn,wd]of elig){const wt=wd[3];const avail=Object.keys(ENCHANTMENTS[wt]).filter(e=>!wd[4][e]);
-    for(const en of avail){const ed=ENCHANTMENTS[wt][en];addBtn(ed.icon+"  "+en+"  →  "+wn+"  (2 SP)",()=>{P.skill_points-=2;P.inventory[wn][4][en]=1;log(ed.icon+" "+en+" inscribed upon "+wn+".","lc-mag");renderStatus();witch();},"btn-mag");}}
+    for(const en of avail){const ed=ENCHANTMENTS[wt][en];addBtn(ed.icon+"  "+en+"  →  "+wn+"  (2 SP)",()=>{P.skill_points-=2;P.inventory[wn][4][en]=1;clearLog();_logQ=[];log(ed.icon+" "+en+" inscribed upon "+wn+".","lc-mag");renderStatus();witch();},"btn-mag");}}
   addBtn("Cancel",witch,"btn-red");}
 
 function upgradeEnchant(){if(P.skill_points<1){log("You need 1 Skill Point.","lc-warn");witch();return;}
   const up=[];for(const[wn,wd]of Object.entries(P.inventory))for(const[en,t]of Object.entries(wd[4]||{}))if(t<3)up.push([wn,wd,en,t]);
   if(!up.length){log("No enchantments available to upgrade.","lc-warn");witch();return;}
-  setTitle("Upgrade Enchantment");clearBtns();
-  for(const[wn,wd,en,t]of up){const ed=ENCHANTMENTS[wd[3]][en];addBtn(ed.icon+"  "+en+"  T"+t+"→T"+(t+1)+"  on "+wn+"  (1 SP)",()=>{P.skill_points-=1;P.inventory[wn][4][en]=t+1;log(ed.icon+" "+en+" deepened to Tier "+(t+1)+" on "+wn+".","lc-mag");renderStatus();witch();},"btn-mag");}
+  clearLog();_logQ=[];setTitle("Upgrade Enchantment");clearBtns();
+  for(const[wn,wd,en,t]of up){const ed=ENCHANTMENTS[wd[3]][en];addBtn(ed.icon+"  "+en+"  T"+t+"→T"+(t+1)+"  on "+wn+"  (1 SP)",()=>{P.skill_points-=1;P.inventory[wn][4][en]=t+1;clearLog();_logQ=[];log(ed.icon+" "+en+" deepened to Tier "+(t+1)+" on "+wn+".","lc-mag");renderStatus();witch();},"btn-mag");}
   addBtn("Cancel",witch,"btn-red");}
 
 // CRAFTSMAN
-function craftsman(){setTitle("Craftsman's Anvil");clearBtns();
+function craftsman(){clearLog();_logQ=[];setTitle("Craftsman's Anvil");clearBtns();
   if(!P.craftsman_met){log('"Oy, go out and kill things... bring me parts for armour."',"lc-info");P.craftsman_met=true;}
   log("— The Craftsman —","lc-dim");
   addBtn("Meadows Fur Set",()=>craftSet(MEADOWS_RECIPES,"Meadows Fur Set","0–1 damage reduction per hit"),"btn-green");
   addBtn("City Guard Set",()=>craftSet(CITY_RECIPES,"City Guard Set","0–2 damage reduction per hit"),"btn-blue");
-  addBtn("Sell Materials",sellMats,"btn-gold");addBtn("View Materials",()=>{const ms=Object.entries(P.materials).filter(([,q])=>q>0);if(!ms.length)log("You carry no materials.","lc-dim");else for(const[m,q]of ms)log("  "+m+": "+q,"lc-info");});
+  addBtn("Sell Materials",sellMats,"btn-gold");addBtn("View Materials",()=>{clearLog();_logQ=[];const ms=Object.entries(P.materials).filter(([,q])=>q>0);if(!ms.length)log("You carry no materials.","lc-dim");else for(const[m,q]of ms)log("  "+m+": "+q,"lc-info");});
   addBtn("Leave",town,"btn-red");}
 
 function craftSet(recipes,setName,effect){setTitle(setName);clearBtns();
