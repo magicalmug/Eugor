@@ -1,9 +1,10 @@
-v0.2.04 - (Future Version)
-* Change name from "The Endless Grind" to "Heroes of Eugor."
-* Change "Town of Eugor" button to "Town of Efil"
-* Add submenus under the "Study the Grimoire" button in the Witch's Hut for "Fists, Daggers," etc for all weapons.
-* The Clockwork Tiger should drop a Tiger Fur instead of a Dragon Scale.  Update Craftsman receipes accordingly.
-* Fix the City Guard Set to upgrade the Max HP.
+v0.2.04 — 
+* Game renamed to Heroes of Eugor.
+* Town of Eugor renamed Town of Efil.
+* Grimoire now has per-weapon submenus (Fists / Dagger / Sword).
+* Clockwork Tiger now drops Tiger Fur (was Dragon Scale).
+* Guard Chestplate recipe updated to use Tiger Fur.
+* City Guard Set HP bonus now correctly applied to Max HP.
   
 v0.2.03 — 
 * Briar Fox HP reduced (24 → 20).
