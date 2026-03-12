@@ -167,7 +167,7 @@ body {
 
 .block-title {
   font-family: 'MedievalSharp', serif;
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 2.5px;
   color: var(--ink-faded);
   text-transform: uppercase;
@@ -180,13 +180,13 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 5px;
-  font-size: 12px;
-  line-height: 1.4;
+  margin-bottom: 6px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 .stat-row:last-child { margin-bottom: 0; }
-.stat-label { color: var(--ink-faded); font-style: italic; font-size: 11px; }
-.stat-val   { color: var(--ink); font-weight: bold; }
+.stat-label { color: var(--ink-faded); font-style: italic; font-size: 13px; }
+.stat-val   { color: var(--ink); font-weight: bold; font-size: 14px; }
 .stat-val.gold    { color: var(--gold-leaf); }
 .stat-val.red     { color: var(--burgundy); }
 .stat-val.blue    { color: var(--sapphire); }
@@ -542,11 +542,21 @@ body {
 
 /* Desktop: larger fonts throughout */
 @media (min-width: 901px) {
-  .stat-row { font-size: 13px; }
-  .stat-label { font-size: 12px; }
-  .log-line { font-size: 13.5px; }
-  .btn { font-size: 14px; padding: 9px 20px; }
+  body { font-size: 16px; }
+  .block-title { font-size: 11px; }
+  .stat-row { font-size: 15px; }
+  .stat-label { font-size: 14px; }
+  .stat-val { font-size: 15px; }
+  .mats-text { font-size: 13px; }
+  .log-line { font-size: 14px; }
+  .lc-head { font-size: 13px; }
+  .btn { font-size: 15px; padding: 11px 20px; }
   #action-title { font-size: 12px; }
+  #log-label { font-size: 11px; }
+  .armor-slot { font-size: 13px; }
+  .set-bonus { font-size: 12px; }
+  #s-weapon-stats { font-size: 13px !important; }
+  #s-enchants { font-size: 12px !important; }
 }
 </style>
 </head>
@@ -1026,12 +1036,30 @@ function beastmaster(){clearLog();_logQ=[];setTitle("Beastmaster's Lodge");clear
   if(P.pets_unlocked)addBtn("🐾 Companions",petsMenu,"btn-gold");
   addBtn("Leave",town,"btn-red");}
 
-function bestiary(){clearLog();_logQ=[];setTitle("Bestiary");clearBtns();
-  for(const[zid,z]of Object.entries(ZONES))addBtn(z.name,()=>{
-    clearLog();_logQ=[];log("— "+z.name+" —","lc-dim");
-    for(const m of z.monsters){if(P.seen_monsters.has(m.name))log("  "+m.name+": "+m.hp+" HP, "+m.atk+" ATK","lc-info");else log("  "+m.name+": Unknown","lc-dim");}
-    bestiary();});
-  addBtn("Back",beastmaster,"btn-red");}
+function bestiary(){
+  clearLog();_logQ=[];setTitle("Bestiary");clearBtns();
+  // Show first zone by default
+  showZoneInLog("1");
+  for(const[zid,z]of Object.entries(ZONES)){
+    addBtn(z.name,()=>showZoneInLog(zid));
+  }
+  addBtn("Back",beastmaster,"btn-red");
+}
+
+function showZoneInLog(zid){
+  clearLog();_logQ=[];
+  const z=ZONES[zid];
+  log("— "+z.name+"  ("+z.range+") —","lc-head");
+  logSep();
+  for(const m of z.monsters){
+    if(P.seen_monsters.has(m.name)){
+      log(m.name,"lc-info");
+      log("  Health: "+m.hp+"   Attack: "+m.atk+"   XP: "+m.xp,"lc-dim");
+    } else {
+      log(m.name+":  not yet encountered","lc-dim");
+    }
+  }
+}
 
 function questStatus(){clearLog();_logQ=[];const mM=ZONES["1"].monsters.map(m=>m.name);
   if(mM.every(n=>P.seen_monsters.has(n))&&!P.has_sapphire_amulet&&!P.awakened){P.has_sapphire_amulet=true;log('"Fine work. Take this Sapphire Amulet."',"lc-info");renderStatus();}
