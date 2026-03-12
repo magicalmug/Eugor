@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Endless Grind</title>
+<title>Heroes of Eugor</title>
 <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=MedievalSharp&family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -647,7 +647,7 @@ body {
 <!-- OVERLAY -->
 <div id="overlay">
   <div class="overlay-parchment">
-    <h2 id="overlay-title">The Endless Grind</h2>
+    <h2 id="overlay-title">Heroes of Eugor</h2>
     <div class="ov-divider"></div>
     <p id="overlay-body"></p>
     <div id="overlay-btns"></div>
@@ -661,7 +661,7 @@ body {
 
 <!-- HEADER -->
 <div id="header">
-  <h1>⚔&ensp;The Endless Grind&ensp;⚔</h1>
+  <h1>⚔&ensp;Heroes of Eugor&ensp;⚔</h1>
   <span id="version-tag">v0.2.00</span>
 </div>
 
@@ -750,17 +750,18 @@ body {
 // ════════════════════════════════════════════
 // DATA
 // ════════════════════════════════════════════
-const VERSION = "0.2.03";
+const VERSION = "0.2.04";
 const PATCH_NOTES = [
-  "v0.2.03 — Briar Fox HP reduced (24 → 20).",
-  "  World Map button renamed 'Explore Eugor'.",
-  "  Chronicle now clears when you take a new action, not on return from combat.",
-  "  Meadows monster gold yields slightly increased.",
-  "  Grimoire rewritten with full per-skill descriptions and tier details.",
-  "  Death screen now names your killer; View Chronicle button added.",
+  "v0.2.04 — Game renamed to Heroes of Eugor.",
+  "  Town of Eugor renamed Town of Efil.",
+  "  Grimoire now has per-weapon submenus (Fists / Dagger / Sword).",
+  "  Clockwork Tiger now drops Tiger Fur (was Dragon Scale).",
+  "  Guard Chestplate recipe updated to use Tiger Fur.",
+  "  City Guard Set HP bonus now correctly applied to Max HP.",
   "",
-  "v0.2.02 — Mobile Chronicle drawer added.",
-  "  Witch's Hut: Reset Skill Points added (1,000 gold)."
+  "v0.2.03 — Briar Fox HP reduced. World Map → Explore Eugor.",
+  "  Chronicle clears on new action, not on battle return.",
+  "  Meadows gold increased. Grimoire rewritten. Death screen improved."
 ];
 
 const ENCHANTMENTS = {
@@ -797,10 +798,10 @@ const WEAPON_MAX_TIER={Fists:3,Dagger:3,Sword:4};
 const ENCHANT_MIN_TIER=2;
 
 const M_DROPS={"Rabid Rabbit":"Rabbit Skin","Green Slime":"Slime Goo","Meadow Hawk":"Hawk Feather","Briar Fox":"Fox Fur","Alpha Wolf":"Wolf Pelt"};
-const CITY_DROPS={"Rusty Automaton":"Gear Fragment","Street Urchin":"Tattered Cloth","Steam Golem":"Steam Core","Ghost of Eugor":"Ectoplasm","Clockwork Tiger":"Dragon Scale"};
-const SELL_PRICES={"Rabbit Skin":[1,2],"Slime Goo":[1,2],"Hawk Feather":[3,5],"Fox Fur":[3,5],"Wolf Pelt":[7,10],"Gear Fragment":[2,3],"Tattered Cloth":[2,3],"Steam Core":[5,7],"Ectoplasm":[5,7],"Dragon Scale":[12,18]};
+const CITY_DROPS={"Rusty Automaton":"Gear Fragment","Street Urchin":"Tattered Cloth","Steam Golem":"Steam Core","Ghost of Eugor":"Ectoplasm","Clockwork Tiger":"Tiger Fur"};
+const SELL_PRICES={"Rabbit Skin":[1,2],"Slime Goo":[1,2],"Hawk Feather":[3,5],"Fox Fur":[3,5],"Wolf Pelt":[7,10],"Gear Fragment":[2,3],"Tattered Cloth":[2,3],"Steam Core":[5,7],"Ectoplasm":[5,7],"Tiger Fur":[12,18]};
 const MEADOWS_MATS=new Set(["Rabbit Skin","Slime Goo","Hawk Feather","Fox Fur","Wolf Pelt"]);
-const CITY_MATS=new Set(["Gear Fragment","Tattered Cloth","Steam Core","Ectoplasm","Dragon Scale"]);
+const CITY_MATS=new Set(["Gear Fragment","Tattered Cloth","Steam Core","Ectoplasm","Tiger Fur"]);
 const MEADOWS_PIECES=new Set(["Fur Cap","Fur Chestpiece","Fur Bracers","Fur Leggings"]);
 const CITY_PIECES=new Set(["Guard Helm","Guard Chestplate","Guard Gauntlets","Guard Greaves"]);
 
@@ -829,7 +830,7 @@ const MEADOWS_RECIPES={
 };
 const CITY_RECIPES={
   "Guard Helm":       {slot:"Head", mats:{"Gear Fragment":3,"Tattered Cloth":2,"Steam Core":1},gold:200},
-  "Guard Chestplate": {slot:"Chest",mats:{"Dragon Scale":1,"Steam Core":2,"Gear Fragment":2},gold:400},
+  "Guard Chestplate": {slot:"Chest",mats:{"Tiger Fur":1,"Steam Core":2,"Gear Fragment":2},gold:400},
   "Guard Gauntlets":  {slot:"Arms", mats:{"Tattered Cloth":2,"Gear Fragment":1},gold:100},
   "Guard Greaves":    {slot:"Legs", mats:{"Steam Core":1,"Tattered Cloth":3,"Ectoplasm":2},gold:300}
 };
@@ -862,14 +863,14 @@ function decode(s){try{const r=s.trim().replace(/rune/g,"=").replace(/altar/g,"+
 // PLAYER
 // ════════════════════════════════════════════
 function newPlayer(name){
-  return{name:name.slice(0,10),hp:75,max_hp:75,level:1,xp:0,gold:0,skill_points:0,level_cap:30,
+  return{name:name.slice(0,10),hp:75,max_hp:75,base_max_hp:75,level:1,xp:0,gold:0,skill_points:0,level_cap:30,
     awakened:false,mana:0,max_mana:20,equipped:"Fists",inventory:{"Fists":[1,4,0,"Fists",{}]},
     armor:{Head:null,Chest:null,Arms:null,Legs:null},armor_inventory:{},materials:{},
     seen_monsters:new Set(),last_zone:null,zones_visited:new Set(),has_sapphire_amulet:false,
     beastmaster_snarked:new Set(),craftsman_met:false,fresh_start:true,pet:null,pets_unlocked:false,pending_messages:[]};
 }
 function pSer(p){return{...p,seen_monsters:[...p.seen_monsters],zones_visited:[...p.zones_visited],beastmaster_snarked:[...p.beastmaster_snarked]};}
-function pDes(d){return{...d,seen_monsters:new Set(d.seen_monsters||[]),zones_visited:new Set(d.zones_visited||[]),beastmaster_snarked:new Set(d.beastmaster_snarked||[]),pending_messages:d.pending_messages||[],pets_unlocked:d.pets_unlocked||false,pet:d.pet||null};}
+function pDes(d){return{...d,seen_monsters:new Set(d.seen_monsters||[]),zones_visited:new Set(d.zones_visited||[]),beastmaster_snarked:new Set(d.beastmaster_snarked||[]),pending_messages:d.pending_messages||[],pets_unlocked:d.pets_unlocked||false,pet:d.pet||null,base_max_hp:d.base_max_hp||d.max_hp||75};}
 
 function xpToNext(p){let b=Math.floor(50*Math.pow(p.level,1.6));if(p.level<=3)b=Math.floor(b*1.85);else if(p.level<=6)b=Math.floor(b*1.55);return b;}
 function innCost(p){return p.level*6;}
@@ -877,12 +878,16 @@ function petMaxHp(pet){if(!pet)return 0;const pd=PET_DEFS[pet.name];return pd.ba
 function hasDagger(p){return Object.values(p.inventory).some(w=>w[3]==="Dagger");}
 function isMeadowsDone(p){return["Head","Chest","Arms","Legs"].every(s=>MEADOWS_PIECES.has(p.armor[s]));}
 function isCityDone(p){return["Head","Chest","Arms","Legs"].every(s=>CITY_PIECES.has(p.armor[s]));}
+function effectiveMaxHp(p){const base=p.base_max_hp||p.max_hp;return isCityDone(p)?base+(10*p.level):base;}
 function totalReduction(p){let t=0;for(const v of Object.values(p.armor)){if(MEADOWS_PIECES.has(v))t+=rnd(0,1);else if(CITY_PIECES.has(v))t+=rnd(0,2);}return t;}
 
 function levelUp(p){
   const msgs=[];
   while(p.xp>=xpToNext(p)&&p.level<p.level_cap){
-    p.xp-=xpToNext(p);p.level++;p.skill_points++;p.max_hp+=15;p.hp=p.max_hp;
+    p.xp-=xpToNext(p);p.level++;p.skill_points++;
+    p.base_max_hp=(p.base_max_hp||p.max_hp)+15;
+    p.max_hp=effectiveMaxHp(p);
+    p.hp=p.max_hp;
     if(p.awakened){const mg=rnd(2,6);p.mana=Math.min(p.max_mana,p.mana+mg);msgs.push(`✦ Level Up! Reached level ${p.level}! +${mg} Mana!`);}
     else msgs.push(`✦ Level Up! Reached level ${p.level}!`);
   }
@@ -954,6 +959,8 @@ function showPending(){
 // ════════════════════════════════════════════
 function renderStatus(){
   if(!P)return;
+  // Sync max_hp with effective (handles set equip/unequip and loaded saves)
+  P.max_hp=effectiveMaxHp(P);
   document.getElementById("s-name").textContent=P.name;
   document.getElementById("s-level").textContent=P.level;
   document.getElementById("s-sp").textContent=P.skill_points;
@@ -1099,7 +1106,7 @@ function runCombat(zid,onWin,onLose){
 function mainMenu(){renderStatus();showPending();setTitle("What shall you do?");clearBtns();
   addBtn("Explore Eugor",worldMap);
   if(P.last_zone)addBtn("Venture Forth — "+ZONES[P.last_zone].name,()=>{clearLog();_logQ=[];fight(P.last_zone);},"btn-gold");
-  addBtn("Town of Eugor",town,"btn-green");addBtn("Inventory",inventory,"btn-blue");addBtn("Settings",settings,"btn-blue");}
+  addBtn("Town of Efil",town,"btn-green");addBtn("Inventory",inventory,"btn-blue");addBtn("Settings",settings,"btn-blue");}
 
 function worldMap(){clearLog();_logQ=[];setTitle("Explore Eugor");clearBtns();log("— Lands of the Realm —","lc-dim");
   for(const[id,z]of Object.entries(ZONES))addBtn(z.name+"  ("+z.range+")",()=>{clearLog();_logQ=[];fight(id);});
@@ -1108,7 +1115,7 @@ function worldMap(){clearLog();_logQ=[];setTitle("Explore Eugor");clearBtns();lo
 function fight(zid){clearBtns();setTitle("In Battle...");runCombat(zid,()=>mainMenu(),(killer)=>deathScreen(killer));}
 
 // TOWN
-function town(){clearLog();_logQ=[];setTitle("Town of Eugor");clearBtns();log("— Town of Eugor —","lc-dim");
+function town(){clearLog();_logQ=[];setTitle("Town of Efil");clearBtns();log("— Town of Efil —","lc-dim");
   addBtn("Rest at the Inn  ("+innCost(P)+" gold)",doInn,"btn-gold");
   addBtn("Blacksmith",blacksmith,"btn-gold");addBtn("Beastmaster",beastmaster,"btn-green");
   addBtn("Witch's Hut",witch,"btn-mag");addBtn("Craftsman",craftsman,"btn-blue");
@@ -1227,21 +1234,26 @@ function doResetSP(){
 
 function grimoire(){clearLog();_logQ=[];setTitle("The Grimoire");clearBtns();
   log("— The Grimoire of Enchantments —","lc-head");
+  log("Select a weapon type to study its enchantments.","lc-dim");
+  for(const wt of Object.keys(ENCHANTMENTS)){
+    addBtn("📖  "+wt+" Enchantments",()=>grimoireWeapon(wt));
+  }
+  addBtn("Back to Witch's Hut",witch,"btn-red");
+}
+
+function grimoireWeapon(wt){clearLog();_logQ=[];setTitle("Grimoire — "+wt);clearBtns();
+  log("— "+wt.toUpperCase()+" ENCHANTMENTS —","lc-head");
   logSep();
-  for(const[wt,es]of Object.entries(ENCHANTMENTS)){
-    log("✦  "+wt.toUpperCase()+" ENCHANTMENTS","lc-head");
-    for(const[en,ed]of Object.entries(es)){
-      log("","lc-default");
-      log("  "+ed.icon+"  "+en+"  (costs "+ed.cost+" mana per attack)","lc-info");
-      log("  "+ed.desc,"lc-default");
-      log("    ▸ Tier 1:  "+ed.t1.label,"lc-dim");
-      log("    ▸ Tier 2:  "+ed.t2.label,"lc-dim");
-      log("    ▸ Tier 3:  "+ed.t3.label,"lc-dim");
-    }
+  const es=ENCHANTMENTS[wt];
+  for(const[en,ed]of Object.entries(es)){
+    log("  "+ed.icon+"  "+en+"  ("+ed.cost+" mana / attack)","lc-info");
+    log("  "+ed.desc,"lc-default");
+    log("    ▸ Tier 1:  "+ed.t1.label,"lc-dim");
+    log("    ▸ Tier 2:  "+ed.t2.label,"lc-dim");
+    log("    ▸ Tier 3:  "+ed.t3.label,"lc-dim");
     logSep();
   }
-  log("Enchantments require a Tier 2+ weapon and an awakened spirit.","lc-dim");
-  addBtn("Back to Witch's Hut",witch,"btn-red");
+  addBtn("◀  Back to Grimoire",grimoire,"btn-red");
 }
 
 function addEnchant(){if(P.skill_points<2){log("You need 2 Skill Points.","lc-warn");witch();return;}
@@ -1322,12 +1334,12 @@ function doDebug(){overlay("The Debug Chamber","Speak your code:",[],code=>{hide
   else if(code==="seven-dagger"){applyDebug("Glistening Dagger",[4,7,2,"Dagger",{"Envenom":2,"Debilitate":2}]);}
   else log("That code is unknown.","lc-warn");mainMenu();},true,"Enter code...");}
 
-function applyDebug(wn,wd){P.level=7;P.max_hp=165;P.hp=165;P.gold=1700;P.xp=0;P.skill_points=0;P.awakened=true;P.mana=20;P.max_mana=20;P.last_zone="1";
+function applyDebug(wn,wd){P.level=7;P.max_hp=165;P.base_max_hp=165;P.hp=165;P.gold=1700;P.xp=0;P.skill_points=0;P.awakened=true;P.mana=20;P.max_mana=20;P.last_zone="1";
   P.armor={Head:"Fur Cap",Chest:"Fur Chestpiece",Arms:"Fur Bracers",Legs:"Fur Leggings"};
   P.armor_inventory={"Fur Cap":{slot:"Head",effect:"0-1 DMG reduction per hit",set:"Meadows Fur Set"},"Fur Chestpiece":{slot:"Chest",effect:"0-1 DMG reduction per hit",set:"Meadows Fur Set"},"Fur Bracers":{slot:"Arms",effect:"0-1 DMG reduction per hit",set:"Meadows Fur Set"},"Fur Leggings":{slot:"Legs",effect:"0-1 DMG reduction per hit",set:"Meadows Fur Set"}};
   P.seen_monsters=new Set(ZONES["1"].monsters.map(m=>m.name));P.has_sapphire_amulet=false;P.craftsman_met=true;P.beastmaster_snarked.add("1");P.inventory={[wn]:wd};P.equipped=wn;log("Debug state applied.","lc-good");}
 
-function patchNotes(){log("— The Endless Grind  v"+VERSION+" —","lc-head");for(const l of PATCH_NOTES)log(l||" ","lc-dim");settings();}
+function patchNotes(){log("— Heroes of Eugor  v"+VERSION+" —","lc-head");for(const l of PATCH_NOTES)log(l||" ","lc-dim");settings();}
 
 // DEATH
 function deathScreen(killer){
@@ -1367,7 +1379,7 @@ function hideOverlay(){document.getElementById("overlay").classList.remove("visi
 // SPLASH & INIT
 // ════════════════════════════════════════════
 function splash(){P=null;
-  overlay("The Endless Grind","A tale of grit, gold, and glory.\n\nVersion "+VERSION,
+  overlay("Heroes of Eugor","A tale of grit, gold, and glory.\n\nVersion "+VERSION,
     [{label:"Begin Your Journey",cb:()=>{hideOverlay();startGame();}},
      {label:"Restore from Incantation",cb:()=>{overlay("Restore",  "Paste your incantation:",[],v=>{const d=decode(v);if(d){P=pDes(d);hideOverlay();log("Welcome back, "+P.name+". The road continues.","lc-good");mainMenu();}else{log("That incantation is invalid.","lc-warn");splash();}},true,"Paste incantation...");}}]);}
 
