@@ -540,6 +540,86 @@ body {
   body { font-size: 13px; }
 }
 
+/* ── MOBILE CHRONICLE DRAWER ── */
+#chronicle-drawer {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 150;
+  flex-direction: column;
+  height: 65vh;
+  background: var(--parch);
+  border-top: 3px solid var(--border-ink);
+  box-shadow: 0 -8px 32px rgba(44,31,14,0.4);
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+#chronicle-drawer.open {
+  transform: translateY(0);
+}
+#chronicle-tab {
+  display: none;
+  position: fixed;
+  bottom: 0; right: 16px;
+  z-index: 151;
+  background: linear-gradient(180deg, var(--parch) 0%, var(--parch-dark) 100%);
+  border: 2px solid var(--border-ink);
+  border-bottom: none;
+  color: var(--ink-light);
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 13px;
+  padding: 7px 16px 5px;
+  cursor: pointer;
+  box-shadow: 0 -2px 8px var(--shadow);
+  border-radius: 6px 6px 0 0;
+  letter-spacing: 0.3px;
+}
+#chronicle-tab:active { background: var(--parch-dark); }
+#chronicle-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px 8px;
+  border-bottom: 1px solid var(--parch-deep);
+  background: linear-gradient(180deg, var(--parch-dark) 0%, var(--parch) 100%);
+  flex-shrink: 0;
+}
+#chronicle-drawer-title {
+  font-family: 'MedievalSharp', serif;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  color: var(--ink-faded);
+  text-transform: uppercase;
+}
+#chronicle-close {
+  background: none;
+  border: 1px solid var(--border-ink);
+  color: var(--ink-faded);
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 12px;
+  padding: 3px 10px;
+  cursor: pointer;
+  border-radius: 2px;
+}
+#chronicle-close:active { background: var(--parch-dark); }
+#chronicle-log-mobile {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-height: 0;
+}
+#chronicle-log-mobile::-webkit-scrollbar { width: 4px; }
+#chronicle-log-mobile::-webkit-scrollbar-track { background: var(--parch-dark); }
+#chronicle-log-mobile::-webkit-scrollbar-thumb { background: var(--border-ink); border-radius: 2px; }
+
+@media (max-width: 900px) {
+  #chronicle-tab { display: block; }
+  #chronicle-drawer { display: flex; }
+}
+
 /* Desktop: larger fonts throughout */
 @media (min-width: 901px) {
   body { font-size: 16px; }
@@ -653,21 +733,32 @@ body {
 </div>
 
 </div><!-- /app -->
+
+<!-- MOBILE CHRONICLE TAB + DRAWER -->
+<button id="chronicle-tab" onclick="toggleChronicle()">📜 Chronicle</button>
+<div id="chronicle-drawer">
+  <div id="chronicle-drawer-header">
+    <span id="chronicle-drawer-title">Chronicle</span>
+    <button id="chronicle-close" onclick="toggleChronicle()">✕ Close</button>
+  </div>
+  <div id="chronicle-log-mobile"></div>
+</div>
+
 </div><!-- /frame -->
 
 <script>
 // ════════════════════════════════════════════
 // DATA
 // ════════════════════════════════════════════
-const VERSION = "0.2.00";
+const VERSION = "0.2.02";
 const PATCH_NOTES = [
-  "v0.2.00 — Fox Fur drop rate increased again.",
-  "  Clockwork Tiger (renamed, HP & ATK reduced slightly).",
-  "  Abandoned City bestiary completion unlocks Pets menu.",
-  "  Pets: Elfish Sprite & Baby Dragon, two upgrade tiers each.",
+  "v0.2.02 — Mobile: Chronicle drawer added (tap tab to open/close).",
+  "  Witch's Hut: Reset Skill Points option added (1,000 gold).",
+  "  Refunds all SP spent on enchants; removes all enchantments.",
   "",
-  "v0.1.03b — Meadows common/rare ATK buffed. Hawk Feather drop up.",
-  "  Blinding Toxin reworked: 10% proc on attack, permanent half-damage chance."
+  "v0.2.1 — Meadows Fur Set gold costs reduced.",
+  "  XP for levels 1–6 slightly increased.",
+  "  Weapon upgrade cost per level reduced."
 ];
 
 const ENCHANTMENTS = {
@@ -729,10 +820,10 @@ const ZONES={
 };
 
 const MEADOWS_RECIPES={
-  "Fur Cap":       {slot:"Head", mats:{"Rabbit Skin":3,"Hawk Feather":2,"Slime Goo":2},gold:120},
-  "Fur Chestpiece":{slot:"Chest",mats:{"Fox Fur":2,"Wolf Pelt":1,"Rabbit Skin":1},gold:250},
-  "Fur Bracers":   {slot:"Arms", mats:{"Rabbit Skin":2,"Slime Goo":1},gold:60},
-  "Fur Leggings":  {slot:"Legs", mats:{"Fox Fur":2,"Hawk Feather":2,"Slime Goo":2},gold:170}
+  "Fur Cap":       {slot:"Head", mats:{"Rabbit Skin":3,"Hawk Feather":2,"Slime Goo":2},gold:108},
+  "Fur Chestpiece":{slot:"Chest",mats:{"Fox Fur":2,"Wolf Pelt":1,"Rabbit Skin":1},gold:230},
+  "Fur Bracers":   {slot:"Arms", mats:{"Rabbit Skin":2,"Slime Goo":1},gold:50},
+  "Fur Leggings":  {slot:"Legs", mats:{"Fox Fur":2,"Hawk Feather":2,"Slime Goo":2},gold:155}
 };
 const CITY_RECIPES={
   "Guard Helm":       {slot:"Head", mats:{"Gear Fragment":3,"Tattered Cloth":2,"Steam Core":1},gold:200},
@@ -778,7 +869,7 @@ function newPlayer(name){
 function pSer(p){return{...p,seen_monsters:[...p.seen_monsters],zones_visited:[...p.zones_visited],beastmaster_snarked:[...p.beastmaster_snarked]};}
 function pDes(d){return{...d,seen_monsters:new Set(d.seen_monsters||[]),zones_visited:new Set(d.zones_visited||[]),beastmaster_snarked:new Set(d.beastmaster_snarked||[]),pending_messages:d.pending_messages||[],pets_unlocked:d.pets_unlocked||false,pet:d.pet||null};}
 
-function xpToNext(p){let b=Math.floor(50*Math.pow(p.level,1.6));if(p.level<=3)b=Math.floor(b*1.7);return b;}
+function xpToNext(p){let b=Math.floor(50*Math.pow(p.level,1.6));if(p.level<=3)b=Math.floor(b*1.85);else if(p.level<=6)b=Math.floor(b*1.55);return b;}
 function innCost(p){return p.level*6;}
 function petMaxHp(pet){if(!pet)return 0;const pd=PET_DEFS[pet.name];return pd.base_hp+pd.hp_upgrades.slice(0,pet.tier).reduce((a,b)=>a+b,0);}
 function hasDagger(p){return Object.values(p.inventory).some(w=>w[3]==="Dagger");}
@@ -816,15 +907,31 @@ function _addLine(text,cls){
   const el=document.getElementById("log");
   const d=document.createElement("div");d.className="log-line "+cls;d.textContent=text;
   el.appendChild(d);el.scrollTop=el.scrollHeight;
+  // Mirror to mobile chronicle drawer
+  const mob=document.getElementById("chronicle-log-mobile");
+  if(mob){const d2=document.createElement("div");d2.className="log-line "+cls;d2.textContent=text;mob.appendChild(d2);mob.scrollTop=mob.scrollHeight;}
 }
 function logSep(){
   const el=document.getElementById("log");
   const hr=document.createElement("hr");hr.className="log-sep";
   el.appendChild(hr);el.scrollTop=el.scrollHeight;
+  const mob=document.getElementById("chronicle-log-mobile");
+  if(mob){const hr2=document.createElement("hr");hr2.className="log-sep";mob.appendChild(hr2);mob.scrollTop=mob.scrollHeight;}
 }
-function clearLog(){document.getElementById("log").innerHTML="";}
+function clearLog(){
+  document.getElementById("log").innerHTML="";
+  const mob=document.getElementById("chronicle-log-mobile");
+  if(mob)mob.innerHTML="";
+}
 
-function setTitle(t){document.getElementById("action-title").textContent=t;}
+function toggleChronicle(){
+  const drawer=document.getElementById("chronicle-drawer");
+  const mob=document.getElementById("chronicle-log-mobile");
+  drawer.classList.toggle("open");
+  if(drawer.classList.contains("open"))mob.scrollTop=mob.scrollHeight;
+}
+
+
 function clearBtns(){document.getElementById("btn-grid").innerHTML="";}
 function addBtn(label,cb,cls=""){
   const b=document.createElement("button");b.className="btn"+(cls?" "+cls:"");
@@ -1014,13 +1121,13 @@ function doInn(){if(P.gold<innCost(P)){log("You cannot afford to rest here.","lc
 // BLACKSMITH
 function blacksmith(){clearLog();_logQ=[];setTitle("Blacksmith's Forge");clearBtns();log("— The Forge —","lc-dim");
   for(const wn of Object.keys(P.inventory)){const wd=P.inventory[wn];const maxT=WEAPON_MAX_TIER[wd[3]]||3;
-    const cost=wd[2]===0?40:(wd[2]+1)*P.level*25;const tag=wn===P.equipped?" ✦":"";
+    const cost=wd[2]===0?40:(wd[2]+1)*P.level*20;const tag=wn===P.equipped?" ✦":"";
     if(wd[2]<maxT)addBtn("Upgrade: "+wn+tag+"  ("+cost+" gold)",()=>doUpgrade(wn),"btn-gold");
     else{const b=addBtn(wn+tag+"  [Masterwork]",()=>{});b.classList.add("btn-disabled");}}
   addBtn("Leave",town,"btn-red");}
 
 function doUpgrade(wn){const wd=P.inventory[wn];const maxT=WEAPON_MAX_TIER[wd[3]]||3;
-  const cost=wd[2]===0?40:(wd[2]+1)*P.level*25;
+  const cost=wd[2]===0?40:(wd[2]+1)*P.level*20;
   if(P.gold<cost){log("You cannot afford this upgrade.","lc-warn");return;}
   P.gold-=cost;const nup=wd[2]+1;const nn=UPGRADE_PREFIXES[wd[3]][nup];
   const wasEq=P.equipped===wn;delete P.inventory[wn];P.inventory[nn]=[wd[0]+1,wd[1]+1,nup,wd[3],wd[4]];
@@ -1089,10 +1196,32 @@ function witch(){clearLog();_logQ=[];setTitle("Witch's Hut");clearBtns();log("�
     addBtn("Leave",town,"btn-red");
   } else {
     log("✦ Mana: "+P.mana+" / "+P.max_mana,"lc-mag");
-    addBtn("Add Enchantment  (2 SP)",addEnchant,"btn-mag");addBtn("Upgrade Enchantment  (1 SP)",upgradeEnchant,"btn-mag");
-    addBtn("Study the Grimoire",grimoire);addBtn("Leave",town,"btn-red");}}
+    addBtn("Add Enchantment  (2 SP)",addEnchant,"btn-mag");
+    addBtn("Upgrade Enchantment  (1 SP)",upgradeEnchant,"btn-mag");
+    addBtn("Reset Skill Points  (1,000 gold)",doResetSP,"btn-red");
+    addBtn("Study the Grimoire",grimoire);
+    addBtn("Leave",town,"btn-red");}}
 
-function grimoire(){clearLog();_logQ=[];log("— The Grimoire —","lc-dim");
+function doResetSP(){
+  const COST=1000;
+  if(P.gold<COST){log("You need 1,000 gold to reset your skill points.","lc-warn");return;}
+  // Count all SP locked in enchants: 2 per enchant added, 1 per tier upgrade beyond T1
+  let refund=0;
+  for(const wd of Object.values(P.inventory)){
+    for(const t of Object.values(wd[4]||{})){
+      refund+=2;           // 2 SP to add
+      refund+=(t-1);       // 1 SP per upgrade beyond tier 1
+    }
+    wd[4]={};              // strip all enchants from this weapon
+  }
+  P.gold-=COST;
+  P.skill_points+=refund;
+  clearLog();_logQ=[];
+  log("✦ The Witch unravels your enchantments...","lc-mag");
+  log("  "+refund+" Skill Point"+(refund!==1?"s":"")+" restored.","lc-good");
+  log("  All enchantments have been removed.","lc-warn");
+  renderStatus();witch();
+}
   for(const[wt,es]of Object.entries(ENCHANTMENTS)){log("[ "+wt+" ]","lc-head");
     for(const[en,ed]of Object.entries(es)){log("  "+ed.icon+"  "+en+": "+ed.desc,"lc-info");log("    Tier 1: "+ed.t1.label+"  ·  Tier 2: "+ed.t2.label+"  ·  Tier 3: "+ed.t3.label,"lc-dim");}}
   witch();}
