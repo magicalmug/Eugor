@@ -1,5 +1,6 @@
 v0.2.04 - (Future Version)
 * Change "Town of Eugor" button to "Town of Efil"
+* Add submenus under the "Study the Grimoire" button in the Witche's Hut for "Fists, Daggers," etc for all weapons.
   
 v0.2.03 — 
 * Briar Fox HP reduced (24 → 20).
