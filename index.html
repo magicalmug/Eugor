@@ -932,6 +932,7 @@ function toggleChronicle(){
 }
 
 
+function setTitle(t){document.getElementById("action-title").textContent=t;}
 function clearBtns(){document.getElementById("btn-grid").innerHTML="";}
 function addBtn(label,cb,cls=""){
   const b=document.createElement("button");b.className="btn"+(cls?" "+cls:"");
