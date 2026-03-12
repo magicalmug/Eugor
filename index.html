@@ -1222,6 +1222,8 @@ function doResetSP(){
   log("  All enchantments have been removed.","lc-warn");
   renderStatus();witch();
 }
+
+function grimoire(){clearLog();_logQ=[];log("— The Grimoire —","lc-dim");
   for(const[wt,es]of Object.entries(ENCHANTMENTS)){log("[ "+wt+" ]","lc-head");
     for(const[en,ed]of Object.entries(es)){log("  "+ed.icon+"  "+en+": "+ed.desc,"lc-info");log("    Tier 1: "+ed.t1.label+"  ·  Tier 2: "+ed.t2.label+"  ·  Tier 3: "+ed.t3.label,"lc-dim");}}
   witch();}
