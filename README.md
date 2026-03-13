@@ -1,3 +1,9 @@
+v0.3.00 - (New Version)
+v0.2.05 — 
+* New game Chronicle intro text added.
+* Blacksmith and Beastmaster now greet the player.
+* Six new level-13 debug codes added.
+  
 v0.2.04 — 
 * Game renamed to Heroes of Eugor.
 * Town of Eugor renamed Town of Efil.
