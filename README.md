@@ -1,4 +1,4 @@
-v0.3.13 - (New Version)
+v0.3.13 - (New Version) 
 
 v0.3.12 — 
 * Regnad Desert gold drops reduced slightly.
