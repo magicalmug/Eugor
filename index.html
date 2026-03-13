@@ -753,26 +753,30 @@ body {
 // ════════════════════════════════════════════
 // DATA
 // ════════════════════════════════════════════
-const VERSION = "0.3.03";
+const VERSION = "0.3.1";
 const PATCH_NOTES = [
-  "v0.3.03 — Inn mana restore now scales with max mana (25%–100%).",
-  "  Mana fully restored on level-up.",
-  "  Armor crafting view highlights missing materials in red.",
-  "  Ancient Sphinx HP reduced to 240, damage range 40–45.",
+  "v0.3.1 — New enchantments: Twisting Blade (Sword), Blurred Images (Fists),",
+  "  Ravenous Poison (Dagger), Heart Strike (Spear).",
+  "  Furious Strike chance reduced to 15%/20%/30%.",
+  "  Biting Sand mana cost fixed to 2.",
+  "  Three new enchants require prerequisites to unlock.",
   "",
-  "v0.3.02 — Starting mana 25. Baby Dragon rebalanced.",
-  "  Oasis Phantom and Dune Stalker nerfed. Regnad Desert renamed.",
-  "  Arcane Shards added. Witch Mana Upgrade feature."
+  "v0.3.03 — Inn mana scales with max mana. Mana restored on level-up.",
+  "  Missing crafting materials shown in red. Ancient Sphinx nerfed."
 ];
 
 const ENCHANTMENTS = {
   Fists:{
     "Furious Strike":{icon:"🔥",desc:"Chance to strike a second time instantly.",cost:1,
-      t1:{chance:0.10,label:"10% extra strike"},t2:{chance:0.25,label:"25% extra strike"},t3:{chance:0.40,label:"40% extra strike"}},
+      t1:{chance:0.15,label:"15% extra strike"},t2:{chance:0.20,label:"20% extra strike"},t3:{chance:0.30,label:"30% extra strike"}},
     "Impact":{icon:"👊",desc:"Chance to reduce the damage of the next enemy attack.",cost:1,
       t1:{chance:0.10,dmg_reduce:3,label:"10% chance, -3 DMG"},t2:{chance:0.25,dmg_reduce:6,label:"25% chance, -6 DMG"},t3:{chance:0.40,dmg_reduce:9,label:"40% chance, -9 DMG"}},
     "Like Water":{icon:"💧",desc:"On being hit, chance to reduce all future DMG taken.",cost:2,
-      t1:{chance:0.03,label:"3% on hit: -1-2 DMG rest of fight"},t2:{chance:0.06,label:"6% on hit"},t3:{chance:0.09,label:"9% on hit"}}
+      t1:{chance:0.03,label:"3% on hit: -1-2 DMG rest of fight"},t2:{chance:0.06,label:"6% on hit"},t3:{chance:0.09,label:"9% on hit"}},
+    "Blurred Images":{icon:"🌫️",desc:"At fight start, chance to shroud yourself — reducing damage taken and retaliating when struck. Requires Furious Strike and Impact.",cost:3,prereqs:["Furious Strike","Impact"],
+      t1:{chance:0.25,dmg_reduce:3,retaliate:7,label:"25% on start: -3 DMG taken, +7 retaliate on hit"},
+      t2:{chance:0.50,dmg_reduce:5,retaliate:9,label:"50% on start: -5 DMG taken, +9 retaliate on hit"},
+      t3:{chance:0.75,dmg_reduce:7,retaliate:11,label:"75% on start: -7 DMG taken, +11 retaliate on hit"}}
   },
   Dagger:{
     "Envenom":{icon:"🧪",desc:"Deals poison damage on hit.",cost:1,
@@ -780,13 +784,21 @@ const ENCHANTMENTS = {
     "Debilitate":{icon:"🤢",desc:"Weakens enemy attack permanently.",cost:1,
       t1:{chance:0.20,atk_reduce:1,label:"20% chance, -1 ATK"},t2:{chance:0.40,atk_reduce:1,label:"40% chance"},t3:{chance:0.60,atk_reduce:1,label:"60% chance"}},
     "Blinding Toxin":{icon:"🕶️",desc:"10% on attack to blind; enemy attacks halved chance per hit.",cost:2,
-      t1:{proc_chance:0.10,half_chance:0.03,label:"10% blind: 3% half-DMG/attack"},t2:{proc_chance:0.10,half_chance:0.06,label:"6% half-DMG/attack"},t3:{proc_chance:0.10,half_chance:0.09,label:"9% half-DMG/attack"}}
+      t1:{proc_chance:0.10,half_chance:0.03,label:"10% blind: 3% half-DMG/attack"},t2:{proc_chance:0.10,half_chance:0.06,label:"6% half-DMG/attack"},t3:{proc_chance:0.10,half_chance:0.09,label:"9% half-DMG/attack"}},
+    "Ravenous Poison":{icon:"☠️",desc:"At fight start, 20% chance to stack envenom's poison on the target for the whole fight. Requires Envenom and Debilitate.",cost:3,prereqs:["Envenom","Debilitate"],
+      t1:{chance:0.20,stacks:1,label:"20% on start: 1 poison stack persists all fight"},
+      t2:{chance:0.20,stacks:2,label:"20% on start: 2 poison stacks persist all fight"},
+      t3:{chance:0.20,stacks:3,label:"20% on start: 3 poison stacks persist all fight"}}
   },
   Sword:{
     "Puncture":{icon:"🩸",desc:"Expands enemy ATK low range each hit.",cost:1,
       t1:{atk_neg_inc:1,label:"-1 ATK range/hit"},t2:{atk_neg_inc:2,label:"-2 ATK range/hit"},t3:{atk_neg_inc:3,label:"-3 ATK range/hit"}},
     "Bleed":{icon:"💉",desc:"Chance to inflict bleed damage each turn.",cost:1,
-      t1:{chance:0.30,dmg:1,label:"30% chance, 1 bleed/turn"},t2:{chance:0.30,dmg:2,label:"2 bleed/turn"},t3:{chance:0.30,dmg:3,label:"3 bleed/turn"}}
+      t1:{chance:0.30,dmg:1,label:"30% chance, 1 bleed/turn"},t2:{chance:0.30,dmg:2,label:"2 bleed/turn"},t3:{chance:0.30,dmg:3,label:"3 bleed/turn"}},
+    "Twisting Blade":{icon:"🌀",desc:"10% chance when struck to retaliate with a twist of the blade.",cost:2,
+      t1:{chance:0.10,dmg:[4,8],label:"10% on hit: return 4-8 damage"},
+      t2:{chance:0.10,dmg:[4,11],label:"10% on hit: return 4-11 damage"},
+      t3:{chance:0.10,dmg:[4,14],label:"10% on hit: return 4-14 damage"}}
   },
   Spear:{
     "Penetrating Strike":{icon:"🪓",desc:"Chance on attack to cause bleeding for 1 damage per turn.",cost:1,
@@ -797,10 +809,14 @@ const ENCHANTMENTS = {
       t1:{chance:0.15,mult:1.5,label:"15% chance, 1.5× damage (consumes bleed)"},
       t2:{chance:0.15,mult:1.75,label:"15% chance, 1.75× damage"},
       t3:{chance:0.15,mult:2.0,label:"15% chance, 2.0× damage"}},
-    "Biting Sand":{icon:"🏜️",desc:"10% chance on hit to mark the foe once per battle. Exploit Weakness may not consume the mark.",cost:0,
+    "Biting Sand":{icon:"🏜️",desc:"10% chance on hit to mark the foe once per battle. Exploit Weakness may not consume the mark.",cost:2,
       t1:{proc_chance:0.10,no_consume_chance:0.20,flat_bonus:10,label:"10% mark; 20% no-consume +10 bonus dmg"},
       t2:{proc_chance:0.10,no_consume_chance:0.25,flat_bonus:15,label:"25% no-consume +15 bonus dmg"},
-      t3:{proc_chance:0.10,no_consume_chance:0.30,flat_bonus:20,label:"30% no-consume +20 bonus dmg"}}
+      t3:{proc_chance:0.10,no_consume_chance:0.30,flat_bonus:20,label:"30% no-consume +20 bonus dmg"}},
+    "Heart Strike":{icon:"💘",desc:"At fight start, auto-applies Penetrating Strike bleed and boosts first Exploit Weakness chance. Requires Penetrating Strike and Exploit Weakness.",cost:3,prereqs:["Penetrating Strike","Exploit Weakness"],
+      t1:{ew_boost:0.25,label:"On start: auto-bleed at PS tier, first EW chance 25%"},
+      t2:{ew_boost:0.35,label:"On start: auto-bleed at PS tier, first EW chance 35%"},
+      t3:{ew_boost:0.45,label:"On start: auto-bleed at PS tier, first EW chance 45%"}}
   }
 };
 
@@ -812,6 +828,12 @@ const UPGRADE_PREFIXES = {
 };
 const WEAPON_MAX_TIER={Fists:5,Dagger:5,Sword:5,Spear:5};
 const ENCHANT_MIN_TIER=2;
+// Skills that require other enchants to be present on the same weapon first
+const ENCHANT_PREREQS={
+  "Blurred Images":["Furious Strike","Impact"],
+  "Ravenous Poison":["Envenom","Debilitate"],
+  "Heart Strike":["Penetrating Strike","Exploit Weakness"]
+};
 
 const M_DROPS={"Rabid Rabbit":"Rabbit Skin","Green Slime":"Slime Goo","Meadow Hawk":"Hawk Feather","Briar Fox":"Fox Fur","Alpha Wolf":"Wolf Pelt"};
 const CITY_DROPS={"Rusty Automaton":"Gear Fragment","Street Urchin":"Tattered Cloth","Steam Golem":"Steam Core","Ghost of Eugor":"Ectoplasm","Clockwork Tiger":"Tiger Fur"};
@@ -1072,6 +1094,35 @@ function runCombat(zid,onWin,onLose){
   if(P.pet)log("  "+PET_DEFS[P.pet.name].icon+" "+P.pet.name+" stands with you. (HP: "+P.pet.hp+")","lc-info");
   logSep();
 
+  // ── Fight-start enchant effects ──
+  if(P.awakened){
+    // Heart Strike (Spear): auto-apply pen bleed + boost first EW
+    if(wtype==="Spear"&&enchants["Heart Strike"]&&P.mana>=3){
+      const hst=enchants["Heart Strike"];const hsd=ENCHANTMENTS.Spear["Heart Strike"]["t"+hst];
+      P.mana-=3;
+      const pst=enchants["Penetrating Strike"];
+      if(pst){const psd=ENCHANTMENTS.Spear["Penetrating Strike"]["t"+pst];cs.pen_bleed_turns=(cs.pen_bleed_turns||0)+psd.turns;cs.pen_bleed_dmg=1;}
+      else{cs.pen_bleed_turns=1;cs.pen_bleed_dmg=1;}
+      cs.heart_strike_first_ew=true;cs.heart_strike_ew_boost=hsd.ew_boost;
+      log("  💘 Heart Strike! Bleed applied before battle begins. First Exploit Weakness: "+(hsd.ew_boost*100)+"% chance. (Mana: "+P.mana+")","lc-mag");
+    }
+    // Blurred Images (Fists): chance at fight start to reduce DMG taken + set retaliate
+    if(wtype==="Fists"&&enchants["Blurred Images"]&&P.mana>=3){
+      const bit=enchants["Blurred Images"];const bid=ENCHANTMENTS.Fists["Blurred Images"]["t"+bit];
+      if(roll(bid.chance)){P.mana-=3;cs.blurred=true;cs.blurred_reduce=bid.dmg_reduce;cs.blurred_retaliate=bid.retaliate;
+        log("  🌫️ Blurred Images! You become a shimmer — "+bid.dmg_reduce+" less DMG taken, "+bid.retaliate+" retaliate on each hit. (Mana: "+P.mana+")","lc-mag");}
+    }
+    // Ravenous Poison (Dagger): chance at fight start to pre-stack envenom
+    if(wtype==="Dagger"&&enchants["Ravenous Poison"]&&P.mana>=3){
+      const rpt=enchants["Ravenous Poison"];const rpd=ENCHANTMENTS.Dagger["Ravenous Poison"]["t"+rpt];
+      if(roll(rpd.chance)){P.mana-=3;
+        const evt=enchants["Envenom"];const evd=evt?ENCHANTMENTS.Dagger["Envenom"]["t"+evt]:null;
+        const stackDmg=evd?rnd(...evd.dmg):rnd(2,5);
+        cs.raven_stacks=rpd.stacks;cs.raven_dmg=stackDmg;
+        log("  ☠️ Ravenous Poison! "+rpd.stacks+" poison stack"+(rpd.stacks>1?"s":"")+" ("+stackDmg+" dmg/turn) seep into the foe. (Mana: "+P.mana+")","lc-mag");}
+    }
+  }
+
   function applyEnchants(){
     let extra=0;if(!P.awakened)return extra;
     for(const[en,tier]of Object.entries(enchants)){
@@ -1092,15 +1143,16 @@ function runCombat(zid,onWin,onLose){
       if(P.mana>=1&&roll(ed.chance)){P.mana-=1;cs.pen_bleed_dmg=1;cs.pen_bleed_turns=(cs.pen_bleed_turns||0)+ed.turns;
         log("  🪓 Penetrating Strike! Bleeding "+ed.turns+" turn(s). (Mana: "+P.mana+")","lc-dmg");}
     }
-    // Spear: Biting Sand (passive mark, 0 mana)
+    // Spear: Biting Sand (2 mana, once per battle)
     if(wtype==="Spear"&&enchants["Biting Sand"]&&!cs.sand_marked){
       const t=enchants["Biting Sand"];const ed=ENCHANTMENTS.Spear["Biting Sand"]["t"+t];
-      if(roll(ed.proc_chance)){cs.sand_marked=true;log("  🏜️ Biting Sand! The foe is marked!","lc-warn");}
+      if(P.mana>=2&&roll(ed.proc_chance)){P.mana-=2;cs.sand_marked=true;log("  🏜️ Biting Sand! The foe is marked! (Mana: "+P.mana+")","lc-warn");}
     }
     // Spear: Exploit Weakness
     if(wtype==="Spear"&&enchants["Exploit Weakness"]&&(cs.pen_bleed_turns||0)>0){
       const t=enchants["Exploit Weakness"];const ed=ENCHANTMENTS.Spear["Exploit Weakness"]["t"+t];
-      if(P.mana>=1&&roll(ed.chance)){P.mana-=1;
+      const ewChance=cs.heart_strike_first_ew?(cs.heart_strike_ew_boost||ed.chance):ed.chance;
+      if(P.mana>=1&&roll(ewChance)){P.mana-=1;cs.heart_strike_first_ew=false;
         let sandBonus=0;let consumed=true;
         if(cs.sand_marked&&enchants["Biting Sand"]){
           const st=enchants["Biting Sand"];const sed=ENCHANTMENTS.Spear["Biting Sand"]["t"+st];
@@ -1153,16 +1205,25 @@ function runCombat(zid,onWin,onLose){
     if(monster.hp<=0){finish();return;}
     if(cs.bleed>0){monster.hp-=cs.bleed;log("  💉 Bleed: "+cs.bleed+" damage seeps. "+monster.name+": "+Math.max(0,monster.hp)+" HP","lc-dmg");if(monster.hp<=0){finish();return;}}
     if((cs.pen_bleed_turns||0)>0){monster.hp-=1;cs.pen_bleed_turns--;log("  🪓 Penetrating bleed: 1 damage. "+monster.name+": "+Math.max(0,monster.hp)+" HP  ("+cs.pen_bleed_turns+" turn(s) left)","lc-dmg");if(monster.hp<=0){finish();return;}}
+    if((cs.raven_stacks||0)>0){const rtot=cs.raven_stacks*cs.raven_dmg;monster.hp-=rtot;log("  ☠️ Ravenous Poison: "+rtot+" damage ("+cs.raven_stacks+"×"+cs.raven_dmg+"). "+monster.name+": "+Math.max(0,monster.hp)+" HP","lc-dmg");if(monster.hp<=0){finish();return;}}
     if((cs.burn_stacks||0)>0&&(cs.burn_turns||0)>0){const bt=cs.burn_stacks*cs.burn_dmg;monster.hp-=bt;cs.burn_turns--;if(cs.burn_turns<=0)cs.burn_stacks=0;log("  🔥 Burning: "+bt+" damage. "+monster.name+": "+Math.max(0,monster.hp)+" HP","lc-dmg");if(monster.hp<=0){finish();return;}}
     const mlo=Math.max(1,monster.atk_lo);let mdmg=rnd(mlo,monster.atk_hi);
     if(roll(zone.crit)){mdmg=Math.floor(mdmg*1.5);log("  💥 Critical blow!","lc-dmg");}
     if(cs.blind&&roll(cs.blind_chance)){mdmg=Math.max(1,Math.floor(mdmg/2));log("  🕶️ Blinded! The foe's strike loses half its force.","lc-warn");}
     if((cs.impact||0)>0){mdmg=Math.max(1,mdmg-cs.impact);log("  👊 Impact shield absorbs "+cs.impact+" damage.","lc-info");cs.impact=0;}
     mdmg=petOnHit(mdmg);
-    const red=totalReduction(P);const lw=cs.lw||0;const final=Math.max(0,mdmg-red-lw);
+    const blurRed=cs.blurred?(cs.blurred_reduce||0):0;
+    const red=totalReduction(P);const lw=cs.lw||0;const final=Math.max(0,mdmg-red-lw-blurRed);
     P.hp-=final;
-    let dl="🩸 You take "+final+" damage";if(red||lw)dl+=" (blocked "+red;if(lw)dl+=", ward -"+lw;if(red||lw)dl+=")";dl+=".  You: "+Math.max(0,P.hp)+" HP";
+    let dl="🩸 You take "+final+" damage";if(red||lw||blurRed)dl+=" (blocked "+(red+blurRed);if(lw)dl+=", ward -"+lw;if(red||lw||blurRed)dl+=")";dl+=".  You: "+Math.max(0,P.hp)+" HP";
     log(dl,final>0?"lc-dmg":"lc-good");
+    // Twisting Blade: chance to retaliate when struck
+    if(wtype==="Sword"&&enchants["Twisting Blade"]&&P.awakened){
+      const tbt=enchants["Twisting Blade"];const tbd=ENCHANTMENTS.Sword["Twisting Blade"]["t"+tbt];
+      if(P.mana>=2&&roll(tbd.chance)){P.mana-=2;const td2=rnd(...tbd.dmg);monster.hp-=td2;log("  🌀 Twisting Blade retaliates! "+td2+" damage to "+monster.name+"! ("+Math.max(0,monster.hp)+" HP, Mana: "+P.mana+")","lc-good");if(monster.hp<=0){finish();return;}}
+    }
+    // Blurred Images: retaliate on each hit
+    if(cs.blurred&&(cs.blurred_retaliate||0)>0){monster.hp-=cs.blurred_retaliate;log("  🌫️ Blurred Images retaliates! "+cs.blurred_retaliate+" damage to "+monster.name+"! ("+Math.max(0,monster.hp)+" HP)","lc-good");if(monster.hp<=0){finish();return;}}
     likeWater();
     if(isMeadowsDone(P)&&roll(0.30)){const h=rnd(1,4);P.hp=Math.min(P.max_hp,P.hp+h);log("  ✦ Fur Set blessing — recovered "+h+" HP. (You: "+P.hp+")","lc-good");}
     if(isDesertDone(P)&&!cs.sand_shield&&roll(0.10)){cs.sand_shield=true;log("  🏜️ Sandwrapped Set — next hit reduced by 2–8!","lc-info");}
@@ -1376,7 +1437,7 @@ function grimoireWeapon(wt){clearLog();_logQ=[];setTitle("Grimoire — "+wt);cle
   logSep();
   const es=ENCHANTMENTS[wt];
   for(const[en,ed]of Object.entries(es)){
-    log("  "+ed.icon+"  "+en+"  ("+ed.cost+" mana / attack)","lc-info");
+    log("  "+ed.icon+"  "+en+"  ("+ed.cost+" mana / attack)"+(ed.prereqs?"  ·  Requires: "+ed.prereqs.join(", "):""),"lc-info");
     log("  "+ed.desc,"lc-default");
     log("    ▸ Tier 1:  "+ed.t1.label,"lc-dim");
     log("    ▸ Tier 2:  "+ed.t2.label,"lc-dim");
@@ -1390,8 +1451,17 @@ function addEnchant(){if(P.skill_points<2){log("You need 2 Skill Points.","lc-wa
   const elig=Object.entries(P.inventory).filter(([,w])=>w[2]>=ENCHANT_MIN_TIER&&ENCHANTMENTS[w[3]]);
   if(!elig.length){log("No eligible weapons. Upgrade to tier 2 first.","lc-warn");witch();return;}
   clearLog();_logQ=[];setTitle("Add Enchantment");clearBtns();
-  for(const[wn,wd]of elig){const wt=wd[3];const avail=Object.keys(ENCHANTMENTS[wt]).filter(e=>!wd[4][e]);
-    for(const en of avail){const ed=ENCHANTMENTS[wt][en];addBtn(ed.icon+"  "+en+"  →  "+wn+"  (2 SP)",()=>{P.skill_points-=2;P.inventory[wn][4][en]=1;clearLog();_logQ=[];log(ed.icon+" "+en+" inscribed upon "+wn+".","lc-mag");renderStatus();witch();},"btn-mag");}}
+  let any=false;
+  for(const[wn,wd]of elig){const wt=wd[3];
+    const avail=Object.keys(ENCHANTMENTS[wt]).filter(e=>{
+      if(wd[4][e])return false;// already have it
+      const prereqs=ENCHANTMENTS[wt][e].prereqs;
+      if(prereqs&&!prereqs.every(p=>wd[4][p]))return false;// prereqs not met
+      return true;});
+    for(const en of avail){any=true;const ed=ENCHANTMENTS[wt][en];
+      const prereqNote=ed.prereqs?" (requires "+ed.prereqs.join(", ")+")":"";
+      addBtn(ed.icon+"  "+en+"  →  "+wn+"  (2 SP)"+prereqNote,()=>{P.skill_points-=2;P.inventory[wn][4][en]=1;clearLog();_logQ=[];log(ed.icon+" "+en+" inscribed upon "+wn+".","lc-mag");renderStatus();witch();},"btn-mag");}}
+  if(!any)log("No enchantments available to add. Meet prerequisites or upgrade your weapon.","lc-dim");
   addBtn("Cancel",witch,"btn-red");}
 
 function upgradeEnchant(){if(P.skill_points<1){log("You need 1 Skill Point.","lc-warn");witch();return;}
