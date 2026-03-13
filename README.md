@@ -1,3 +1,6 @@
+v0.3.01 - (New Version)
+* 
+
 v0.3.00 — 
 * Renamed to Legends of Eugor.
 * New weapon: Dull Spear (T0–T5) with 3 unique enchantments.
@@ -36,7 +39,4 @@ v0.2.02 —
 v0.2.1 — Meadows Fur Set gold costs reduced.
 * XP for levels 1–6 slightly increased.
 * Weapon upgrade cost per level reduced.
-  
-**** DEBUG *****
-seven-fists
-seven-daggers
+
