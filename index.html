@@ -750,18 +750,16 @@ body {
 // ════════════════════════════════════════════
 // DATA
 // ════════════════════════════════════════════
-const VERSION = "0.3.00";
+const VERSION = "0.3.01";
 const PATCH_NOTES = [
-  "v0.3.00 — Renamed to Legends of Eugor.",
-  "  New weapon: Dull Spear (T0–T5) with 3 unique enchantments.",
-  "  All weapons now upgrade to Tier 5.",
-  "  Desert Bestiary expanded: 3 common, 2 rare, 1 legendary.",
-  "  New crafting set: Sandwrapped Armor (desert materials).",
-  "  System Debug renamed System Test with guided passphrase menu.",
-  "  Tattered Cloth drop rate increased.",
+  "v0.3.01 — All monsters now have explicit damage ranges (atk_lo–atk_hi).",
+  "  Sand Worm HP and damage reduced.",
+  "  System Test: Spear removed from L13 weapons; Sandwrapped removed from armor.",
+  "  System Test: No enchants pre-assigned; full SP awarded to spend freely.",
   "",
-  "v0.2.05 — New game Chronicle intro. Blacksmith & Beastmaster greetings.",
-  "  Six level-13 debug codes. Bestiary notices now persist in Chronicle."
+  "v0.3.00 — Renamed to Legends of Eugor. Dull Spear weapon added.",
+  "  All weapons upgraded to Tier 5. Desert Bestiary expanded.",
+  "  Sandwrapped Armor set added. System Test menu added."
 ];
 
 const ENCHANTMENTS = {
@@ -825,24 +823,29 @@ const DESERT_PIECES=new Set(["Sand Veil","Sandwrapped Chest","Sand Gauntlets","S
 
 const ZONES={
   "1":{name:"The Meadows",range:"Lv 1–6",crit:0.05,monsters:[
-    {name:"Rabid Rabbit",hp:14,atk:4,xp:25,gold:10,w:40},{name:"Green Slime",hp:18,atk:3,xp:30,gold:12,w:38},
-    {name:"Meadow Hawk",hp:26,atk:7,xp:60,gold:28,w:13},{name:"Briar Fox",hp:20,atk:8,xp:55,gold:32,w:15},
-    {name:"Alpha Wolf",hp:30,atk:9,xp:150,gold:58,w:2}]},
+    {name:"Rabid Rabbit",hp:14,atk_lo:2,atk_hi:6,xp:25,gold:10,w:40},
+    {name:"Green Slime",hp:18,atk_lo:1,atk_hi:5,xp:30,gold:12,w:38},
+    {name:"Meadow Hawk",hp:26,atk_lo:5,atk_hi:9,xp:60,gold:28,w:13},
+    {name:"Briar Fox",hp:20,atk_lo:6,atk_hi:10,xp:55,gold:32,w:15},
+    {name:"Alpha Wolf",hp:30,atk_lo:7,atk_hi:11,xp:150,gold:58,w:2}]},
   "2":{name:"Abandoned City",range:"Lv 7–12",crit:0.10,monsters:[
-    {name:"Rusty Automaton",hp:38,atk:10,xp:140,gold:42,w:30},{name:"Street Urchin",hp:32,atk:12,xp:120,gold:52,w:30},
-    {name:"Steam Golem",hp:55,atk:14,xp:180,gold:65,w:25},{name:"Ghost of Eugor",hp:70,atk:16,xp:300,gold:110,w:10},
-    {name:"Clockwork Tiger",hp:110,atk:15,xp:800,gold:300,w:5}]},
+    {name:"Rusty Automaton",hp:38,atk_lo:8,atk_hi:12,xp:140,gold:42,w:30},
+    {name:"Street Urchin",hp:32,atk_lo:10,atk_hi:14,xp:120,gold:52,w:30},
+    {name:"Steam Golem",hp:55,atk_lo:12,atk_hi:16,xp:180,gold:65,w:25},
+    {name:"Ghost of Eugor",hp:70,atk_lo:14,atk_hi:18,xp:300,gold:110,w:10},
+    {name:"Clockwork Tiger",hp:110,atk_lo:13,atk_hi:17,xp:800,gold:300,w:5}]},
   "3":{name:"Dangerous Desert",range:"Lv 13–18",crit:0.15,monsters:[
-    {name:"Sand Worm",hp:110,atk:25,xp:400,gold:130,w:25},
-    {name:"Scorpion Crawler",hp:55,atk:18,xp:260,gold:90,w:30},
-    {name:"Desert Viper",hp:45,atk:22,xp:290,gold:100,w:25},
-    {name:"Oasis Phantom",hp:140,atk:35,xp:900,gold:340,w:10},
-    {name:"Dune Stalker",hp:200,atk:40,xp:1400,gold:520,w:7},
-    {name:"Ancient Sphinx",hp:320,atk:45,xp:2000,gold:900,w:3}]},
+    {name:"Sand Worm",hp:85,atk_lo:18,atk_hi:26,xp:400,gold:130,w:25},
+    {name:"Scorpion Crawler",hp:55,atk_lo:16,atk_hi:20,xp:260,gold:90,w:30},
+    {name:"Desert Viper",hp:45,atk_lo:19,atk_hi:25,xp:290,gold:100,w:25},
+    {name:"Oasis Phantom",hp:140,atk_lo:30,atk_hi:40,xp:900,gold:340,w:10},
+    {name:"Dune Stalker",hp:200,atk_lo:35,atk_hi:45,xp:1400,gold:520,w:7},
+    {name:"Ancient Sphinx",hp:320,atk_lo:38,atk_hi:52,xp:2000,gold:900,w:3}]},
   "4":{name:"The Dungeon",range:"Lv 19–24",crit:0.20,monsters:[
-    {name:"Dark Knight",hp:280,atk:55,xp:1200,gold:450,w:40},{name:"The Lich King",hp:850,atk:100,xp:6500,gold:4500,w:2}]},
+    {name:"Dark Knight",hp:280,atk_lo:48,atk_hi:62,xp:1200,gold:450,w:40},
+    {name:"The Lich King",hp:850,atk_lo:88,atk_hi:112,xp:6500,gold:4500,w:2}]},
   "5":{name:"Abyssal Fire",range:"Lv 25–30",crit:0.30,monsters:[
-    {name:"Abyssal Leviathan",hp:5000,atk:450,xp:80000,gold:50000,w:5}]}
+    {name:"Abyssal Leviathan",hp:5000,atk_lo:400,atk_hi:500,xp:80000,gold:50000,w:5}]}
 };
 
 const MEADOWS_RECIPES={
@@ -1051,14 +1054,14 @@ function runCombat(zid,onWin,onLose){
     let extra=0;if(!P.awakened)return extra;
     for(const[en,tier]of Object.entries(enchants)){
       const ed=ENCHANTMENTS[wtype]?.[en];if(!ed)continue;const td=ed["t"+tier];if(P.mana<ed.cost)continue;
-      if(en==="Puncture"){P.mana-=ed.cost;cs.puncture=(cs.puncture||0)+td.atk_neg_inc;log("  🩸 Puncture strikes! Enemy range -"+cs.puncture+" (Mana: "+P.mana+")","lc-info");}
+      if(en==="Puncture"){P.mana-=ed.cost;cs.puncture=(cs.puncture||0)+td.atk_neg_inc;monster.atk_lo=Math.max(1,monster.atk_lo-td.atk_neg_inc);log("  🩸 Puncture strikes! Enemy low range now "+monster.atk_lo+" (Mana: "+P.mana+")","lc-info");}
       else if(en==="Bleed"){if(roll(td.chance)){P.mana-=ed.cost;cs.bleed=(cs.bleed||0)+td.dmg;log("  💉 Bleed inflicted! +"+td.dmg+"/turn (Total: "+cs.bleed+") (Mana: "+P.mana+")","lc-dmg");}}
       else if(en==="Impact"){if(roll(td.chance)){P.mana-=ed.cost;cs.impact=(cs.impact||0)+td.dmg_reduce;log("  👊 Impact! Next attack reduced by "+td.dmg_reduce+" (Mana: "+P.mana+")","lc-info");}}
       else if(en==="Blinding Toxin"){if(!cs.blind&&roll(td.proc_chance)){P.mana-=ed.cost;cs.blind=true;cs.blind_chance=td.half_chance;log("  🕶️ Blinding Toxin! Foe has "+Math.round(td.half_chance*100)+"% chance each strike to deal half damage! (Mana: "+P.mana+")","lc-warn");}}
       else if(roll(td.chance||0)){P.mana-=ed.cost;
         if(en==="Furious Strike"){const b=rnd(weap[0],weap[1]);extra+=b;log("  🔥 Furious Strike! +"+b+" damage (Mana: "+P.mana+")","lc-good");}
         else if(en==="Envenom"){const d=rnd(...td.dmg);extra+=d;log("  🧪 Envenom! +"+d+" poison damage (Mana: "+P.mana+")","lc-good");}
-        else if(en==="Debilitate"){monster.atk=Math.max(0,monster.atk-td.atk_reduce);log("  🤢 Debilitate! Foe's attack reduced to "+monster.atk+" (Mana: "+P.mana+")","lc-info");}
+        else if(en==="Debilitate"){monster.atk_lo=Math.max(0,monster.atk_lo-td.atk_reduce);monster.atk_hi=Math.max(1,monster.atk_hi-td.atk_reduce);log("  🤢 Debilitate! Foe's attack reduced (now "+monster.atk_lo+"–"+monster.atk_hi+") (Mana: "+P.mana+")","lc-info");}
       }
     }
     // Spear: Penetrating Strike
@@ -1129,7 +1132,7 @@ function runCombat(zid,onWin,onLose){
     if(cs.bleed>0){monster.hp-=cs.bleed;log("  💉 Bleed: "+cs.bleed+" damage seeps. "+monster.name+": "+Math.max(0,monster.hp)+" HP","lc-dmg");if(monster.hp<=0){finish();return;}}
     if((cs.pen_bleed_turns||0)>0){monster.hp-=1;cs.pen_bleed_turns--;log("  🪓 Penetrating bleed: 1 damage. "+monster.name+": "+Math.max(0,monster.hp)+" HP  ("+cs.pen_bleed_turns+" turn(s) left)","lc-dmg");if(monster.hp<=0){finish();return;}}
     if((cs.burn_stacks||0)>0&&(cs.burn_turns||0)>0){const bt=cs.burn_stacks*cs.burn_dmg;monster.hp-=bt;cs.burn_turns--;if(cs.burn_turns<=0)cs.burn_stacks=0;log("  🔥 Burning: "+bt+" damage. "+monster.name+": "+Math.max(0,monster.hp)+" HP","lc-dmg");if(monster.hp<=0){finish();return;}}
-    const punct=cs.puncture||0;const mlo=Math.max(1,monster.atk-2-punct);let mdmg=rnd(mlo,monster.atk+2);
+    const mlo=Math.max(1,monster.atk_lo);let mdmg=rnd(mlo,monster.atk_hi);
     if(roll(zone.crit)){mdmg=Math.floor(mdmg*1.5);log("  💥 Critical blow!","lc-dmg");}
     if(cs.blind&&roll(cs.blind_chance)){mdmg=Math.max(1,Math.floor(mdmg/2));log("  🕶️ Blinded! The foe's strike loses half its force.","lc-warn");}
     if((cs.impact||0)>0){mdmg=Math.max(1,mdmg-cs.impact);log("  👊 Impact shield absorbs "+cs.impact+" damage.","lc-info");cs.impact=0;}
@@ -1243,7 +1246,7 @@ function showZoneInLog(zid){
   for(const m of z.monsters){
     if(P.seen_monsters.has(m.name)){
       log(m.name,"lc-info");
-      log("  Health: "+m.hp+"   Attack: "+m.atk+"   XP: "+m.xp,"lc-dim");
+      log("  Health: "+m.hp+"   Attack: "+m.atk_lo+"–"+m.atk_hi+"   XP: "+m.xp,"lc-dim");
     } else {
       log(m.name+":  not yet encountered","lc-dim");
     }
@@ -1427,11 +1430,10 @@ function stLevel(){
 function stWeapon(lvl){
   clearLog();_logQ=[];setTitle("System Test — Weapon");clearBtns();
   log("Select a weapon (Tier 3):","lc-dim");
-  addBtn("🤛 Fists  —  Iron Tempest  (4–7)",()=>stArmor(lvl,"Iron Tempest",[4,7,3,"Fists",{"Furious Strike":3,"Impact":3}]));
-  addBtn("🗡 Dagger  —  Venom Fang  (5–8)",()=>stArmor(lvl,"Venom Fang",[5,8,3,"Dagger",{"Envenom":3,"Debilitate":3}]));
+  addBtn("🤛 Fists  —  Iron Tempest  (4–7)",()=>stArmor(lvl,"Iron Tempest",[4,7,3,"Fists",{}]));
+  addBtn("🗡 Dagger  —  Venom Fang  (5–8)",()=>stArmor(lvl,"Venom Fang",[5,8,3,"Dagger",{}]));
   if(lvl>=13){
-    addBtn("⚔ Sword  —  Royal Claymore  (7–11)",()=>stPet(lvl,"Royal Claymore",[7,11,3,"Sword",{"Puncture":3,"Bleed":3}]));
-    addBtn("🪓 Spear  —  Barbed Spear  (6–9)",()=>stPet(lvl,"Barbed Spear",[6,9,3,"Spear",{"Penetrating Strike":3,"Exploit Weakness":3}]));
+    addBtn("⚔ Sword  —  Royal Claymore  (7–11)",()=>stPet(lvl,"Royal Claymore",[7,11,3,"Sword",{}]));
   }
   addBtn("Back",()=>stLevel(),"btn-red");
 }
@@ -1452,7 +1454,6 @@ function stArmor(lvl,wn,wd,pet){
   addBtn("🌿 Meadows Fur Set",()=>stApply(lvl,wn,wd,pet,"meadows"));
   if(lvl>=13){
     addBtn("🛡 City Guard Set",()=>stApply(lvl,wn,wd,pet,"city"));
-    addBtn("🏜️ Sandwrapped Armor",()=>stApply(lvl,wn,wd,pet,"desert"));
   }
   addBtn("Back",()=>{lvl>=13?stPet(lvl,wn,wd):stWeapon(lvl);},"btn-red");
 }
@@ -1460,8 +1461,8 @@ function stArmor(lvl,wn,wd,pet){
 function stApply(lvl,wn,wd,pet,armorKey){
   const baseHp=75+(lvl-1)*15;
   P.level=lvl;P.base_max_hp=baseHp;P.xp=0;P.gold=1700;
-  // SP: 1 per level gained (lvl-1), minus 8 spent on 2 T3 enchants (2+1+1 each)
-  P.skill_points=Math.max(0,(lvl-1)-8);
+  // All SP awarded — no enchants pre-assigned, player spends them
+  P.skill_points=lvl-1;
   P.awakened=true;P.mana=20;P.max_mana=20;
   P.last_zone=lvl>=13?"3":lvl>=7?"2":"1";
   P.has_sapphire_amulet=false;P.craftsman_met=true;P.pets_unlocked=(lvl>=13);
