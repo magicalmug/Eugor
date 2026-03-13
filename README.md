@@ -1,4 +1,10 @@
-v0.3.04 - (New Version)
+v0.3.11 - (New Version)
+
+v0.3.1 — 
+* New enchantments: Twisting Blade (Sword), Blurred Images (Fists), Ravenous Poison (Dagger), Heart Strike (Spear).
+* Furious Strike chance reduced to 15%/20%/30%.
+* Biting Sand mana cost fixed to 2.
+* Three new enchants require prerequisites to unlock
 
 v0.3.03 — 
 * Inn mana restore now scales with max mana (25%–100%).
