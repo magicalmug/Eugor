@@ -1,4 +1,13 @@
-v0.3.13 - (New Version) 
+v0.3.14 - New Version
+* for the patch notes, put the version (v0.3.14 for this version) in black font, and start the changes on a new line.  Do this for all versions.
+* 
+
+v0.3.13 — 
+* Empty name defaults to 'Hero'.
+* Ancient Sphinx HP 220, damage 36–40.
+* Oasis Phantom HP 130, damage 28–32.
+* Dune Stalker damage 32–36.
+* System Test pet HP now derived from game data (bug fix).
 
 v0.3.12 — 
 * Regnad Desert gold drops reduced slightly.
