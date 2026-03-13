@@ -1,4 +1,18 @@
-v0.3.11 - (New Version)
+v0.3.13 - (New Version)
+
+v0.3.12 — 
+* Regnad Desert gold drops reduced slightly.
+* Desert common/rare material drop rate increased to 60%.
+* Legendary monsters guarantee their material on first kill (all zones).
+* Furious Strike bonus damage is now a range: 1–4 / 2–6 / 3–9.
+* Scorpion Crawler HP 60, Desert Viper HP 70.
+
+v0.3.11 — 
+* Furious Strike: +4/6/9 bonus damage on proc (T1/T2/T3).
+* Impact: damage reduction increased to 4/8/12.
+* Like Water: T2 reduces 2–4 DMG, T3 reduces 4–6 DMG.
+* Baby Dragon max HP fixed to 75 at T2. Block is now 50% chance.
+* Elfish Sprite heal chance increased to 20%.
 
 v0.3.1 — 
 * New enchantments: Twisting Blade (Sword), Blurred Images (Fists), Ravenous Poison (Dagger), Heart Strike (Spear).
