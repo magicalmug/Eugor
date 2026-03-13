@@ -757,7 +757,6 @@ const VERSION = "0.3.1";
 const PATCH_NOTES = [
   "v0.3.1 — New enchantments: Twisting Blade (Sword), Blurred Images (Fists),",
   "  Ravenous Poison (Dagger), Heart Strike (Spear).",
-  "  Furious Strike chance reduced to 15%/20%/30%.",
   "  Biting Sand mana cost fixed to 2.",
   "  Three new enchants require prerequisites to unlock.",
   "",
@@ -768,7 +767,7 @@ const PATCH_NOTES = [
 const ENCHANTMENTS = {
   Fists:{
     "Furious Strike":{icon:"🔥",desc:"Chance to strike a second time instantly.",cost:1,
-      t1:{chance:0.15,label:"15% extra strike"},t2:{chance:0.20,label:"20% extra strike"},t3:{chance:0.30,label:"30% extra strike"}},
+      t1:{chance:0.10,label:"10% extra strike"},t2:{chance:0.25,label:"25% extra strike"},t3:{chance:0.40,label:"40% extra strike"}},
     "Impact":{icon:"👊",desc:"Chance to reduce the damage of the next enemy attack.",cost:1,
       t1:{chance:0.10,dmg_reduce:3,label:"10% chance, -3 DMG"},t2:{chance:0.25,dmg_reduce:6,label:"25% chance, -6 DMG"},t3:{chance:0.40,dmg_reduce:9,label:"40% chance, -9 DMG"}},
     "Like Water":{icon:"💧",desc:"On being hit, chance to reduce all future DMG taken.",cost:2,
