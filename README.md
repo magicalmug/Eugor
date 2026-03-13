@@ -1,5 +1,8 @@
 v0.3.01 - (New Version)
-* 
+* Remove Spear from level 13 system test menu when selecting a weapon
+* Remove Sandwrapped Armor from level 13 system test when selecting armor
+* Don't choose any skills for me in the system test, just assign the appropriate number of skill points.
+* Slightly reduce the damage dealt and HP of the Sand Worm in the Desert
 
 v0.3.00 — 
 * Renamed to Legends of Eugor.
