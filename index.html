@@ -753,25 +753,27 @@ body {
 // ════════════════════════════════════════════
 // DATA
 // ════════════════════════════════════════════
-const VERSION = "0.3.1";
+const VERSION = "0.3.11";
 const PATCH_NOTES = [
-  "v0.3.1 — New enchantments: Twisting Blade (Sword), Blurred Images (Fists),",
-  "  Ravenous Poison (Dagger), Heart Strike (Spear).",
-  "  Biting Sand mana cost fixed to 2.",
-  "  Three new enchants require prerequisites to unlock.",
+  "v0.3.11 — Furious Strike: +4/6/9 bonus damage on proc (T1/T2/T3).",
+  "  Impact: damage reduction increased to 4/8/12.",
+  "  Like Water: T2 reduces 2–4 DMG, T3 reduces 4–6 DMG.",
+  "  Baby Dragon max HP fixed to 75 at T2. Block is now 50% chance.",
+  "  Elfish Sprite heal chance increased to 20%.",
   "",
-  "v0.3.03 — Inn mana scales with max mana. Mana restored on level-up.",
-  "  Missing crafting materials shown in red. Ancient Sphinx nerfed."
+  "v0.3.1 — New enchantments: Twisting Blade, Blurred Images,",
+  "  Ravenous Poison, Heart Strike. Biting Sand cost fixed to 2.",
+  "  New enchants require prerequisites to unlock."
 ];
 
 const ENCHANTMENTS = {
   Fists:{
-    "Furious Strike":{icon:"🔥",desc:"Chance to strike a second time instantly.",cost:1,
-      t1:{chance:0.10,label:"10% extra strike"},t2:{chance:0.25,label:"25% extra strike"},t3:{chance:0.40,label:"40% extra strike"}},
+    "Furious Strike":{icon:"🔥",desc:"Chance to strike a second time instantly, dealing bonus damage.",cost:1,
+      t1:{chance:0.10,bonus_dmg:4,label:"10% extra strike +4 bonus dmg"},t2:{chance:0.25,bonus_dmg:6,label:"25% extra strike +6 bonus dmg"},t3:{chance:0.40,bonus_dmg:9,label:"40% extra strike +9 bonus dmg"}},
     "Impact":{icon:"👊",desc:"Chance to reduce the damage of the next enemy attack.",cost:1,
-      t1:{chance:0.10,dmg_reduce:3,label:"10% chance, -3 DMG"},t2:{chance:0.25,dmg_reduce:6,label:"25% chance, -6 DMG"},t3:{chance:0.40,dmg_reduce:9,label:"40% chance, -9 DMG"}},
+      t1:{chance:0.10,dmg_reduce:4,label:"10% chance, -4 DMG"},t2:{chance:0.25,dmg_reduce:8,label:"25% chance, -8 DMG"},t3:{chance:0.40,dmg_reduce:12,label:"40% chance, -12 DMG"}},
     "Like Water":{icon:"💧",desc:"On being hit, chance to reduce all future DMG taken.",cost:2,
-      t1:{chance:0.03,label:"3% on hit: -1-2 DMG rest of fight"},t2:{chance:0.06,label:"6% on hit"},t3:{chance:0.09,label:"9% on hit"}},
+      t1:{chance:0.03,reduce:[1,2],label:"3% on hit: -1–2 DMG rest of fight"},t2:{chance:0.06,reduce:[2,4],label:"6% on hit: -2–4 DMG rest of fight"},t3:{chance:0.09,reduce:[4,6],label:"9% on hit: -4–6 DMG rest of fight"}},
     "Blurred Images":{icon:"🌫️",desc:"At fight start, chance to shroud yourself — reducing damage taken and retaliating when struck. Requires Furious Strike and Impact.",cost:3,prereqs:["Furious Strike","Impact"],
       t1:{chance:0.25,dmg_reduce:3,retaliate:7,label:"25% on start: -3 DMG taken, +7 retaliate on hit"},
       t2:{chance:0.50,dmg_reduce:5,retaliate:9,label:"50% on start: -5 DMG taken, +9 retaliate on hit"},
@@ -901,11 +903,11 @@ const MANA_UPGRADE_COSTS=[
 
 const PET_DEFS={
   "Elfish Sprite":{icon:"🧚",base_hp:40,absorb_chance:0.05,upgrade_costs:[300,600],hp_upgrades:[10,10],
-    atk_upgrades:[[1,6],[2,8],[3,10]],heal_upgrades:[[2,8],[3,10],[4,12]],atk_chance:0.30,heal_chance:0.10,
-    desc:"30% chance to add 1–6 damage to your attack. 10% chance on hit to heal you for 2–8 health."},
+    atk_upgrades:[[1,6],[2,8],[3,10]],heal_upgrades:[[2,8],[3,10],[4,12]],atk_chance:0.30,heal_chance:0.20,
+    desc:"30% chance to add 1–6 damage to your attack. 20% chance on hit to heal you for 2–8 health."},
   "Baby Dragon":{icon:"🐉",base_hp:45,absorb_chance:0.05,upgrade_costs:[300,600],hp_upgrades:[15,15],
-    burn_upgrades:[1,2,3],burn_turns:2,burn_stacks_max:3,block_chance:0.15,atk_chance:0.35,
-    desc:"35% chance to add burning damage each turn for 2 turns (stacks x3). 15% chance to block the next attack."}
+    burn_upgrades:[1,2,3],burn_turns:2,burn_stacks_max:3,block_chance:0.15,block_proc:0.50,atk_chance:0.35,
+    desc:"35% chance to add burning damage each turn for 2 turns (stacks x3). 15% chance to attempt a block (50% success)."}
 };
 
 // ════════════════════════════════════════════
@@ -1131,7 +1133,7 @@ function runCombat(zid,onWin,onLose){
       else if(en==="Impact"){if(roll(td.chance)){P.mana-=ed.cost;cs.impact=(cs.impact||0)+td.dmg_reduce;log("  👊 Impact! Next attack reduced by "+td.dmg_reduce+" (Mana: "+P.mana+")","lc-info");}}
       else if(en==="Blinding Toxin"){if(!cs.blind&&roll(td.proc_chance)){P.mana-=ed.cost;cs.blind=true;cs.blind_chance=td.half_chance;log("  🕶️ Blinding Toxin! Foe has "+Math.round(td.half_chance*100)+"% chance each strike to deal half damage! (Mana: "+P.mana+")","lc-warn");}}
       else if(roll(td.chance||0)){P.mana-=ed.cost;
-        if(en==="Furious Strike"){const b=rnd(weap[0],weap[1]);extra+=b;log("  🔥 Furious Strike! +"+b+" damage (Mana: "+P.mana+")","lc-good");}
+        if(en==="Furious Strike"){const b=rnd(weap[0],weap[1])+(td.bonus_dmg||0);extra+=b;log("  🔥 Furious Strike! +"+b+" damage (Mana: "+P.mana+")","lc-good");}
         else if(en==="Envenom"){const d=rnd(...td.dmg);extra+=d;log("  🧪 Envenom! +"+d+" poison damage (Mana: "+P.mana+")","lc-good");}
         else if(en==="Debilitate"){monster.atk_lo=Math.max(0,monster.atk_lo-td.atk_reduce);monster.atk_hi=Math.max(1,monster.atk_hi-td.atk_reduce);log("  🤢 Debilitate! Foe's attack reduced (now "+monster.atk_lo+"–"+monster.atk_hi+") (Mana: "+P.mana+")","lc-info");}
       }
@@ -1179,7 +1181,10 @@ function runCombat(zid,onWin,onLose){
     if(!P.pet||P.pet.hp<=0)return dmg;
     const pd=PET_DEFS[P.pet.name];const t=P.pet.tier;
     if(P.pet.name==="Baby Dragon"&&!cs.dragon_block_queued&&roll(pd.block_chance)){cs.dragon_block_queued=true;log("  🐉 The Dragon braces to intercept the next blow!","lc-info");}
-    if(cs.dragon_block_active){const abs=dmg;P.pet.hp=Math.max(1,P.pet.hp-abs);cs.dragon_block_active=false;log("  🐉 The Dragon takes the blow! ("+abs+" absorbed, Pet HP: "+P.pet.hp+")","lc-info");return 0;}
+    if(cs.dragon_block_active){
+      if(roll(pd.block_proc||0.50)){const abs=dmg;P.pet.hp=Math.max(1,P.pet.hp-abs);cs.dragon_block_active=false;log("  🐉 The Dragon intercepts the blow! ("+abs+" absorbed, Pet HP: "+P.pet.hp+")","lc-info");return 0;}
+      else{cs.dragon_block_active=false;log("  🐉 The Dragon flinches — block failed!","lc-warn");}
+    }
     if(cs.dragon_block_queued){cs.dragon_block_active=true;cs.dragon_block_queued=false;}
     if(P.pet.hp>1&&roll(pd.absorb_chance)){const abs=Math.min(Math.max(1,Math.floor(P.pet.hp/2)),dmg>1?dmg-1:0);
       if(abs>0){P.pet.hp=Math.max(1,P.pet.hp-abs);dmg-=abs;log("  "+pd.icon+" "+P.pet.name+" absorbs "+abs+" damage! (Pet HP: "+P.pet.hp+")","lc-info");}}
@@ -1190,7 +1195,7 @@ function runCombat(zid,onWin,onLose){
   function likeWater(){
     if(cs.lw||!P.awakened)return;const t=enchants["Like Water"];if(!t)return;
     const td=ENCHANTMENTS.Fists["Like Water"]["t"+t];if(P.mana<2)return;
-    if(roll(td.chance)){P.mana-=2;cs.lw=rnd(1,2);log("  💧 Like Water flows through you — "+cs.lw+" less damage taken this fight. (Mana: "+P.mana+")","lc-info");}
+    if(roll(td.chance)){P.mana-=2;const[lo,hi]=td.reduce||[1,2];cs.lw=rnd(lo,hi);log("  💧 Like Water flows through you — "+cs.lw+" less damage taken this fight. (Mana: "+P.mana+")","lc-info");}
   }
 
   function tick(){
