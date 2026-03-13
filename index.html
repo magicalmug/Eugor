@@ -753,16 +753,21 @@ body {
 // ════════════════════════════════════════════
 // DATA
 // ════════════════════════════════════════════
-const VERSION = "0.3.13";
+const VERSION = "0.3.14";
 const PATCH_NOTES = [
-  "v0.3.13 — Empty name defaults to 'Hero'.",
-  "  Ancient Sphinx HP 220, damage 36–40.",
-  "  Oasis Phantom HP 130, damage 28–32.",
-  "  Dune Stalker damage 32–36.",
-  "  System Test pet HP now derived from game data (bug fix).",
-  "",
-  "v0.3.12 — Desert gold reduced. Desert drop rate 60%.",
-  "  Legendary first-kill guarantees material drop. Furious Strike range dmg."
+  {ver:"v0.3.14",lines:[
+    "Patch notes version headers now shown in black.",
+    "Crafted items shown in green in the crafting menu.",
+    "Sandwrapped Chest now requires Sphinx Stone ×1.",
+    "Sandstone Slab (Dune Stalker) drop rate increased to 70%."
+  ]},
+  {ver:"v0.3.13",lines:[
+    "Empty name defaults to Hero.",
+    "Ancient Sphinx HP 220, damage 36–40.",
+    "Oasis Phantom HP 130, damage 28–32.",
+    "Dune Stalker damage 32–36.",
+    "System Test pet HP derived from game data (bug fix)."
+  ]}
 ];
 
 const ENCHANTMENTS = {
@@ -887,7 +892,7 @@ const CITY_RECIPES={
 };
 const DESERT_RECIPES={
   "Sand Veil":        {slot:"Head", mats:{"Scorpion Carapace":3,"Scorched Scale":2,"Viper Fang":1},gold:280},
-  "Sandwrapped Chest":{slot:"Chest",mats:{"Sandstone Slab":2,"Scorched Scale":2,"Mirage Shard":1},gold:550},
+  "Sandwrapped Chest":{slot:"Chest",mats:{"Sandstone Slab":2,"Scorched Scale":2,"Mirage Shard":1,"Sphinx Stone":1},gold:550},
   "Sand Gauntlets":   {slot:"Arms", mats:{"Scorpion Carapace":2,"Viper Fang":1},gold:180},
   "Sand Greaves":     {slot:"Legs", mats:{"Sandstone Slab":1,"Scorched Scale":3,"Scorpion Carapace":2},gold:420}
 };
@@ -1263,7 +1268,7 @@ function runCombat(zid,onWin,onLose){
         const mat=DESERT_DROPS[monster.name];
         if(mat){const firstLegendary=ZONE_LEGENDARIES.has(monster.name)&&!P.legendary_first_kills.has(monster.name);
           if(firstLegendary){P.legendary_first_kills.add(monster.name);P.materials[mat]=(P.materials[mat]||0)+1;log("  ✦ First kill! You recovered: "+mat,"lc-gold");}
-          else if(roll(0.60)){P.materials[mat]=(P.materials[mat]||0)+1;log("  You recovered: "+mat,"lc-info");}}
+          else{const dropRate=monster.name==="Dune Stalker"?0.70:0.60;if(roll(dropRate)){P.materials[mat]=(P.materials[mat]||0)+1;log("  You recovered: "+mat,"lc-info");}}}
         if(!Object.values(P.inventory).some(w=>w[3]==="Spear")&&roll(0.20)){P.inventory["Dull Spear"]=[3,6,0,"Spear",{}];P.pending_messages.push("A Dull Spear was found in the sand.");log("  🪓 A Dull Spear lies half-buried in the dunes!","lc-gold");}
         const shardChance=ARCANE_LEGENDARY.has(monster.name)?0.06:0.02;
         if(roll(shardChance)){P.arcane_shards=(P.arcane_shards||0)+1;if(!P.found_arcane_shard){P.found_arcane_shard=true;P.pending_messages.push("You discovered a strange glowing crystal! Talk to the townspeople to learn more.");}log("  💎 An Arcane Shard catches the light! ("+P.arcane_shards+" total)","lc-mag");}}
@@ -1508,7 +1513,7 @@ function craftSet(recipes,setName,effect){setTitle(setName);clearBtns();
     const ok=P.gold>=r.gold&&Object.entries(r.mats).every(([m,q])=>(P.materials[m]||0)>=q);
     const matParts=Object.entries(r.mats).map(([m,q])=>{const have=P.materials[m]||0;const enough=have>=q;const txt=have+"/"+q+" "+m;return enough?txt:"<span style='color:#c0392b;font-weight:600'>"+txt+"</span>";});
     const matStr=matParts.join(", ");
-    logHTML(name+" ["+r.slot+"] — "+r.gold+" gold  ·  "+matStr+(crafted?"  ✦ Crafted":""),"lc-dim");
+    logHTML(name+" ["+r.slot+"] — "+r.gold+" gold  ·  "+matStr+(crafted?"  <span style='color:#2d6a2d;font-weight:600'>✦ Crafted</span>":""),"lc-dim");
     if(!crafted){const b=addBtn("Craft: "+name+"  ("+r.gold+" gold)",()=>{
       if(P.gold<r.gold||!Object.entries(r.mats).every(([m,q])=>(P.materials[m]||0)>=q)){log("You lack the required materials or gold.","lc-warn");return;}
       P.gold-=r.gold;for(const[m,q]of Object.entries(r.mats))P.materials[m]=(P.materials[m]||0)-q;
@@ -1671,7 +1676,15 @@ function applyDebug13(wn,wd,pet){
   renderStatus();
 }
 
-function patchNotes(){log("— Legends of Eugor  v"+VERSION+" —","lc-head");for(const l of PATCH_NOTES)log(l||" ","lc-dim");settings();}
+function patchNotes(){
+  logHTML("— Legends of Eugor  v"+VERSION+" —","lc-head");
+  for(const entry of PATCH_NOTES){
+    logHTML("<span style='color:#1a1209;font-weight:700;font-family:MedievalSharp,serif'>"+entry.ver+"</span>","lc-default");
+    for(const l of entry.lines)log("  "+l,"lc-dim");
+    log(" ","lc-dim");
+  }
+  settings();
+}
 
 // DEATH
 function deathScreen(killer){
