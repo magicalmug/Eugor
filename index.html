@@ -753,16 +753,16 @@ body {
 // ════════════════════════════════════════════
 // DATA
 // ════════════════════════════════════════════
-const VERSION = "0.3.12";
+const VERSION = "0.3.13";
 const PATCH_NOTES = [
-  "v0.3.12 — Regnad Desert gold drops reduced slightly.",
-  "  Desert common/rare material drop rate increased to 60%.",
-  "  Legendary monsters guarantee their material on first kill (all zones).",
-  "  Furious Strike bonus damage is now a range: 1–4 / 2–6 / 3–9.",
-  "  Scorpion Crawler HP 60, Desert Viper HP 70.",
+  "v0.3.13 — Empty name defaults to 'Hero'.",
+  "  Ancient Sphinx HP 220, damage 36–40.",
+  "  Oasis Phantom HP 130, damage 28–32.",
+  "  Dune Stalker damage 32–36.",
+  "  System Test pet HP now derived from game data (bug fix).",
   "",
-  "v0.3.11 — Furious Strike +4/6/9 bonus dmg. Impact -4/8/12.",
-  "  Like Water T2/T3 buffed. Dragon block 50%. Sprite heal 20%."
+  "v0.3.12 — Desert gold reduced. Desert drop rate 60%.",
+  "  Legendary first-kill guarantees material drop. Furious Strike range dmg."
 ];
 
 const ENCHANTMENTS = {
@@ -863,9 +863,9 @@ const ZONES={
     {name:"Sand Worm",hp:85,atk_lo:18,atk_hi:26,xp:400,gold:110,w:25},
     {name:"Scorpion Crawler",hp:60,atk_lo:16,atk_hi:20,xp:260,gold:75,w:30},
     {name:"Desert Viper",hp:70,atk_lo:19,atk_hi:25,xp:290,gold:80,w:25},
-    {name:"Oasis Phantom",hp:120,atk_lo:30,atk_hi:35,xp:900,gold:280,w:10},
-    {name:"Dune Stalker",hp:180,atk_lo:35,atk_hi:40,xp:1400,gold:420,w:7},
-    {name:"Ancient Sphinx",hp:240,atk_lo:40,atk_hi:45,xp:2000,gold:900,w:3}]},
+    {name:"Oasis Phantom",hp:130,atk_lo:28,atk_hi:32,xp:900,gold:280,w:10},
+    {name:"Dune Stalker",hp:180,atk_lo:32,atk_hi:36,xp:1400,gold:420,w:7},
+    {name:"Ancient Sphinx",hp:220,atk_lo:36,atk_hi:40,xp:2000,gold:900,w:3}]},
   "4":{name:"The Dungeon",range:"Lv 19–24",crit:0.20,monsters:[
     {name:"Dark Knight",hp:280,atk_lo:48,atk_hi:62,xp:1200,gold:450,w:40},
     {name:"The Lich King",hp:850,atk_lo:88,atk_hi:112,xp:6500,gold:4500,w:2}]},
@@ -1588,8 +1588,10 @@ function stWeapon(lvl){
 function stPet(lvl,wn,wd){
   clearLog();_logQ=[];setTitle("System Test — Pet");clearBtns();
   log("Select a companion (Tier 3):","lc-dim");
-  addBtn("🧚 Elfish Sprite  (HP 60)",()=>stArmor(lvl,wn,wd,{name:"Elfish Sprite",hp:60,tier:2}));
-  addBtn("🐉 Baby Dragon  (HP 90)",()=>stArmor(lvl,wn,wd,{name:"Baby Dragon",hp:90,tier:2}));
+  for(const[pn,pd]of Object.entries(PET_DEFS)){
+    const maxHp=pd.base_hp+pd.hp_upgrades.reduce((a,b)=>a+b,0);
+    addBtn(pd.icon+"  "+pn+"  (HP "+maxHp+")",()=>stArmor(lvl,wn,wd,{name:pn,hp:maxHp,tier:2}));
+  }
   addBtn("Back",()=>stWeapon(lvl),"btn-red");
 }
 
@@ -1698,8 +1700,8 @@ function overlay(title,body,btns,inputCb,withInput=false,ph=""){
   for(const{label,cb}of btns){const b=document.createElement("button");b.className="btn";b.textContent=label;b.onclick=cb;ob.appendChild(b);}
   const iw=document.getElementById("overlay-input-wrap");const oi=document.getElementById("overlay-input");
   if(withInput){iw.style.display="flex";oi.placeholder=ph;oi.value="";setTimeout(()=>oi.focus(),60);
-    document.getElementById("overlay-input-confirm").onclick=()=>{const v=oi.value.trim();if(v&&inputCb)inputCb(v);};
-    oi.onkeydown=e=>{if(e.key==="Enter"){const v=oi.value.trim();if(v&&inputCb)inputCb(v);}};}
+    document.getElementById("overlay-input-confirm").onclick=()=>{const v=oi.value.trim();if(inputCb)inputCb(v);};
+    oi.onkeydown=e=>{if(e.key==="Enter"){const v=oi.value.trim();if(inputCb)inputCb(v);}};}
   else iw.style.display="none";
   document.getElementById("overlay").classList.add("visible");
 }
@@ -1714,7 +1716,7 @@ function splash(){P=null;
      {label:"Restore from Incantation",cb:()=>{overlay("Restore",  "Paste your incantation:",[],v=>{const d=decode(v);if(d){P=pDes(d);hideOverlay();log("Welcome back, "+P.name+". The road continues.","lc-good");mainMenu();}else{log("That incantation is invalid.","lc-warn");splash();}},true,"Paste incantation...");}}]);}
 
 function startGame(){overlay("The Awakening","What name shall the chronicles remember?",[],name=>{
-  if(!name)return;P=newPlayer(name);hideOverlay();
+  P=newPlayer(name||"Hero");hideOverlay();
   logSep();
   log("You wake up in a field, bloody and beaten, with nothing but your bare hands.","lc-dim");
   log("Next to you is a note that reads:","lc-dim");
