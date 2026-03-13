@@ -1,3 +1,11 @@
+v0.3.04 - (New Version)
+
+v0.3.03 — 
+* Inn mana restore now scales with max mana (25%–100%).
+* Mana fully restored on level-up.
+* Armor crafting view highlights missing materials in red.
+* Ancient Sphinx HP reduced to 240, damage range 40–45.
+
 v0.3.02 — 
 * Starting mana increased to 25.
 * Baby Dragon: burn chance 35%, burn dmg 1/2/3 per tier, block 15%, max HP 75.
