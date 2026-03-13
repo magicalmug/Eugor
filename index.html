@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Legends of Eugor</title>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=MedievalSharp&family=Uncial+Antiqua&display=swap" rel="stylesheet">
+<style>
+:root {
+  --parch:      #f2e8c9;
+  --parch-dark: #e6d5a7;
+  --parch-deep: #d4be85;
+  --ink:        #2c1f0e;
+  --ink-light:  #5a3e22;
+  --ink-faded:  #9a7d55;
+  --ink-ghost:  #c4a97a;
+  --burgundy:   #7a1f2e;
+  --forest:     #2a4a2e;
+  --gold-leaf:  #b8860b;
+  --gold-bright:#d4a017;
+  --rust:       #8b3a1a;
+  --sapphire:   #2a4070;
+  --shadow:     rgba(44,31,14,0.18);
+  --border-ink: #8b6914;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: #1a110a;
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 15px;
+  color: var(--ink);
+}
+
+/* Outer frame — dark wood surround */
+#frame {
+  height: 100vh;
+  background:
+    radial-gradient(ellipse at 20% 50%, #2a1a08 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 50%, #1a0c04 0%, transparent 60%),
+    #120b04;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 12px;
+}
+
+#app {
+  display: grid;
+  grid-template-columns: 260px 1fr 320px;
+  grid-template-rows: auto 1fr;
+  width: 100%;
+  max-width: 1300px;
+  height: 100%;
+  min-height: 0;
+  background: var(--parch);
+  box-shadow:
+    0 0 0 3px #6b4c12,
+    0 0 0 6px #3a2808,
+    0 0 40px rgba(0,0,0,0.7),
+    inset 0 0 60px rgba(180,140,60,0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Parchment noise texture via SVG filter */
+#app::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.5;
+}
+
+/* Vignette */
+#app::after {
+  content: '';
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(100,65,10,0.22) 100%);
+}
+
+/* ── HEADER ── */
+#header {
+  grid-column: 1 / -1;
+  position: relative; z-index: 2;
+  padding: 14px 28px 12px;
+  background: linear-gradient(180deg, #3a2008 0%, #2c1608 60%, transparent 100%);
+  border-bottom: 2px solid var(--border-ink);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Decorative corner SVG flourishes */
+#header::before, #header::after {
+  content: '';
+  position: absolute;
+  top: 50%; transform: translateY(-50%);
+  width: 48px; height: 48px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M4 4 Q24 2 44 4 Q46 24 44 44 Q24 46 4 44 Q2 24 4 4Z' fill='none' stroke='%23b8860b' stroke-width='1' opacity='0.6'/%3E%3Cpath d='M8 8 C16 6 32 6 40 8 C42 16 42 32 40 40 C32 42 16 42 8 40 C6 32 6 16 8 8Z' fill='none' stroke='%23d4a017' stroke-width='0.5' opacity='0.4'/%3E%3Ccircle cx='24' cy='24' r='3' fill='%23b8860b' opacity='0.5'/%3E%3Cpath d='M4 24 L20 24 M28 24 L44 24 M24 4 L24 20 M24 28 L24 44' stroke='%23b8860b' stroke-width='0.5' opacity='0.3'/%3E%3C/svg%3E");
+  background-size: contain; background-repeat: no-repeat;
+  opacity: 0.7;
+}
+#header::before { left: 8px; }
+#header::after  { right: 8px; transform: translateY(-50%) scaleX(-1); }
+
+#header h1 {
+  font-family: 'Uncial Antiqua', serif;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--gold-bright);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6), 0 0 20px rgba(212,160,23,0.3);
+  letter-spacing: 3px;
+  flex: 1;
+  text-align: center;
+}
+
+#version-tag {
+  color: var(--ink-ghost);
+  font-size: 11px;
+  font-style: italic;
+  position: absolute; right: 68px; bottom: 10px;
+}
+
+/* ── LEFT PANEL ── */
+#left-panel {
+  border-right: 2px solid var(--border-ink);
+  position: relative; z-index: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 14px;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(180,140,60,0.06) 0%, transparent 60%);
+  min-height: 0;
+}
+
+#left-panel::-webkit-scrollbar { width: 4px; }
+#left-panel::-webkit-scrollbar-track { background: var(--parch-dark); }
+#left-panel::-webkit-scrollbar-thumb { background: var(--border-ink); border-radius: 2px; }
+
+.stat-block {
+  border: 1px solid var(--border-ink);
+  padding: 10px 12px;
+  position: relative;
+  background: rgba(180,140,60,0.06);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 1px 3px var(--shadow);
+}
+
+/* Decorative corner marks on stat blocks */
+.stat-block::before, .stat-block::after {
+  content: '✦';
+  position: absolute;
+  font-size: 8px;
+  color: var(--gold-leaf);
+  opacity: 0.6;
+}
+.stat-block::before { top: 3px; left: 5px; }
+.stat-block::after  { bottom: 3px; right: 5px; }
+
+.block-title {
+  font-family: 'MedievalSharp', serif;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  color: var(--ink-faded);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--parch-deep);
+  padding-bottom: 4px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.stat-row:last-child { margin-bottom: 0; }
+.stat-label { color: var(--ink-faded); font-style: italic; font-size: 13px; }
+.stat-val   { color: var(--ink); font-weight: bold; font-size: 14px; }
+.stat-val.gold    { color: var(--gold-leaf); }
+.stat-val.red     { color: var(--burgundy); }
+.stat-val.blue    { color: var(--sapphire); }
+.stat-val.green   { color: var(--forest); }
+.stat-val.mag     { color: #5a2a6a; }
+
+/* Bars */
+.bar-outer {
+  height: 7px;
+  background: var(--parch-dark);
+  border: 1px solid var(--parch-deep);
+  margin-top: 3px;
+  overflow: hidden;
+  position: relative;
+}
+.bar-fill {
+  height: 100%;
+  transition: width 0.5s ease;
+  position: relative;
+}
+.bar-fill::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 60%);
+}
+.bar-hp   { background: linear-gradient(90deg, #6b1220, #a02030); }
+.bar-xp   { background: linear-gradient(90deg, #1a3a6b, #2a5a9b); }
+.bar-mana { background: linear-gradient(90deg, #3a1a5a, #6a3a9a); }
+
+.armor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.armor-slot { font-size: 11px; color: var(--ink-light); }
+.armor-slot span { color: var(--forest); font-style: italic; }
+
+.set-bonus {
+  font-size: 10px; color: var(--forest); margin-top: 6px;
+  border-top: 1px solid var(--parch-deep); padding-top: 5px;
+  font-style: italic;
+}
+
+.mats-text { font-size: 11px; color: var(--ink-light); font-style: italic; line-height: 1.6; }
+
+/* ── CENTER PANEL (action/buttons) ── */
+#center-panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative; z-index: 1;
+  min-height: 0;
+  border-right: 2px solid var(--border-ink);
+}
+
+/* ── ACTION AREA (center, fills full height) ── */
+#action-area {
+  flex: 1;
+  padding: 28px 26px 24px;
+  background: linear-gradient(160deg, var(--parch) 60%, rgba(180,140,60,0.07) 100%);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+#action-area::-webkit-scrollbar { width: 4px; }
+#action-area::-webkit-scrollbar-track { background: var(--parch-dark); }
+#action-area::-webkit-scrollbar-thumb { background: var(--border-ink); border-radius: 2px; }
+
+#action-title {
+  font-family: 'MedievalSharp', serif;
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  color: var(--ink-faded);
+  text-transform: uppercase;
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--parch-deep);
+}
+
+#pending-banner {
+  display: none;
+  background: rgba(42,74,46,0.08);
+  border: 1px solid var(--forest);
+  padding: 7px 12px;
+  font-size: 13px;
+  color: var(--forest);
+  font-style: italic;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 16px;
+}
+#pending-banner.visible { display: flex; }
+
+#btn-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── RIGHT LOG PANEL ── */
+#log-panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative; z-index: 1;
+  min-height: 0;
+  background: linear-gradient(135deg, rgba(180,140,60,0.04) 0%, transparent 60%);
+}
+
+/* ── LOG ── */
+#log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 20px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-height: 0;
+}
+
+#log::-webkit-scrollbar { width: 5px; }
+#log::-webkit-scrollbar-track { background: var(--parch-dark); }
+#log::-webkit-scrollbar-thumb { background: var(--border-ink); border-radius: 3px; }
+
+/* Log panel header label */
+#log-label {
+  font-family: 'MedievalSharp', serif;
+  font-size: 9px;
+  letter-spacing: 2.5px;
+  color: var(--ink-faded);
+  text-transform: uppercase;
+  padding: 10px 20px 8px;
+  border-bottom: 1px solid var(--parch-deep);
+  background: linear-gradient(180deg, var(--parch-dark) 0%, var(--parch) 100%);
+  flex-shrink: 0;
+}
+
+/* Log lines */
+.log-line {
+  line-height: 1.75;
+  font-size: 13px;
+  animation: inkdrop 0.2s ease forwards;
+  opacity: 0;
+}
+
+@keyframes inkdrop {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.log-sep {
+  border: none;
+  border-top: 1px solid var(--parch-deep);
+  margin: 8px 0;
+  opacity: 0.7;
+}
+
+/* Log colors */
+.lc-default { color: var(--ink); }
+.lc-dim     { color: var(--ink-ghost); font-style: italic; }
+.lc-atk     { color: var(--ink); }
+.lc-dmg     { color: var(--burgundy); }
+.lc-good    { color: var(--forest); font-weight: bold; }
+.lc-gold    { color: var(--gold-leaf); }
+.lc-info    { color: var(--sapphire); font-style: italic; }
+.lc-warn    { color: var(--rust); font-style: italic; }
+.lc-mag     { color: #5a2a6a; font-style: italic; }
+.lc-head    {
+  color: var(--burgundy);
+  font-family: 'MedievalSharp', serif;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+.btn {
+  background: linear-gradient(180deg, var(--parch) 0%, var(--parch-dark) 100%);
+  border: 1px solid var(--border-ink);
+  color: var(--ink-light);
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 14px;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  position: relative;
+  box-shadow: 0 2px 4px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.4);
+  letter-spacing: 0.3px;
+  width: 100%;
+  text-align: left;
+}
+
+.btn::before {
+  content: '⚜';
+  font-size: 9px;
+  color: var(--gold-leaf);
+  opacity: 0.6;
+  margin-right: 5px;
+  transition: opacity 0.18s;
+}
+
+.btn:hover {
+  background: linear-gradient(180deg, #fffaed 0%, var(--parch) 100%);
+  border-color: var(--gold-leaf);
+  color: var(--ink);
+  box-shadow: 0 3px 8px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.6);
+  transform: translateY(-1px);
+}
+.btn:hover::before { opacity: 1; }
+.btn:active { transform: translateY(0); box-shadow: 0 1px 2px var(--shadow); }
+
+/* Variant button colors */
+.btn-red    { border-color: #8a2020; color: var(--burgundy); }
+.btn-red:hover { border-color: var(--burgundy); background: linear-gradient(180deg, #fff5f5 0%, #fdeaea 100%); }
+
+.btn-gold   { border-color: var(--gold-leaf); color: #7a5500; }
+.btn-gold:hover { border-color: var(--gold-bright); color: #5a3d00; background: linear-gradient(180deg, #fffbea 0%, #fff3c0 100%); }
+
+.btn-green  { border-color: #3a6030; color: var(--forest); }
+.btn-green:hover { border-color: var(--forest); background: linear-gradient(180deg, #f0fff0 0%, #e0f0e0 100%); }
+
+.btn-blue   { border-color: #2a406a; color: var(--sapphire); }
+.btn-blue:hover { border-color: var(--sapphire); background: linear-gradient(180deg, #f0f5ff 0%, #e0eaff 100%); }
+
+.btn-mag    { border-color: #5a2a6a; color: #4a1a5a; }
+.btn-mag:hover { border-color: #7a3a8a; background: linear-gradient(180deg, #faf0ff 0%, #f0e0ff 100%); }
+
+.btn-disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+/* ── OVERLAY ── */
+#overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(18,8,2,0.88);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 18px;
+  text-align: center;
+  padding: 40px;
+  backdrop-filter: blur(2px);
+}
+#overlay.visible { display: flex; }
+
+.overlay-parchment {
+  background: var(--parch);
+  border: 2px solid var(--border-ink);
+  box-shadow: 0 0 0 4px #3a2808, 0 20px 60px rgba(0,0,0,0.7), inset 0 0 40px rgba(180,140,60,0.08);
+  padding: 36px 48px;
+  max-width: 560px;
+  width: 100%;
+  position: relative;
+}
+
+/* Ornamental corners on overlay */
+.overlay-parchment::before {
+  content: '';
+  position: absolute; inset: 6px;
+  border: 1px solid rgba(184,134,11,0.3);
+  pointer-events: none;
+}
+
+#overlay-title {
+  font-family: 'Uncial Antiqua', serif;
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--burgundy);
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+#overlay-title.death { color: var(--burgundy); }
+
+/* Decorative divider */
+.ov-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-ink), transparent);
+  margin: 10px 0 16px;
+}
+
+#overlay-body {
+  color: var(--ink-light);
+  font-style: italic;
+  line-height: 1.9;
+  font-size: 14px;
+  white-space: pre-line;
+  margin-bottom: 16px;
+}
+
+#overlay-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+.ov-input {
+  width: 100%;
+  background: var(--parch-dark);
+  border: 1px solid var(--border-ink);
+  color: var(--ink);
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 14px;
+  padding: 9px 12px;
+  outline: none;
+  margin-top: 8px;
+  box-shadow: inset 0 2px 4px var(--shadow);
+}
+.ov-input:focus { border-color: var(--gold-leaf); background: var(--parch); }
+
+.btn-confirm {
+  background: linear-gradient(180deg, var(--parch) 0%, var(--parch-dark) 100%);
+  border: 1px solid var(--gold-leaf);
+  color: #7a5500;
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 13px;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: all 0.18s;
+  margin-top: 8px;
+  box-shadow: 0 2px 4px var(--shadow);
+}
+.btn-confirm:hover { background: #fffbea; }
+
+#incantation-display {
+  display: none;
+  background: var(--parch-dark);
+  border: 1px solid var(--border-ink);
+  padding: 10px;
+  word-break: break-all;
+  color: #5a2a6a;
+  font-size: 11px;
+  max-width: 100%;
+  max-height: 110px;
+  overflow-y: auto;
+  margin-top: 8px;
+  font-style: italic;
+  box-shadow: inset 0 2px 4px var(--shadow);
+}
+#incantation-display.visible { display: block; }
+
+#overlay-input-wrap {
+  display: none;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  margin-top: 4px;
+}
+
+@media (max-width: 900px) {
+  #app { grid-template-columns: 240px 1fr; grid-template-rows: auto 1fr auto; }
+  #log-panel { display: none; }
+  #center-panel { border-right: none; }
+}
+
+@media (max-width: 680px) {
+  #frame { padding: 0; }
+  #app { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; }
+  #left-panel { border-right: none; border-bottom: 2px solid var(--border-ink); max-height: 200px; }
+  body { font-size: 13px; }
+}
+
+/* ── MOBILE CHRONICLE DRAWER ── */
+#chronicle-drawer {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 150;
+  flex-direction: column;
+  height: 65vh;
+  background: var(--parch);
+  border-top: 3px solid var(--border-ink);
+  box-shadow: 0 -8px 32px rgba(44,31,14,0.4);
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+#chronicle-drawer.open {
+  transform: translateY(0);
+}
+#chronicle-tab {
+  display: none;
+  position: fixed;
+  bottom: 0; right: 16px;
+  z-index: 151;
+  background: linear-gradient(180deg, var(--parch) 0%, var(--parch-dark) 100%);
+  border: 2px solid var(--border-ink);
+  border-bottom: none;
+  color: var(--ink-light);
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 13px;
+  padding: 7px 16px 5px;
+  cursor: pointer;
+  box-shadow: 0 -2px 8px var(--shadow);
+  border-radius: 6px 6px 0 0;
+  letter-spacing: 0.3px;
+}
+#chronicle-tab:active { background: var(--parch-dark); }
+#chronicle-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px 8px;
+  border-bottom: 1px solid var(--parch-deep);
+  background: linear-gradient(180deg, var(--parch-dark) 0%, var(--parch) 100%);
+  flex-shrink: 0;
+}
+#chronicle-drawer-title {
+  font-family: 'MedievalSharp', serif;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  color: var(--ink-faded);
+  text-transform: uppercase;
+}
+#chronicle-close {
+  background: none;
+  border: 1px solid var(--border-ink);
+  color: var(--ink-faded);
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 12px;
+  padding: 3px 10px;
+  cursor: pointer;
+  border-radius: 2px;
+}
+#chronicle-close:active { background: var(--parch-dark); }
+#chronicle-log-mobile {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-height: 0;
+}
+#chronicle-log-mobile::-webkit-scrollbar { width: 4px; }
+#chronicle-log-mobile::-webkit-scrollbar-track { background: var(--parch-dark); }
+#chronicle-log-mobile::-webkit-scrollbar-thumb { background: var(--border-ink); border-radius: 2px; }
+
+@media (max-width: 900px) {
+  #chronicle-tab { display: block; }
+  #chronicle-drawer { display: flex; }
+}
+
+/* Desktop: larger fonts throughout */
+@media (min-width: 901px) {
+  body { font-size: 16px; }
+  .block-title { font-size: 11px; }
+  .stat-row { font-size: 15px; }
+  .stat-label { font-size: 14px; }
+  .stat-val { font-size: 15px; }
+  .mats-text { font-size: 13px; }
+  .log-line { font-size: 14px; }
+  .lc-head { font-size: 13px; }
+  .btn { font-size: 15px; padding: 11px 20px; }
+  #action-title { font-size: 12px; }
+  #log-label { font-size: 11px; }
+  .armor-slot { font-size: 13px; }
+  .set-bonus { font-size: 12px; }
+  #s-weapon-stats { font-size: 13px !important; }
+  #s-enchants { font-size: 12px !important; }
+}
+</style>
+</head>
+<body>
+<div id="frame">
+<div id="app">
+
+<!-- OVERLAY -->
+<div id="overlay">
+  <div class="overlay-parchment">
+    <h2 id="overlay-title">Legends of Eugor</h2>
+    <div class="ov-divider"></div>
+    <p id="overlay-body"></p>
+    <div id="overlay-btns"></div>
+    <div id="overlay-input-wrap">
+      <input id="overlay-input" class="ov-input" type="text" placeholder="">
+      <button class="btn-confirm" id="overlay-input-confirm">Confirm</button>
+    </div>
+    <div id="incantation-display"></div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div id="header">
+  <h1>⚔&ensp;Legends of Eugor&ensp;⚔</h1>
+  <span id="version-tag">v0.2.00</span>
+</div>
+
+<!-- LEFT PANEL -->
+<div id="left-panel">
+
+  <div class="stat-block">
+    <div class="block-title">The Adventurer</div>
+    <div class="stat-row"><span class="stat-label">Name</span><span class="stat-val" id="s-name">—</span></div>
+    <div class="stat-row"><span class="stat-label">Level</span><span class="stat-val" id="s-level">1</span></div>
+    <div class="stat-row"><span class="stat-label">Skill Points</span><span class="stat-val" id="s-sp">0</span></div>
+    <div class="stat-row"><span class="stat-label">Gold</span><span class="stat-val gold" id="s-gold">0</span></div>
+  </div>
+
+  <div class="stat-block">
+    <div class="block-title">Vitals</div>
+    <div class="stat-row"><span class="stat-label">Health</span><span class="stat-val red" id="s-hp">75 / 75</span></div>
+    <div class="bar-outer"><div class="bar-fill bar-hp" id="bar-hp" style="width:100%"></div></div>
+    <div class="stat-row" style="margin-top:8px"><span class="stat-label">Experience</span><span class="stat-val blue" id="s-xp">0 / 85</span></div>
+    <div class="bar-outer"><div class="bar-fill bar-xp" id="bar-xp" style="width:0%"></div></div>
+    <div id="mana-row" style="display:none">
+      <div class="stat-row" style="margin-top:8px"><span class="stat-label">Mana</span><span class="stat-val mag" id="s-mana">25 / 25</span></div>
+      <div class="bar-outer"><div class="bar-fill bar-mana" id="bar-mana" style="width:100%"></div></div>
+    </div>
+    <div id="shard-row" style="display:none">
+      <div class="stat-row" style="margin-top:6px"><span class="stat-label">Arcane Shards</span><span class="stat-val mag" id="s-shards">💎 0</span></div>
+    </div>
+  </div>
+
+  <div class="stat-block">
+    <div class="block-title">Weapon</div>
+    <div class="stat-val" id="s-weapon" style="margin-bottom:3px">Fists</div>
+    <div style="color:var(--ink-faded);font-size:11px;font-style:italic" id="s-weapon-stats">1–4 damage</div>
+    <div style="color:#5a2a6a;font-size:11px;font-style:italic;margin-top:3px" id="s-enchants"></div>
+  </div>
+
+  <div class="stat-block">
+    <div class="block-title">Armour</div>
+    <div class="armor-grid" id="s-armor"></div>
+    <div id="s-set-bonus" class="set-bonus" style="display:none"></div>
+  </div>
+
+  <div class="stat-block" id="pet-block" style="display:none">
+    <div class="block-title">Companion</div>
+    <div style="font-weight:bold;color:var(--rust)" id="s-pet-name"></div>
+    <div style="margin-top:4px">
+      <div class="stat-row"><span class="stat-label">Health</span><span class="stat-val red" id="s-pet-hp"></span></div>
+      <div class="bar-outer"><div class="bar-fill bar-hp" id="bar-pet-hp" style="width:100%"></div></div>
+    </div>
+  </div>
+
+  <div class="stat-block">
+    <div class="block-title">Materials</div>
+    <div class="mats-text" id="s-mats">None gathered.</div>
+  </div>
+
+</div><!-- /left-panel -->
+
+<!-- CENTER PANEL (action/buttons) -->
+<div id="center-panel">
+  <div id="action-area">
+    <div id="pending-banner"></div>
+    <div id="action-title">Awaiting Command</div>
+    <div id="btn-grid"></div>
+  </div>
+</div>
+
+<!-- RIGHT LOG PANEL -->
+<div id="log-panel">
+  <div id="log-label">Chronicle</div>
+  <div id="log"></div>
+</div>
+
+</div><!-- /app -->
+
+<!-- MOBILE CHRONICLE TAB + DRAWER -->
+<button id="chronicle-tab" onclick="toggleChronicle()">📜 Chronicle</button>
+<div id="chronicle-drawer">
+  <div id="chronicle-drawer-header">
+    <span id="chronicle-drawer-title">Chronicle</span>
+    <button id="chronicle-close" onclick="toggleChronicle()">✕ Close</button>
+  </div>
+  <div id="chronicle-log-mobile"></div>
+</div>
+
+</div><!-- /frame -->
+
+<script>
+// ════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════
+const VERSION = "0.3.12";
+const PATCH_NOTES = [
+  "v0.3.12 — Regnad Desert gold drops reduced slightly.",
+  "  Desert common/rare material drop rate increased to 60%.",
+  "  Legendary monsters guarantee their material on first kill (all zones).",
+  "  Furious Strike bonus damage is now a range: 1–4 / 2–6 / 3–9.",
+  "  Scorpion Crawler HP 60, Desert Viper HP 70.",
+  "",
+  "v0.3.11 — Furious Strike +4/6/9 bonus dmg. Impact -4/8/12.",
+  "  Like Water T2/T3 buffed. Dragon block 50%. Sprite heal 20%."
+];
+
+const ENCHANTMENTS = {
+  Fists:{
+    "Furious Strike":{icon:"🔥",desc:"Chance to strike a second time instantly, dealing bonus damage.",cost:1,
+      t1:{chance:0.10,bonus_dmg:[1,4],label:"10% extra strike +1–4 bonus dmg"},t2:{chance:0.25,bonus_dmg:[2,6],label:"25% extra strike +2–6 bonus dmg"},t3:{chance:0.40,bonus_dmg:[3,9],label:"40% extra strike +3–9 bonus dmg"}},
+    "Impact":{icon:"👊",desc:"Chance to reduce the damage of the next enemy attack.",cost:1,
+      t1:{chance:0.10,dmg_reduce:4,label:"10% chance, -4 DMG"},t2:{chance:0.25,dmg_reduce:8,label:"25% chance, -8 DMG"},t3:{chance:0.40,dmg_reduce:12,label:"40% chance, -12 DMG"}},
+    "Like Water":{icon:"💧",desc:"On being hit, chance to reduce all future DMG taken.",cost:2,
+      t1:{chance:0.03,reduce:[1,2],label:"3% on hit: -1–2 DMG rest of fight"},t2:{chance:0.06,reduce:[2,4],label:"6% on hit: -2–4 DMG rest of fight"},t3:{chance:0.09,reduce:[4,6],label:"9% on hit: -4–6 DMG rest of fight"}},
+    "Blurred Images":{icon:"🌫️",desc:"At fight start, chance to shroud yourself — reducing damage taken and retaliating when struck. Requires Furious Strike and Impact.",cost:3,prereqs:["Furious Strike","Impact"],
+      t1:{chance:0.25,dmg_reduce:3,retaliate:7,label:"25% on start: -3 DMG taken, +7 retaliate on hit"},
+      t2:{chance:0.50,dmg_reduce:5,retaliate:9,label:"50% on start: -5 DMG taken, +9 retaliate on hit"},
+      t3:{chance:0.75,dmg_reduce:7,retaliate:11,label:"75% on start: -7 DMG taken, +11 retaliate on hit"}}
+  },
+  Dagger:{
+    "Envenom":{icon:"🧪",desc:"Deals poison damage on hit.",cost:1,
+      t1:{chance:0.25,dmg:[2,5],label:"25% chance, 2-5 poison"},t2:{chance:0.50,dmg:[2,5],label:"50% chance, 2-5 poison"},t3:{chance:0.70,dmg:[2,5],label:"70% chance, 2-5 poison"}},
+    "Debilitate":{icon:"🤢",desc:"Weakens enemy attack permanently.",cost:1,
+      t1:{chance:0.20,atk_reduce:1,label:"20% chance, -1 ATK"},t2:{chance:0.40,atk_reduce:1,label:"40% chance"},t3:{chance:0.60,atk_reduce:1,label:"60% chance"}},
+    "Blinding Toxin":{icon:"🕶️",desc:"10% on attack to blind; enemy attacks halved chance per hit.",cost:2,
+      t1:{proc_chance:0.10,half_chance:0.03,label:"10% blind: 3% half-DMG/attack"},t2:{proc_chance:0.10,half_chance:0.06,label:"6% half-DMG/attack"},t3:{proc_chance:0.10,half_chance:0.09,label:"9% half-DMG/attack"}},
+    "Ravenous Poison":{icon:"☠️",desc:"At fight start, 20% chance to stack envenom's poison on the target for the whole fight. Requires Envenom and Debilitate.",cost:3,prereqs:["Envenom","Debilitate"],
+      t1:{chance:0.20,stacks:1,label:"20% on start: 1 poison stack persists all fight"},
+      t2:{chance:0.20,stacks:2,label:"20% on start: 2 poison stacks persist all fight"},
+      t3:{chance:0.20,stacks:3,label:"20% on start: 3 poison stacks persist all fight"}}
+  },
+  Sword:{
+    "Puncture":{icon:"🩸",desc:"Expands enemy ATK low range each hit.",cost:1,
+      t1:{atk_neg_inc:1,label:"-1 ATK range/hit"},t2:{atk_neg_inc:2,label:"-2 ATK range/hit"},t3:{atk_neg_inc:3,label:"-3 ATK range/hit"}},
+    "Bleed":{icon:"💉",desc:"Chance to inflict bleed damage each turn.",cost:1,
+      t1:{chance:0.30,dmg:1,label:"30% chance, 1 bleed/turn"},t2:{chance:0.30,dmg:2,label:"2 bleed/turn"},t3:{chance:0.30,dmg:3,label:"3 bleed/turn"}},
+    "Twisting Blade":{icon:"🌀",desc:"10% chance when struck to retaliate with a twist of the blade.",cost:2,
+      t1:{chance:0.10,dmg:[4,8],label:"10% on hit: return 4-8 damage"},
+      t2:{chance:0.10,dmg:[4,11],label:"10% on hit: return 4-11 damage"},
+      t3:{chance:0.10,dmg:[4,14],label:"10% on hit: return 4-14 damage"}}
+  },
+  Spear:{
+    "Penetrating Strike":{icon:"🪓",desc:"Chance on attack to cause bleeding for 1 damage per turn.",cost:1,
+      t1:{chance:0.30,turns:1,label:"30% chance, bleed 1 dmg × 1 turn"},
+      t2:{chance:0.30,turns:2,label:"30% chance, bleed 1 dmg × 2 turns"},
+      t3:{chance:0.30,turns:3,label:"30% chance, bleed 1 dmg × 3 turns"}},
+    "Exploit Weakness":{icon:"⚡",desc:"15% chance to strike a bleeding foe for multiplied damage, consuming the bleed.",cost:1,
+      t1:{chance:0.15,mult:1.5,label:"15% chance, 1.5× damage (consumes bleed)"},
+      t2:{chance:0.15,mult:1.75,label:"15% chance, 1.75× damage"},
+      t3:{chance:0.15,mult:2.0,label:"15% chance, 2.0× damage"}},
+    "Biting Sand":{icon:"🏜️",desc:"10% chance on hit to mark the foe once per battle. Exploit Weakness may not consume the mark.",cost:2,
+      t1:{proc_chance:0.10,no_consume_chance:0.20,flat_bonus:10,label:"10% mark; 20% no-consume +10 bonus dmg"},
+      t2:{proc_chance:0.10,no_consume_chance:0.25,flat_bonus:15,label:"25% no-consume +15 bonus dmg"},
+      t3:{proc_chance:0.10,no_consume_chance:0.30,flat_bonus:20,label:"30% no-consume +20 bonus dmg"}},
+    "Heart Strike":{icon:"💘",desc:"At fight start, auto-applies Penetrating Strike bleed and boosts first Exploit Weakness chance. Requires Penetrating Strike and Exploit Weakness.",cost:3,prereqs:["Penetrating Strike","Exploit Weakness"],
+      t1:{ew_boost:0.25,label:"On start: auto-bleed at PS tier, first EW chance 25%"},
+      t2:{ew_boost:0.35,label:"On start: auto-bleed at PS tier, first EW chance 35%"},
+      t3:{ew_boost:0.45,label:"On start: auto-bleed at PS tier, first EW chance 45%"}}
+  }
+};
+
+const UPGRADE_PREFIXES = {
+  Fists:["Fists","Brass Knuckles","Master's Hand","Iron Tempest","Storm Fist","Titan's Grasp"],
+  Dagger:["Rusty Dagger","Sharpened Dagger","Glistening Dagger","Venom Fang","Cursed Shiv","Soul Piercer"],
+  Sword:["Guard Sword","Officer Blade","Royal Claymore","Sovereign Edge","Eternal Verdict","Godslayer"],
+  Spear:["Dull Spear","Crude Spear","Iron Spear","Barbed Spear","War Spear","Dragon Lance"]
+};
+const WEAPON_MAX_TIER={Fists:5,Dagger:5,Sword:5,Spear:5};
+const ENCHANT_MIN_TIER=2;
+// Skills that require other enchants to be present on the same weapon first
+const ENCHANT_PREREQS={
+  "Blurred Images":["Furious Strike","Impact"],
+  "Ravenous Poison":["Envenom","Debilitate"],
+  "Heart Strike":["Penetrating Strike","Exploit Weakness"]
+};
+
+const M_DROPS={"Rabid Rabbit":"Rabbit Skin","Green Slime":"Slime Goo","Meadow Hawk":"Hawk Feather","Briar Fox":"Fox Fur","Alpha Wolf":"Wolf Pelt"};
+const CITY_DROPS={"Rusty Automaton":"Gear Fragment","Street Urchin":"Tattered Cloth","Steam Golem":"Steam Core","Ghost of Eugor":"Ectoplasm","Clockwork Tiger":"Tiger Fur"};
+const DESERT_DROPS={"Sand Worm":"Scorched Scale","Scorpion Crawler":"Scorpion Carapace","Desert Viper":"Viper Fang","Oasis Phantom":"Mirage Shard","Dune Stalker":"Sandstone Slab","Ancient Sphinx":"Sphinx Stone"};
+const SELL_PRICES={"Rabbit Skin":[1,2],"Slime Goo":[1,2],"Hawk Feather":[3,5],"Fox Fur":[3,5],"Wolf Pelt":[7,10],"Gear Fragment":[2,3],"Tattered Cloth":[2,3],"Steam Core":[5,7],"Ectoplasm":[5,7],"Tiger Fur":[12,18],"Scorched Scale":[3,5],"Scorpion Carapace":[3,5],"Viper Fang":[4,6],"Mirage Shard":[7,10],"Sandstone Slab":[6,9],"Sphinx Stone":[15,22]};
+const MEADOWS_MATS=new Set(["Rabbit Skin","Slime Goo","Hawk Feather","Fox Fur","Wolf Pelt"]);
+const CITY_MATS=new Set(["Gear Fragment","Tattered Cloth","Steam Core","Ectoplasm","Tiger Fur"]);
+const DESERT_MATS=new Set(["Scorched Scale","Scorpion Carapace","Viper Fang","Mirage Shard","Sandstone Slab","Sphinx Stone"]);
+const MEADOWS_PIECES=new Set(["Fur Cap","Fur Chestpiece","Fur Bracers","Fur Leggings"]);
+const CITY_PIECES=new Set(["Guard Helm","Guard Chestplate","Guard Gauntlets","Guard Greaves"]);
+const DESERT_PIECES=new Set(["Sand Veil","Sandwrapped Chest","Sand Gauntlets","Sand Greaves"]);
+
+const ZONES={
+  "1":{name:"The Meadows",range:"Lv 1–6",crit:0.05,monsters:[
+    {name:"Rabid Rabbit",hp:14,atk_lo:2,atk_hi:6,xp:25,gold:10,w:40},
+    {name:"Green Slime",hp:18,atk_lo:1,atk_hi:5,xp:30,gold:12,w:38},
+    {name:"Meadow Hawk",hp:26,atk_lo:5,atk_hi:9,xp:60,gold:28,w:13},
+    {name:"Briar Fox",hp:20,atk_lo:6,atk_hi:10,xp:55,gold:32,w:15},
+    {name:"Alpha Wolf",hp:30,atk_lo:7,atk_hi:11,xp:150,gold:58,w:2}]},
+  "2":{name:"Abandoned City",range:"Lv 7–12",crit:0.10,monsters:[
+    {name:"Rusty Automaton",hp:38,atk_lo:8,atk_hi:12,xp:140,gold:42,w:30},
+    {name:"Street Urchin",hp:32,atk_lo:10,atk_hi:14,xp:120,gold:52,w:30},
+    {name:"Steam Golem",hp:55,atk_lo:12,atk_hi:16,xp:180,gold:65,w:25},
+    {name:"Ghost of Eugor",hp:70,atk_lo:14,atk_hi:18,xp:300,gold:110,w:10},
+    {name:"Clockwork Tiger",hp:110,atk_lo:13,atk_hi:17,xp:800,gold:300,w:5}]},
+  "3":{name:"Regnad Desert",range:"Lv 13–18",crit:0.15,monsters:[
+    {name:"Sand Worm",hp:85,atk_lo:18,atk_hi:26,xp:400,gold:110,w:25},
+    {name:"Scorpion Crawler",hp:60,atk_lo:16,atk_hi:20,xp:260,gold:75,w:30},
+    {name:"Desert Viper",hp:70,atk_lo:19,atk_hi:25,xp:290,gold:80,w:25},
+    {name:"Oasis Phantom",hp:120,atk_lo:30,atk_hi:35,xp:900,gold:280,w:10},
+    {name:"Dune Stalker",hp:180,atk_lo:35,atk_hi:40,xp:1400,gold:420,w:7},
+    {name:"Ancient Sphinx",hp:240,atk_lo:40,atk_hi:45,xp:2000,gold:900,w:3}]},
+  "4":{name:"The Dungeon",range:"Lv 19–24",crit:0.20,monsters:[
+    {name:"Dark Knight",hp:280,atk_lo:48,atk_hi:62,xp:1200,gold:450,w:40},
+    {name:"The Lich King",hp:850,atk_lo:88,atk_hi:112,xp:6500,gold:4500,w:2}]},
+  "5":{name:"Abyssal Fire",range:"Lv 25–30",crit:0.30,monsters:[
+    {name:"Abyssal Leviathan",hp:5000,atk_lo:400,atk_hi:500,xp:80000,gold:50000,w:5}]}
+};
+
+const MEADOWS_RECIPES={
+  "Fur Cap":       {slot:"Head", mats:{"Rabbit Skin":3,"Hawk Feather":2,"Slime Goo":2},gold:108},
+  "Fur Chestpiece":{slot:"Chest",mats:{"Fox Fur":2,"Wolf Pelt":1,"Rabbit Skin":1},gold:230},
+  "Fur Bracers":   {slot:"Arms", mats:{"Rabbit Skin":2,"Slime Goo":1},gold:50},
+  "Fur Leggings":  {slot:"Legs", mats:{"Fox Fur":2,"Hawk Feather":2,"Slime Goo":2},gold:155}
+};
+const CITY_RECIPES={
+  "Guard Helm":       {slot:"Head", mats:{"Gear Fragment":3,"Tattered Cloth":2,"Steam Core":1},gold:200},
+  "Guard Chestplate": {slot:"Chest",mats:{"Tiger Fur":1,"Steam Core":2,"Gear Fragment":2},gold:400},
+  "Guard Gauntlets":  {slot:"Arms", mats:{"Tattered Cloth":2,"Gear Fragment":1},gold:100},
+  "Guard Greaves":    {slot:"Legs", mats:{"Steam Core":1,"Tattered Cloth":3,"Ectoplasm":2},gold:300}
+};
+const DESERT_RECIPES={
+  "Sand Veil":        {slot:"Head", mats:{"Scorpion Carapace":3,"Scorched Scale":2,"Viper Fang":1},gold:280},
+  "Sandwrapped Chest":{slot:"Chest",mats:{"Sandstone Slab":2,"Scorched Scale":2,"Mirage Shard":1},gold:550},
+  "Sand Gauntlets":   {slot:"Arms", mats:{"Scorpion Carapace":2,"Viper Fang":1},gold:180},
+  "Sand Greaves":     {slot:"Legs", mats:{"Sandstone Slab":1,"Scorched Scale":3,"Scorpion Carapace":2},gold:420}
+};
+
+// Arcane Shard: legendary monsters in zones 3+
+const ARCANE_LEGENDARY=new Set(["Ancient Sphinx","The Lich King","Abyssal Leviathan"]);
+// Legendary monsters that guarantee a material drop on first kill
+const ZONE_LEGENDARIES=new Set(["Alpha Wolf","Clockwork Tiger","Ancient Sphinx","The Lich King","Abyssal Leviathan"]);
+// Mana upgrade table: [crystals, gold] per upgrade index (each gives +5 max mana)
+const MANA_UPGRADE_COSTS=[
+  [2,100],[5,300],[9,600],[14,1000],[19,1500],[25,2200],
+  [32,3100],[40,4200],[48,5500],[57,7000],[67,9000],[78,11500],[100,15000]
+];
+
+const PET_DEFS={
+  "Elfish Sprite":{icon:"🧚",base_hp:40,absorb_chance:0.05,upgrade_costs:[300,600],hp_upgrades:[10,10],
+    atk_upgrades:[[1,6],[2,8],[3,10]],heal_upgrades:[[2,8],[3,10],[4,12]],atk_chance:0.30,heal_chance:0.20,
+    desc:"30% chance to add 1–6 damage to your attack. 20% chance on hit to heal you for 2–8 health."},
+  "Baby Dragon":{icon:"🐉",base_hp:45,absorb_chance:0.05,upgrade_costs:[300,600],hp_upgrades:[15,15],
+    burn_upgrades:[1,2,3],burn_turns:2,burn_stacks_max:3,block_chance:0.15,block_proc:0.50,atk_chance:0.35,
+    desc:"35% chance to add burning damage each turn for 2 turns (stacks x3). 15% chance to attempt a block (50% success)."}
+};
+
+// ════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const roll=p=>Math.random()<p;
+const clamp=(v,mn,mx)=>Math.max(mn,Math.min(mx,v));
+
+function weightedChoice(arr){
+  const tot=arr.reduce((s,m)=>s+m.w,0);let r=Math.random()*tot;
+  for(const m of arr){r-=m.w;if(r<=0)return JSON.parse(JSON.stringify(m));}
+  return JSON.parse(JSON.stringify(arr[arr.length-1]));
+}
+function encode(s){try{return btoa(unescape(encodeURIComponent(JSON.stringify(s)))).replace(/=/g,"rune").replace(/\+/g,"altar").replace(/\//g,"tome");}catch(e){return "";}}
+function decode(s){try{const r=s.trim().replace(/rune/g,"=").replace(/altar/g,"+").replace(/tome/g,"/");return JSON.parse(decodeURIComponent(escape(atob(r))));}catch(e){return null;}}
+
+// ════════════════════════════════════════════
+// PLAYER
+// ════════════════════════════════════════════
+function newPlayer(name){
+  return{name:name.slice(0,10),hp:75,max_hp:75,base_max_hp:75,level:1,xp:0,gold:0,skill_points:0,level_cap:30,
+    awakened:false,mana:0,max_mana:25,equipped:"Fists",inventory:{"Fists":[1,4,0,"Fists",{}]},
+    armor:{Head:null,Chest:null,Arms:null,Legs:null},armor_inventory:{},materials:{},
+    seen_monsters:new Set(),last_zone:null,zones_visited:new Set(),has_sapphire_amulet:false,
+    beastmaster_snarked:new Set(),craftsman_met:false,fresh_start:true,pet:null,pets_unlocked:false,
+    pending_messages:[],arcane_shards:0,found_arcane_shard:false,mana_upgrades:0,witch_crystal_talked:false,
+    legendary_first_kills:new Set()};
+}
+function pSer(p){return{...p,seen_monsters:[...p.seen_monsters],zones_visited:[...p.zones_visited],beastmaster_snarked:[...p.beastmaster_snarked],legendary_first_kills:[...(p.legendary_first_kills||[])]};}
+function pDes(d){return{...d,seen_monsters:new Set(d.seen_monsters||[]),zones_visited:new Set(d.zones_visited||[]),beastmaster_snarked:new Set(d.beastmaster_snarked||[]),pending_messages:d.pending_messages||[],pets_unlocked:d.pets_unlocked||false,pet:d.pet||null,base_max_hp:d.base_max_hp||d.max_hp||75,arcane_shards:d.arcane_shards||0,found_arcane_shard:d.found_arcane_shard||false,mana_upgrades:d.mana_upgrades||0,witch_crystal_talked:d.witch_crystal_talked||false,legendary_first_kills:new Set(d.legendary_first_kills||[])};}
+
+function xpToNext(p){let b=Math.floor(50*Math.pow(p.level,1.6));if(p.level<=3)b=Math.floor(b*1.85);else if(p.level<=6)b=Math.floor(b*1.55);return b;}
+function innCost(p){return p.level*6;}
+function petMaxHp(pet){if(!pet)return 0;const pd=PET_DEFS[pet.name];return pd.base_hp+pd.hp_upgrades.slice(0,pet.tier).reduce((a,b)=>a+b,0);}
+function hasDagger(p){return Object.values(p.inventory).some(w=>w[3]==="Dagger");}
+function isMeadowsDone(p){return["Head","Chest","Arms","Legs"].every(s=>MEADOWS_PIECES.has(p.armor[s]));}
+function isCityDone(p){return["Head","Chest","Arms","Legs"].every(s=>CITY_PIECES.has(p.armor[s]));}
+function isDesertDone(p){return["Head","Chest","Arms","Legs"].every(s=>DESERT_PIECES.has(p.armor[s]));}
+function effectiveMaxHp(p){const base=p.base_max_hp||p.max_hp;return isCityDone(p)?base+(10*p.level):base;}
+function totalReduction(p){let t=0;for(const v of Object.values(p.armor)){if(MEADOWS_PIECES.has(v))t+=rnd(0,1);else if(CITY_PIECES.has(v))t+=rnd(0,2);else if(DESERT_PIECES.has(v))t+=rnd(0,2);}return t;}
+
+function levelUp(p){
+  const msgs=[];
+  while(p.xp>=xpToNext(p)&&p.level<p.level_cap){
+    p.xp-=xpToNext(p);p.level++;p.skill_points++;
+    p.base_max_hp=(p.base_max_hp||p.max_hp)+15;
+    p.max_hp=effectiveMaxHp(p);
+    p.hp=p.max_hp;
+    if(p.awakened){p.mana=p.max_mana;msgs.push(`✦ Level Up! Reached level ${p.level}! Mana fully restored!`);}
+    else msgs.push(`✦ Level Up! Reached level ${p.level}!`);
+  }
+  return msgs;
+}
+
+// ════════════════════════════════════════════
+// UI — LOG
+// ════════════════════════════════════════════
+let P=null;
+// Animated log queue
+let _logQ=[], _logRunning=false;
+
+function log(text,cls="lc-default"){_logQ.push({text,cls});if(!_logRunning)_drain();}
+function logImmediate(text,cls="lc-default"){_addLine(text,cls);}
+function _drain(){
+  if(!_logQ.length){_logRunning=false;return;}
+  _logRunning=true;
+  const{text,cls}=_logQ.shift();
+  _addLine(text,cls);
+  setTimeout(_drain,55);
+}
+function _addLine(text,cls){
+  const el=document.getElementById("log");
+  const d=document.createElement("div");d.className="log-line "+cls;d.textContent=text;
+  el.appendChild(d);el.scrollTop=el.scrollHeight;
+  // Mirror to mobile chronicle drawer
+  const mob=document.getElementById("chronicle-log-mobile");
+  if(mob){const d2=document.createElement("div");d2.className="log-line "+cls;d2.textContent=text;mob.appendChild(d2);mob.scrollTop=mob.scrollHeight;}
+}
+function logHTML(html,cls="lc-default"){
+  // Like log() but renders HTML markup — used for craft material lines with colour coding
+  const el=document.getElementById("log");
+  const d=document.createElement("div");d.className="log-line "+cls;d.innerHTML=html;
+  el.appendChild(d);el.scrollTop=el.scrollHeight;
+  const mob=document.getElementById("chronicle-log-mobile");
+  if(mob){const d2=document.createElement("div");d2.className="log-line "+cls;d2.innerHTML=html;mob.appendChild(d2);mob.scrollTop=mob.scrollHeight;}
+}
+function logSep(){
+  const el=document.getElementById("log");
+  const hr=document.createElement("hr");hr.className="log-sep";
+  el.appendChild(hr);el.scrollTop=el.scrollHeight;
+  const mob=document.getElementById("chronicle-log-mobile");
+  if(mob){const hr2=document.createElement("hr");hr2.className="log-sep";mob.appendChild(hr2);mob.scrollTop=mob.scrollHeight;}
+}
+function clearLog(){
+  document.getElementById("log").innerHTML="";
+  const mob=document.getElementById("chronicle-log-mobile");
+  if(mob)mob.innerHTML="";
+  // Dismiss the pending banner — player has moved on
+  const ban=document.getElementById("pending-banner");
+  if(ban){ban.classList.remove("visible");ban.innerHTML="";}
+}
+
+function toggleChronicle(){
+  const drawer=document.getElementById("chronicle-drawer");
+  const mob=document.getElementById("chronicle-log-mobile");
+  drawer.classList.toggle("open");
+  if(drawer.classList.contains("open"))mob.scrollTop=mob.scrollHeight;
+}
+
+
+function setTitle(t){document.getElementById("action-title").textContent=t;}
+function clearBtns(){document.getElementById("btn-grid").innerHTML="";}
+function addBtn(label,cb,cls=""){
+  const b=document.createElement("button");b.className="btn"+(cls?" "+cls:"");
+  b.textContent=label;b.onclick=cb;document.getElementById("btn-grid").appendChild(b);return b;
+}
+
+function showPending(){
+  const ban=document.getElementById("pending-banner");
+  if(!P||!P.pending_messages.length){return;}
+  ban.innerHTML="";ban.classList.add("visible");
+  for(const m of P.pending_messages){
+    const d=document.createElement("div");d.textContent="📜 "+m;ban.appendChild(d);
+    // Also write to Chronicle so it persists in the log
+    log("📜 "+m,"lc-good");
+  }
+  P.pending_messages=[];
+}
+
+// ════════════════════════════════════════════
+// STATUS PANEL
+// ════════════════════════════════════════════
+function renderStatus(){
+  if(!P)return;
+  // Sync max_hp with effective (handles set equip/unequip and loaded saves)
+  P.max_hp=effectiveMaxHp(P);
+  document.getElementById("s-name").textContent=P.name;
+  document.getElementById("s-level").textContent=P.level;
+  document.getElementById("s-sp").textContent=P.skill_points;
+  document.getElementById("s-gold").textContent=P.gold+" gold";
+  document.getElementById("s-hp").textContent=P.hp+" / "+P.max_hp;
+  document.getElementById("bar-hp").style.width=clamp(P.hp/P.max_hp*100,0,100)+"%";
+  document.getElementById("s-xp").textContent=P.xp+" / "+xpToNext(P);
+  document.getElementById("bar-xp").style.width=clamp(P.xp/xpToNext(P)*100,0,100)+"%";
+  const mr=document.getElementById("mana-row");
+  if(P.awakened){mr.style.display="block";document.getElementById("s-mana").textContent=P.mana+" / "+P.max_mana;document.getElementById("bar-mana").style.width=clamp(P.mana/P.max_mana*100,0,100)+"%";}
+  else mr.style.display="none";
+  const shardRow=document.getElementById("shard-row");
+  if(shardRow){if(P.found_arcane_shard){shardRow.style.display="block";document.getElementById("s-shards").textContent="💎 "+P.arcane_shards;}else shardRow.style.display="none";}
+  const w=P.inventory[P.equipped];
+  document.getElementById("s-weapon").textContent=P.equipped;
+  document.getElementById("s-weapon-stats").textContent=w[0]+"–"+w[1]+" damage";
+  document.getElementById("s-enchants").textContent=Object.entries(w[4]||{}).map(([k,v])=>k+" (T"+v+")").join("  ·  ");
+  const ag=document.getElementById("s-armor");ag.innerHTML="";
+  for(const[sl,v]of Object.entries(P.armor)){const d=document.createElement("div");d.className="armor-slot";d.innerHTML=sl+": <span>"+(v||"—")+"</span>";ag.appendChild(d);}
+  const sb=document.getElementById("s-set-bonus");
+  if(isMeadowsDone(P)){sb.style.display="block";sb.textContent="✦ Meadows Set: 30% chance to recover 1–4 HP on hit";}
+  else if(isCityDone(P)){sb.style.display="block";sb.textContent="✦ City Guard Set: +"+(10*P.level)+" Max HP active";}
+  else if(isDesertDone(P)){sb.style.display="block";sb.textContent="✦ Sandwrapped Set: 10% chance to reduce next hit by 2–8";}
+  else sb.style.display="none";
+  const pb=document.getElementById("pet-block");
+  if(P.pet){pb.style.display="block";const mhp=petMaxHp(P.pet);const pd=PET_DEFS[P.pet.name];
+    document.getElementById("s-pet-name").textContent=pd.icon+" "+P.pet.name+" (Tier "+(P.pet.tier+1)+")";
+    document.getElementById("s-pet-hp").textContent=P.pet.hp+" / "+mhp;
+    document.getElementById("bar-pet-hp").style.width=clamp(P.pet.hp/mhp*100,0,100)+"%";}
+  else pb.style.display="none";
+  const mats=Object.entries(P.materials).filter(([,q])=>q>0);
+  document.getElementById("s-mats").textContent=mats.length?mats.map(([k,v])=>k+": "+v).join(" · "):"None gathered.";
+}
+
+// ════════════════════════════════════════════
+// COMBAT
+// ════════════════════════════════════════════
+function runCombat(zid,onWin,onLose){
+  const zone=ZONES[zid];
+  const monster=weightedChoice(zone.monsters);
+  P.last_zone=zid;
+  const cs={};
+  const weap=P.inventory[P.equipped];
+  const wtype=weap[3];
+  const enchants=weap[4]||{};
+
+  logSep();
+  log("⚔  "+zone.name.toUpperCase()+"  —  "+monster.name,"lc-head");
+  if(P.pet)log("  "+PET_DEFS[P.pet.name].icon+" "+P.pet.name+" stands with you. (HP: "+P.pet.hp+")","lc-info");
+  logSep();
+
+  // ── Fight-start enchant effects ──
+  if(P.awakened){
+    // Heart Strike (Spear): auto-apply pen bleed + boost first EW
+    if(wtype==="Spear"&&enchants["Heart Strike"]&&P.mana>=3){
+      const hst=enchants["Heart Strike"];const hsd=ENCHANTMENTS.Spear["Heart Strike"]["t"+hst];
+      P.mana-=3;
+      const pst=enchants["Penetrating Strike"];
+      if(pst){const psd=ENCHANTMENTS.Spear["Penetrating Strike"]["t"+pst];cs.pen_bleed_turns=(cs.pen_bleed_turns||0)+psd.turns;cs.pen_bleed_dmg=1;}
+      else{cs.pen_bleed_turns=1;cs.pen_bleed_dmg=1;}
+      cs.heart_strike_first_ew=true;cs.heart_strike_ew_boost=hsd.ew_boost;
+      log("  💘 Heart Strike! Bleed applied before battle begins. First Exploit Weakness: "+(hsd.ew_boost*100)+"% chance. (Mana: "+P.mana+")","lc-mag");
+    }
+    // Blurred Images (Fists): chance at fight start to reduce DMG taken + set retaliate
+    if(wtype==="Fists"&&enchants["Blurred Images"]&&P.mana>=3){
+      const bit=enchants["Blurred Images"];const bid=ENCHANTMENTS.Fists["Blurred Images"]["t"+bit];
+      if(roll(bid.chance)){P.mana-=3;cs.blurred=true;cs.blurred_reduce=bid.dmg_reduce;cs.blurred_retaliate=bid.retaliate;
+        log("  🌫️ Blurred Images! You become a shimmer — "+bid.dmg_reduce+" less DMG taken, "+bid.retaliate+" retaliate on each hit. (Mana: "+P.mana+")","lc-mag");}
+    }
+    // Ravenous Poison (Dagger): chance at fight start to pre-stack envenom
+    if(wtype==="Dagger"&&enchants["Ravenous Poison"]&&P.mana>=3){
+      const rpt=enchants["Ravenous Poison"];const rpd=ENCHANTMENTS.Dagger["Ravenous Poison"]["t"+rpt];
+      if(roll(rpd.chance)){P.mana-=3;
+        const evt=enchants["Envenom"];const evd=evt?ENCHANTMENTS.Dagger["Envenom"]["t"+evt]:null;
+        const stackDmg=evd?rnd(...evd.dmg):rnd(2,5);
+        cs.raven_stacks=rpd.stacks;cs.raven_dmg=stackDmg;
+        log("  ☠️ Ravenous Poison! "+rpd.stacks+" poison stack"+(rpd.stacks>1?"s":"")+" ("+stackDmg+" dmg/turn) seep into the foe. (Mana: "+P.mana+")","lc-mag");}
+    }
+  }
+
+  function applyEnchants(){
+    let extra=0;if(!P.awakened)return extra;
+    for(const[en,tier]of Object.entries(enchants)){
+      const ed=ENCHANTMENTS[wtype]?.[en];if(!ed)continue;const td=ed["t"+tier];if(P.mana<ed.cost)continue;
+      if(en==="Puncture"){P.mana-=ed.cost;cs.puncture=(cs.puncture||0)+td.atk_neg_inc;monster.atk_lo=Math.max(1,monster.atk_lo-td.atk_neg_inc);log("  🩸 Puncture strikes! Enemy low range now "+monster.atk_lo+" (Mana: "+P.mana+")","lc-info");}
+      else if(en==="Bleed"){if(roll(td.chance)){P.mana-=ed.cost;cs.bleed=(cs.bleed||0)+td.dmg;log("  💉 Bleed inflicted! +"+td.dmg+"/turn (Total: "+cs.bleed+") (Mana: "+P.mana+")","lc-dmg");}}
+      else if(en==="Impact"){if(roll(td.chance)){P.mana-=ed.cost;cs.impact=(cs.impact||0)+td.dmg_reduce;log("  👊 Impact! Next attack reduced by "+td.dmg_reduce+" (Mana: "+P.mana+")","lc-info");}}
+      else if(en==="Blinding Toxin"){if(!cs.blind&&roll(td.proc_chance)){P.mana-=ed.cost;cs.blind=true;cs.blind_chance=td.half_chance;log("  🕶️ Blinding Toxin! Foe has "+Math.round(td.half_chance*100)+"% chance each strike to deal half damage! (Mana: "+P.mana+")","lc-warn");}}
+      else if(roll(td.chance||0)){P.mana-=ed.cost;
+        if(en==="Furious Strike"){const bd=td.bonus_dmg||[0,0];const b=rnd(weap[0],weap[1])+rnd(bd[0],bd[1]);extra+=b;log("  🔥 Furious Strike! +"+b+" damage (Mana: "+P.mana+")","lc-good");}
+        else if(en==="Envenom"){const d=rnd(...td.dmg);extra+=d;log("  🧪 Envenom! +"+d+" poison damage (Mana: "+P.mana+")","lc-good");}
+        else if(en==="Debilitate"){monster.atk_lo=Math.max(0,monster.atk_lo-td.atk_reduce);monster.atk_hi=Math.max(1,monster.atk_hi-td.atk_reduce);log("  🤢 Debilitate! Foe's attack reduced (now "+monster.atk_lo+"–"+monster.atk_hi+") (Mana: "+P.mana+")","lc-info");}
+      }
+    }
+    // Spear: Penetrating Strike
+    if(wtype==="Spear"&&enchants["Penetrating Strike"]){
+      const t=enchants["Penetrating Strike"];const ed=ENCHANTMENTS.Spear["Penetrating Strike"]["t"+t];
+      if(P.mana>=1&&roll(ed.chance)){P.mana-=1;cs.pen_bleed_dmg=1;cs.pen_bleed_turns=(cs.pen_bleed_turns||0)+ed.turns;
+        log("  🪓 Penetrating Strike! Bleeding "+ed.turns+" turn(s). (Mana: "+P.mana+")","lc-dmg");}
+    }
+    // Spear: Biting Sand (2 mana, once per battle)
+    if(wtype==="Spear"&&enchants["Biting Sand"]&&!cs.sand_marked){
+      const t=enchants["Biting Sand"];const ed=ENCHANTMENTS.Spear["Biting Sand"]["t"+t];
+      if(P.mana>=2&&roll(ed.proc_chance)){P.mana-=2;cs.sand_marked=true;log("  🏜️ Biting Sand! The foe is marked! (Mana: "+P.mana+")","lc-warn");}
+    }
+    // Spear: Exploit Weakness
+    if(wtype==="Spear"&&enchants["Exploit Weakness"]&&(cs.pen_bleed_turns||0)>0){
+      const t=enchants["Exploit Weakness"];const ed=ENCHANTMENTS.Spear["Exploit Weakness"]["t"+t];
+      const ewChance=cs.heart_strike_first_ew?(cs.heart_strike_ew_boost||ed.chance):ed.chance;
+      if(P.mana>=1&&roll(ewChance)){P.mana-=1;cs.heart_strike_first_ew=false;
+        let sandBonus=0;let consumed=true;
+        if(cs.sand_marked&&enchants["Biting Sand"]){
+          const st=enchants["Biting Sand"];const sed=ENCHANTMENTS.Spear["Biting Sand"]["t"+st];
+          if(roll(sed.no_consume_chance)){consumed=false;sandBonus=sed.flat_bonus;log("  🏜️ Biting Sand resists! Mark holds! +"+sandBonus+" bonus damage!","lc-warn");}
+        }
+        if(consumed){cs.pen_bleed_turns=0;cs.pen_bleed_dmg=0;}
+        const bonus=Math.floor(rnd(weap[0],weap[1])*ed.mult)-rnd(weap[0],weap[1])+sandBonus;
+        extra+=bonus;
+        log("  ⚡ Exploit Weakness! "+(consumed?"Bleed consumed. ":"")+(ed.mult+"× ")+"bonus: +"+bonus+" (Mana: "+P.mana+")","lc-good");
+      }
+    }
+    return extra;
+  }
+
+  function petOnAttack(){
+    if(!P.pet||P.pet.hp<=0)return 0;
+    const pd=PET_DEFS[P.pet.name];const t=P.pet.tier;
+    if(P.pet.name==="Elfish Sprite"&&roll(pd.atk_chance)){const[lo,hi]=pd.atk_upgrades[t];const d=rnd(lo,hi);log("  🧚 The Sprite dashes in! +"+d+" damage","lc-good");return d;}
+    if(P.pet.name==="Baby Dragon"&&roll(pd.atk_chance)){const bd=pd.burn_upgrades[t];const cur=cs.burn_stacks||0;
+      if(cur<pd.burn_stacks_max){cs.burn_stacks=cur+1;cs.burn_dmg=bd;cs.burn_turns=(cs.burn_turns||0)+pd.burn_turns;log("  🐉 The Dragon breathes fire! +"+bd+" burn/turn×"+pd.burn_turns+" (Stacks: "+cs.burn_stacks+")","lc-dmg");}}
+    return 0;
+  }
+
+  function petOnHit(dmg){
+    if(!P.pet||P.pet.hp<=0)return dmg;
+    const pd=PET_DEFS[P.pet.name];const t=P.pet.tier;
+    if(P.pet.name==="Baby Dragon"&&!cs.dragon_block_queued&&roll(pd.block_chance)){cs.dragon_block_queued=true;log("  🐉 The Dragon braces to intercept the next blow!","lc-info");}
+    if(cs.dragon_block_active){
+      if(roll(pd.block_proc||0.50)){const abs=dmg;P.pet.hp=Math.max(1,P.pet.hp-abs);cs.dragon_block_active=false;log("  🐉 The Dragon intercepts the blow! ("+abs+" absorbed, Pet HP: "+P.pet.hp+")","lc-info");return 0;}
+      else{cs.dragon_block_active=false;log("  🐉 The Dragon flinches — block failed!","lc-warn");}
+    }
+    if(cs.dragon_block_queued){cs.dragon_block_active=true;cs.dragon_block_queued=false;}
+    if(P.pet.hp>1&&roll(pd.absorb_chance)){const abs=Math.min(Math.max(1,Math.floor(P.pet.hp/2)),dmg>1?dmg-1:0);
+      if(abs>0){P.pet.hp=Math.max(1,P.pet.hp-abs);dmg-=abs;log("  "+pd.icon+" "+P.pet.name+" absorbs "+abs+" damage! (Pet HP: "+P.pet.hp+")","lc-info");}}
+    if(P.pet.name==="Elfish Sprite"&&roll(pd.heal_chance)){const[lo,hi]=pd.heal_upgrades[t];const h=rnd(lo,hi);P.hp=Math.min(P.max_hp,P.hp+h);log("  🧚 The Sprite mends your wounds! +"+h+" HP (You: "+P.hp+")","lc-good");}
+    return dmg;
+  }
+
+  function likeWater(){
+    if(cs.lw||!P.awakened)return;const t=enchants["Like Water"];if(!t)return;
+    const td=ENCHANTMENTS.Fists["Like Water"]["t"+t];if(P.mana<2)return;
+    if(roll(td.chance)){P.mana-=2;const[lo,hi]=td.reduce||[1,2];cs.lw=rnd(lo,hi);log("  💧 Like Water flows through you — "+cs.lw+" less damage taken this fight. (Mana: "+P.mana+")","lc-info");}
+  }
+
+  function tick(){
+    if(monster.hp<=0||P.hp<=0){finish();return;}
+    const pdmg=rnd(weap[0],weap[1]);
+    const eExtra=applyEnchants();const pExtra=petOnAttack();
+    const total=pdmg+eExtra+pExtra;monster.hp-=total;
+    let line="⚔  Strike: "+pdmg;if(eExtra)line+=" +"+eExtra+"(enchant)";if(pExtra)line+=" +"+pExtra+"(companion)";
+    line+=" = "+total+"  — "+monster.name+": "+Math.max(0,monster.hp)+" HP";
+    log(line,"lc-atk");
+    if(monster.hp<=0){finish();return;}
+    if(cs.bleed>0){monster.hp-=cs.bleed;log("  💉 Bleed: "+cs.bleed+" damage seeps. "+monster.name+": "+Math.max(0,monster.hp)+" HP","lc-dmg");if(monster.hp<=0){finish();return;}}
+    if((cs.pen_bleed_turns||0)>0){monster.hp-=1;cs.pen_bleed_turns--;log("  🪓 Penetrating bleed: 1 damage. "+monster.name+": "+Math.max(0,monster.hp)+" HP  ("+cs.pen_bleed_turns+" turn(s) left)","lc-dmg");if(monster.hp<=0){finish();return;}}
+    if((cs.raven_stacks||0)>0){const rtot=cs.raven_stacks*cs.raven_dmg;monster.hp-=rtot;log("  ☠️ Ravenous Poison: "+rtot+" damage ("+cs.raven_stacks+"×"+cs.raven_dmg+"). "+monster.name+": "+Math.max(0,monster.hp)+" HP","lc-dmg");if(monster.hp<=0){finish();return;}}
+    if((cs.burn_stacks||0)>0&&(cs.burn_turns||0)>0){const bt=cs.burn_stacks*cs.burn_dmg;monster.hp-=bt;cs.burn_turns--;if(cs.burn_turns<=0)cs.burn_stacks=0;log("  🔥 Burning: "+bt+" damage. "+monster.name+": "+Math.max(0,monster.hp)+" HP","lc-dmg");if(monster.hp<=0){finish();return;}}
+    const mlo=Math.max(1,monster.atk_lo);let mdmg=rnd(mlo,monster.atk_hi);
+    if(roll(zone.crit)){mdmg=Math.floor(mdmg*1.5);log("  💥 Critical blow!","lc-dmg");}
+    if(cs.blind&&roll(cs.blind_chance)){mdmg=Math.max(1,Math.floor(mdmg/2));log("  🕶️ Blinded! The foe's strike loses half its force.","lc-warn");}
+    if((cs.impact||0)>0){mdmg=Math.max(1,mdmg-cs.impact);log("  👊 Impact shield absorbs "+cs.impact+" damage.","lc-info");cs.impact=0;}
+    mdmg=petOnHit(mdmg);
+    const blurRed=cs.blurred?(cs.blurred_reduce||0):0;
+    const red=totalReduction(P);const lw=cs.lw||0;const final=Math.max(0,mdmg-red-lw-blurRed);
+    P.hp-=final;
+    let dl="🩸 You take "+final+" damage";if(red||lw||blurRed)dl+=" (blocked "+(red+blurRed);if(lw)dl+=", ward -"+lw;if(red||lw||blurRed)dl+=")";dl+=".  You: "+Math.max(0,P.hp)+" HP";
+    log(dl,final>0?"lc-dmg":"lc-good");
+    // Twisting Blade: chance to retaliate when struck
+    if(wtype==="Sword"&&enchants["Twisting Blade"]&&P.awakened){
+      const tbt=enchants["Twisting Blade"];const tbd=ENCHANTMENTS.Sword["Twisting Blade"]["t"+tbt];
+      if(P.mana>=2&&roll(tbd.chance)){P.mana-=2;const td2=rnd(...tbd.dmg);monster.hp-=td2;log("  🌀 Twisting Blade retaliates! "+td2+" damage to "+monster.name+"! ("+Math.max(0,monster.hp)+" HP, Mana: "+P.mana+")","lc-good");if(monster.hp<=0){finish();return;}}
+    }
+    // Blurred Images: retaliate on each hit
+    if(cs.blurred&&(cs.blurred_retaliate||0)>0){monster.hp-=cs.blurred_retaliate;log("  🌫️ Blurred Images retaliates! "+cs.blurred_retaliate+" damage to "+monster.name+"! ("+Math.max(0,monster.hp)+" HP)","lc-good");if(monster.hp<=0){finish();return;}}
+    likeWater();
+    if(isMeadowsDone(P)&&roll(0.30)){const h=rnd(1,4);P.hp=Math.min(P.max_hp,P.hp+h);log("  ✦ Fur Set blessing — recovered "+h+" HP. (You: "+P.hp+")","lc-good");}
+    if(isDesertDone(P)&&!cs.sand_shield&&roll(0.10)){cs.sand_shield=true;log("  🏜️ Sandwrapped Set — next hit reduced by 2–8!","lc-info");}
+    if(cs.sand_shield&&final>0){const red2=rnd(2,8);P.hp=Math.min(P.max_hp,P.hp+Math.min(red2,final));cs.sand_shield=false;log("  🏜️ Sand absorbs "+Math.min(red2,final)+" damage!","lc-good");}
+    renderStatus();
+    if(P.hp<=0){finish();return;}
+    setTimeout(tick,150);
+  }
+
+  function finish(){
+    renderStatus();
+    if(P.hp>0){
+      P.xp+=monster.xp;let earned=monster.gold;if(P.level>7)earned=Math.floor(earned*(1+(P.level-7)*0.04));P.gold+=earned;
+      log("✦ Victory! You earned "+monster.xp+" experience and "+earned+" gold.","lc-good");      if(!P.seen_monsters.has(monster.name)){P.seen_monsters.add(monster.name);P.pending_messages.push("New entry: "+monster.name+" added to your Bestiary!");
+        const zm=ZONES[zid].monsters.map(m=>m.name);if(zm.every(n=>P.seen_monsters.has(n)))P.pending_messages.push(ZONES[zid].name+" Bestiary complete! Seek the Beastmaster.");}
+      else P.seen_monsters.add(monster.name);
+      const lms=levelUp(P);for(const m of lms)log(m,"lc-good");
+      if(zid==="1"){
+        const mat=M_DROPS[monster.name];
+        if(mat){const firstLegendary=ZONE_LEGENDARIES.has(monster.name)&&!P.legendary_first_kills.has(monster.name);
+          if(firstLegendary){P.legendary_first_kills.add(monster.name);P.materials[mat]=(P.materials[mat]||0)+1;log("  ✦ First kill! You recovered: "+mat,"lc-gold");}
+          else if(roll(0.55)){P.materials[mat]=(P.materials[mat]||0)+1;log("  You recovered: "+mat,"lc-info");}}
+        if(!hasDagger(P)&&roll(0.18)){P.inventory["Rusty Dagger"]=[2,5,0,"Dagger",{}];P.pending_messages.push("A Rusty Dagger was found on the body.");log("  🗡  A Rusty Dagger glints in the grass!","lc-gold");}}
+      if(zid==="2"){
+        const mat=CITY_DROPS[monster.name];
+        if(mat){const firstLegendary=ZONE_LEGENDARIES.has(monster.name)&&!P.legendary_first_kills.has(monster.name);
+          if(firstLegendary){P.legendary_first_kills.add(monster.name);P.materials[mat]=(P.materials[mat]||0)+1;log("  ✦ First kill! You recovered: "+mat,"lc-gold");}
+          else if(roll(0.55)){P.materials[mat]=(P.materials[mat]||0)+1;log("  You recovered: "+mat,"lc-info");}}
+        if(!Object.values(P.inventory).some(w=>w[3]==="Sword")&&roll(0.18)){P.inventory["Guard Sword"]=[4,8,0,"Sword",{}];P.pending_messages.push("A Guard Sword was found — check your inventory.");log("  ⚔  A Guard Sword lies amid the rubble!","lc-gold");}}
+      if(zid==="3"){
+        const mat=DESERT_DROPS[monster.name];
+        if(mat){const firstLegendary=ZONE_LEGENDARIES.has(monster.name)&&!P.legendary_first_kills.has(monster.name);
+          if(firstLegendary){P.legendary_first_kills.add(monster.name);P.materials[mat]=(P.materials[mat]||0)+1;log("  ✦ First kill! You recovered: "+mat,"lc-gold");}
+          else if(roll(0.60)){P.materials[mat]=(P.materials[mat]||0)+1;log("  You recovered: "+mat,"lc-info");}}
+        if(!Object.values(P.inventory).some(w=>w[3]==="Spear")&&roll(0.20)){P.inventory["Dull Spear"]=[3,6,0,"Spear",{}];P.pending_messages.push("A Dull Spear was found in the sand.");log("  🪓 A Dull Spear lies half-buried in the dunes!","lc-gold");}
+        const shardChance=ARCANE_LEGENDARY.has(monster.name)?0.06:0.02;
+        if(roll(shardChance)){P.arcane_shards=(P.arcane_shards||0)+1;if(!P.found_arcane_shard){P.found_arcane_shard=true;P.pending_messages.push("You discovered a strange glowing crystal! Talk to the townspeople to learn more.");}log("  💎 An Arcane Shard catches the light! ("+P.arcane_shards+" total)","lc-mag");}}
+      if(zid==="4"||zid==="5"){
+        const dropTable=zid==="4"?{"Dark Knight":null,"The Lich King":null}:{"Abyssal Leviathan":null};// no mat drops defined yet for Z4/Z5
+        const shardChance=ARCANE_LEGENDARY.has(monster.name)?0.06:0.02;
+        if(ZONE_LEGENDARIES.has(monster.name)&&!P.legendary_first_kills.has(monster.name)){P.legendary_first_kills.add(monster.name);}
+        if(roll(shardChance)){P.arcane_shards=(P.arcane_shards||0)+1;if(!P.found_arcane_shard){P.found_arcane_shard=true;P.pending_messages.push("You discovered a strange glowing crystal! Talk to the townspeople to learn more.");}log("  💎 An Arcane Shard catches the light! ("+P.arcane_shards+" total)","lc-mag");}}
+      renderStatus();showPending();setTimeout(()=>onWin(),500);
+    } else {
+      log("☩  Your light fades... you have perished.","lc-dmg");setTimeout(()=>onLose(monster.name),700);
+    }
+  }
+  setTimeout(tick,250);
+}
+
+// ════════════════════════════════════════════
+// MENUS
+// ════════════════════════════════════════════
+function mainMenu(){renderStatus();showPending();setTitle("What shall you do?");clearBtns();
+  addBtn("Explore Eugor",worldMap);
+  if(P.last_zone)addBtn("Venture Forth — "+ZONES[P.last_zone].name,()=>{clearLog();_logQ=[];fight(P.last_zone);},"btn-gold");
+  addBtn("Town of Efil",town,"btn-green");addBtn("Inventory",inventory,"btn-blue");addBtn("Settings",settings,"btn-blue");}
+
+function worldMap(){clearLog();_logQ=[];setTitle("Explore Eugor");clearBtns();log("— Lands of the Realm —","lc-dim");
+  for(const[id,z]of Object.entries(ZONES))addBtn(z.name+"  ("+z.range+")",()=>{clearLog();_logQ=[];fight(id);});
+  addBtn("Return",mainMenu,"btn-red");}
+
+function fight(zid){clearBtns();setTitle("In Battle...");runCombat(zid,()=>mainMenu(),(killer)=>deathScreen(killer));}
+
+// TOWN
+function town(){clearLog();_logQ=[];setTitle("Town of Efil");clearBtns();log("— Town of Efil —","lc-dim");
+  addBtn("Rest at the Inn  ("+innCost(P)+" gold)",doInn,"btn-gold");
+  addBtn("Blacksmith",blacksmith,"btn-gold");addBtn("Beastmaster",beastmaster,"btn-green");
+  addBtn("Witch's Hut",witch,"btn-mag");addBtn("Craftsman",craftsman,"btn-blue");
+  addBtn("Leave Town",mainMenu,"btn-red");}
+
+function doInn(){if(P.gold<innCost(P)){log("You cannot afford to rest here.","lc-warn");return;}
+  P.gold-=innCost(P);P.hp=P.max_hp;let msg="You rest deeply. All wounds healed.";
+  if(P.awakened){const lo=Math.round(P.max_mana*0.25);const hi=P.max_mana;const mg=rnd(lo,hi);P.mana=Math.min(P.max_mana,P.mana+mg);msg+="  Mana restored (+"+mg+").";}
+  if(P.pet){P.pet.hp=petMaxHp(P.pet);msg+="  "+PET_DEFS[P.pet.name].icon+" Your companion rests well.";}
+  clearLog();_logQ=[];log(msg,"lc-good");renderStatus();}
+
+// BLACKSMITH
+function blacksmith(){clearLog();_logQ=[];setTitle("Blacksmith's Forge");clearBtns();
+  log("— The Forge —","lc-dim");
+  log('"I can upgrade your weapons... for a price."',"lc-gold");
+  for(const wn of Object.keys(P.inventory)){const wd=P.inventory[wn];const maxT=WEAPON_MAX_TIER[wd[3]]||3;
+    const cost=wd[2]===0?40:(wd[2]+1)*P.level*20;const tag=wn===P.equipped?" ✦":"";
+    if(wd[2]<maxT)addBtn("Upgrade: "+wn+tag+"  ("+cost+" gold)",()=>doUpgrade(wn),"btn-gold");
+    else{const b=addBtn(wn+tag+"  [Masterwork]",()=>{});b.classList.add("btn-disabled");}}
+  if(P.found_arcane_shard)addBtn("💎 Ask about the crystal",()=>{clearLog();_logQ=[];log('"Oh I might be able to use that later."',"lc-info");blacksmith();},"btn-blue");
+  addBtn("Leave",town,"btn-red");}
+
+function doUpgrade(wn){const wd=P.inventory[wn];const maxT=WEAPON_MAX_TIER[wd[3]]||3;
+  const cost=wd[2]===0?40:(wd[2]+1)*P.level*20;
+  if(P.gold<cost){log("You cannot afford this upgrade.","lc-warn");return;}
+  P.gold-=cost;const nup=wd[2]+1;const nn=UPGRADE_PREFIXES[wd[3]][nup];
+  const wasEq=P.equipped===wn;delete P.inventory[wn];P.inventory[nn]=[wd[0]+1,wd[1]+1,nup,wd[3],wd[4]];
+  if(wasEq)P.equipped=nn;clearLog();_logQ=[];log("The hammer falls. "+nn+" is forged!","lc-gold");renderStatus();blacksmith();}
+
+// BEASTMASTER
+function beastmaster(){clearLog();_logQ=[];setTitle("Beastmaster's Lodge");clearBtns();
+  log("— The Lodge —","lc-dim");
+  log('"Fill out the Bestiary pages for some special rewards."',"lc-info");
+  const mM=ZONES["1"].monsters.map(m=>m.name);const cM=ZONES["2"].monsters.map(m=>m.name);
+  const mD=mM.every(n=>P.seen_monsters.has(n));const cD=cM.every(n=>P.seen_monsters.has(n));
+  if(mD&&!P.has_sapphire_amulet&&!P.awakened&&!P.beastmaster_snarked.has("1")){log('"Oh, you again. Ever heard of checking your quest status? Just a thought."',"lc-warn");P.beastmaster_snarked.add("1");}
+  if(cD&&!P.pets_unlocked&&!P.beastmaster_snarked.has("2")){log('"Now that you\'ve proven your worth, I can entrust you to take care of my animals."',"lc-info");P.pets_unlocked=true;P.beastmaster_snarked.add("2");}
+  addBtn("Bestiary",bestiary);addBtn("Quest Status",questStatus,"btn-gold");
+  if(P.pets_unlocked)addBtn("🐾 Companions",petsMenu,"btn-gold");
+  if(P.found_arcane_shard)addBtn("💎 Ask about the crystal",()=>{clearLog();_logQ=[];log('"My animals are frightened by this strange magic."',"lc-warn");beastmaster();},"btn-blue");
+  addBtn("Leave",town,"btn-red");}
+
+function bestiary(){
+  clearLog();_logQ=[];setTitle("Bestiary");clearBtns();
+  // Show first zone by default
+  showZoneInLog("1");
+  for(const[zid,z]of Object.entries(ZONES)){
+    addBtn(z.name,()=>showZoneInLog(zid));
+  }
+  addBtn("Back",beastmaster,"btn-red");
+}
+
+function showZoneInLog(zid){
+  clearLog();_logQ=[];
+  const z=ZONES[zid];
+  log("— "+z.name+"  ("+z.range+") —","lc-head");
+  logSep();
+  for(const m of z.monsters){
+    if(P.seen_monsters.has(m.name)){
+      log(m.name,"lc-info");
+      log("  Health: "+m.hp+"   Attack: "+m.atk_lo+"–"+m.atk_hi+"   XP: "+m.xp,"lc-dim");
+    } else {
+      log(m.name+":  not yet encountered","lc-dim");
+    }
+  }
+}
+
+function questStatus(){clearLog();_logQ=[];const mM=ZONES["1"].monsters.map(m=>m.name);
+  if(mM.every(n=>P.seen_monsters.has(n))&&!P.has_sapphire_amulet&&!P.awakened){P.has_sapphire_amulet=true;log('"Fine work. Take this Sapphire Amulet."',"lc-info");renderStatus();}
+  else log("Your journal is not yet complete.","lc-warn");}
+
+// PETS
+function petsMenu(){clearLog();_logQ=[];setTitle("Companions");clearBtns();
+  if(P.pet){const pd=PET_DEFS[P.pet.name];const t=P.pet.tier;const mhp=petMaxHp(P.pet);
+    log(pd.icon+"  "+P.pet.name+"  (Tier "+(t+1)+")  —  HP: "+P.pet.hp+" / "+mhp,"lc-info");
+    log("  "+pd.desc,"lc-dim");
+    if(t<2){const cost=pd.upgrade_costs[t];addBtn("Upgrade Companion  ("+cost+" gold)  → Tier "+(t+2),()=>{if(P.gold<cost){log("Not enough gold.","lc-warn");return;}P.gold-=cost;P.pet.tier++;P.pet.hp=petMaxHp(P.pet);clearLog();_logQ=[];log(pd.icon+" "+P.pet.name+" grows stronger — Tier "+(P.pet.tier+1)+"!","lc-good");renderStatus();petsMenu();},"btn-gold");}
+    else log("  (This companion has reached their full potential.)","lc-dim");
+    addBtn("Back",beastmaster,"btn-red");
+  } else {
+    log('"Choose your companion wisely."',"lc-warn");
+    for(const[pn,pd]of Object.entries(PET_DEFS)){
+      log(pd.icon+"  "+pn+"  ("+pd.base_hp+" HP)","lc-info");log("  "+pd.desc,"lc-dim");
+      addBtn("Choose  "+pd.icon+"  "+pn,()=>{P.pet={name:pn,hp:pd.base_hp,tier:0};clearLog();_logQ=[];log(pd.icon+" "+pn+" has chosen you as their companion.","lc-good");renderStatus();petsMenu();},"btn-gold");}
+    addBtn("Decide Later",beastmaster,"btn-red");}}
+
+// WITCH
+function witch(){clearLog();_logQ=[];setTitle("Witch's Hut");clearBtns();log("— The Witch's Hut —","lc-dim");
+  if(!P.awakened){
+    if(P.has_sapphire_amulet){log('"Oh what a wonderful amulet! I can use this to awaken your magic power!"',"lc-mag");
+      addBtn("Awaken the Spirit within",()=>{P.awakened=true;P.has_sapphire_amulet=false;P.mana=25;clearLog();_logQ=[];log("✦ Spirit Awakened. Mana flows through your veins.","lc-mag");P.pending_messages.push("Visit the Witch to enchant your weapon.");renderStatus();witch();},"btn-mag");}
+    else log('"Begone! Bring me the scholar\'s stone."',"lc-warn");
+    if(P.found_arcane_shard&&!P.witch_crystal_talked)addBtn("💎 Ask about the crystal",()=>{P.witch_crystal_talked=true;clearLog();_logQ=[];log('"Ah! An arcane crystal! With enough of these and a small fee, I can increase your mana!"',"lc-mag");witch();},"btn-blue");
+    addBtn("Leave",town,"btn-red");
+  } else {
+    log("✦ Mana: "+P.mana+" / "+P.max_mana,"lc-mag");
+    if(P.arcane_shards>0)log("  💎 Arcane Shards: "+P.arcane_shards,"lc-mag");
+    addBtn("Add Enchantment  (2 SP)",addEnchant,"btn-mag");
+    addBtn("Upgrade Enchantment  (1 SP)",upgradeEnchant,"btn-mag");
+    addBtn("Reset Skill Points  (1,000 gold)",doResetSP,"btn-red");
+    addBtn("Study the Grimoire",grimoire);
+    if(P.found_arcane_shard&&!P.witch_crystal_talked)addBtn("💎 Ask about the crystal",()=>{P.witch_crystal_talked=true;clearLog();_logQ=[];log('"Ah! An arcane crystal! With enough of these and a small fee, I can increase your mana!"',"lc-mag");witch();},"btn-blue");
+    if(P.witch_crystal_talked)addBtn("💎 Increase Mana",doManaUpgrade,"btn-mag");
+    addBtn("Leave",town,"btn-red");}}
+
+function doResetSP(){
+  const COST=1000;
+  if(P.gold<COST){log("You need 1,000 gold to reset your skill points.","lc-warn");return;}
+  // Count all SP locked in enchants: 2 per enchant added, 1 per tier upgrade beyond T1
+  let refund=0;
+  for(const wd of Object.values(P.inventory)){
+    for(const t of Object.values(wd[4]||{})){
+      refund+=2;           // 2 SP to add
+      refund+=(t-1);       // 1 SP per upgrade beyond tier 1
+    }
+    wd[4]={};              // strip all enchants from this weapon
+  }
+  P.gold-=COST;
+  P.skill_points+=refund;
+  clearLog();_logQ=[];
+  log("✦ The Witch unravels your enchantments...","lc-mag");
+  log("  "+refund+" Skill Point"+(refund!==1?"s":"")+" restored.","lc-good");
+  log("  All enchantments have been removed.","lc-warn");
+  renderStatus();witch();
+}
+
+function doManaUpgrade(){
+  clearLog();_logQ=[];setTitle("Increase Mana");clearBtns();
+  const idx=P.mana_upgrades||0;
+  if(idx>=MANA_UPGRADE_COSTS.length){
+    log('"You have reached the limits of what I can do for you."',"lc-mag");
+    addBtn("Back",witch,"btn-red");return;}
+  const[crystals,gold]=MANA_UPGRADE_COSTS[idx];
+  log("— Mana Upgrade ("+(idx+1)+" of "+MANA_UPGRADE_COSTS.length+") —","lc-head");
+  log("  Current Max Mana: "+P.max_mana,"lc-mag");
+  log("  Cost: 💎 "+crystals+" Arcane Shard"+(crystals!==1?"s":"")+" + "+gold+" gold","lc-dim");
+  log("  Reward: +5 Maximum Mana","lc-good");
+  log("  You have: 💎 "+P.arcane_shards+" shards,  "+P.gold+" gold","lc-dim");
+  const canAfford=P.arcane_shards>=crystals&&P.gold>=gold;
+  const btn=addBtn("✦ Perform the ritual  (💎 "+crystals+" + "+gold+" gold)",()=>{
+    if(P.arcane_shards<crystals||P.gold<gold){log("You lack the required shards or gold.","lc-warn");return;}
+    P.arcane_shards-=crystals;P.gold-=gold;P.max_mana+=5;P.mana_upgrades=(P.mana_upgrades||0)+1;
+    clearLog();_logQ=[];log("✦ The Witch weaves her magic... your spirit expands!","lc-mag");
+    log("  Maximum Mana increased to "+P.max_mana+"!","lc-good");
+    renderStatus();witch();},"btn-mag");
+  if(!canAfford)btn.classList.add("btn-disabled");
+  addBtn("Back",witch,"btn-red");}
+
+function grimoire(){clearLog();_logQ=[];setTitle("The Grimoire");clearBtns();
+  log("— The Grimoire of Enchantments —","lc-head");
+  log("Select a weapon type to study its enchantments.","lc-dim");
+  for(const wt of Object.keys(ENCHANTMENTS)){
+    addBtn("📖  "+wt+" Enchantments",()=>grimoireWeapon(wt));
+  }
+  addBtn("Back to Witch's Hut",witch,"btn-red");
+}
+
+function grimoireWeapon(wt){clearLog();_logQ=[];setTitle("Grimoire — "+wt);clearBtns();
+  log("— "+wt.toUpperCase()+" ENCHANTMENTS —","lc-head");
+  logSep();
+  const es=ENCHANTMENTS[wt];
+  for(const[en,ed]of Object.entries(es)){
+    log("  "+ed.icon+"  "+en+"  ("+ed.cost+" mana / attack)"+(ed.prereqs?"  ·  Requires: "+ed.prereqs.join(", "):""),"lc-info");
+    log("  "+ed.desc,"lc-default");
+    log("    ▸ Tier 1:  "+ed.t1.label,"lc-dim");
+    log("    ▸ Tier 2:  "+ed.t2.label,"lc-dim");
+    log("    ▸ Tier 3:  "+ed.t3.label,"lc-dim");
+    logSep();
+  }
+  addBtn("◀  Back to Grimoire",grimoire,"btn-red");
+}
+
+function addEnchant(){if(P.skill_points<2){log("You need 2 Skill Points.","lc-warn");witch();return;}
+  const elig=Object.entries(P.inventory).filter(([,w])=>w[2]>=ENCHANT_MIN_TIER&&ENCHANTMENTS[w[3]]);
+  if(!elig.length){log("No eligible weapons. Upgrade to tier 2 first.","lc-warn");witch();return;}
+  clearLog();_logQ=[];setTitle("Add Enchantment");clearBtns();
+  let any=false;
+  for(const[wn,wd]of elig){const wt=wd[3];
+    const avail=Object.keys(ENCHANTMENTS[wt]).filter(e=>{
+      if(wd[4][e])return false;// already have it
+      const prereqs=ENCHANTMENTS[wt][e].prereqs;
+      if(prereqs&&!prereqs.every(p=>wd[4][p]))return false;// prereqs not met
+      return true;});
+    for(const en of avail){any=true;const ed=ENCHANTMENTS[wt][en];
+      const prereqNote=ed.prereqs?" (requires "+ed.prereqs.join(", ")+")":"";
+      addBtn(ed.icon+"  "+en+"  →  "+wn+"  (2 SP)"+prereqNote,()=>{P.skill_points-=2;P.inventory[wn][4][en]=1;clearLog();_logQ=[];log(ed.icon+" "+en+" inscribed upon "+wn+".","lc-mag");renderStatus();witch();},"btn-mag");}}
+  if(!any)log("No enchantments available to add. Meet prerequisites or upgrade your weapon.","lc-dim");
+  addBtn("Cancel",witch,"btn-red");}
+
+function upgradeEnchant(){if(P.skill_points<1){log("You need 1 Skill Point.","lc-warn");witch();return;}
+  const up=[];for(const[wn,wd]of Object.entries(P.inventory))for(const[en,t]of Object.entries(wd[4]||{}))if(t<3)up.push([wn,wd,en,t]);
+  if(!up.length){log("No enchantments available to upgrade.","lc-warn");witch();return;}
+  clearLog();_logQ=[];setTitle("Upgrade Enchantment");clearBtns();
+  for(const[wn,wd,en,t]of up){const ed=ENCHANTMENTS[wd[3]][en];addBtn(ed.icon+"  "+en+"  T"+t+"→T"+(t+1)+"  on "+wn+"  (1 SP)",()=>{P.skill_points-=1;P.inventory[wn][4][en]=t+1;clearLog();_logQ=[];log(ed.icon+" "+en+" deepened to Tier "+(t+1)+" on "+wn+".","lc-mag");renderStatus();witch();},"btn-mag");}
+  addBtn("Cancel",witch,"btn-red");}
+
+// CRAFTSMAN
+function craftsman(){clearLog();_logQ=[];setTitle("Craftsman's Anvil");clearBtns();
+  if(!P.craftsman_met){log('"Oy, go out and kill things... bring me parts for armour."',"lc-info");P.craftsman_met=true;}
+  log("— The Craftsman —","lc-dim");
+  addBtn("Meadows Fur Set",()=>craftSet(MEADOWS_RECIPES,"Meadows Fur Set","0–1 damage reduction per hit"),"btn-green");
+  addBtn("City Guard Set",()=>craftSet(CITY_RECIPES,"City Guard Set","0–2 damage reduction per hit"),"btn-blue");
+  addBtn("Sandwrapped Armor",()=>craftSet(DESERT_RECIPES,"Sandwrapped Armor","0–2 damage reduction per hit"),"btn-gold");
+  addBtn("Sell Materials",sellMats,"btn-gold");addBtn("View Materials",()=>{clearLog();_logQ=[];const ms=Object.entries(P.materials).filter(([,q])=>q>0);if(!ms.length)log("You carry no materials.","lc-dim");else for(const[m,q]of ms)log("  "+m+": "+q,"lc-info");});
+  if(P.found_arcane_shard)addBtn("💎 Ask about the crystal",()=>{clearLog();_logQ=[];log('"I can\'t fashion armor out of this."',"lc-info");craftsman();},"btn-blue");
+  addBtn("Leave",town,"btn-red");}
+
+function craftSet(recipes,setName,effect){setTitle(setName);clearBtns();
+  for(const[name,r]of Object.entries(recipes)){const crafted=name in P.armor_inventory;
+    const ok=P.gold>=r.gold&&Object.entries(r.mats).every(([m,q])=>(P.materials[m]||0)>=q);
+    const matParts=Object.entries(r.mats).map(([m,q])=>{const have=P.materials[m]||0;const enough=have>=q;const txt=have+"/"+q+" "+m;return enough?txt:"<span style='color:#c0392b;font-weight:600'>"+txt+"</span>";});
+    const matStr=matParts.join(", ");
+    logHTML(name+" ["+r.slot+"] — "+r.gold+" gold  ·  "+matStr+(crafted?"  ✦ Crafted":""),"lc-dim");
+    if(!crafted){const b=addBtn("Craft: "+name+"  ("+r.gold+" gold)",()=>{
+      if(P.gold<r.gold||!Object.entries(r.mats).every(([m,q])=>(P.materials[m]||0)>=q)){log("You lack the required materials or gold.","lc-warn");return;}
+      P.gold-=r.gold;for(const[m,q]of Object.entries(r.mats))P.materials[m]=(P.materials[m]||0)-q;
+      P.armor_inventory[name]={slot:r.slot,effect,set:setName};
+      if(!P.armor[r.slot]){P.armor[r.slot]=name;log(name+" crafted and donned.","lc-good");}
+      else log(name+" crafted and stored in your pack.","lc-info");
+      renderStatus();craftsman();},"btn-blue");if(!ok)b.classList.add("btn-disabled");}}
+  addBtn("No Thanks",craftsman,"btn-red");}
+
+function sellMats(){setTitle("Sell Materials");clearBtns();
+  addBtn("Sell Meadows Materials",()=>{const s=Object.entries(P.materials).filter(([m,q])=>MEADOWS_MATS.has(m)&&q>0);if(!s.length){log("No Meadows materials to sell.","lc-warn");return;}let tot=0;for(const[m,q]of s){const[lo,hi]=SELL_PRICES[m]||[1,2];let e=0;for(let i=0;i<q;i++)e+=rnd(lo,hi);tot+=e;P.materials[m]=0;log("  "+m+" ×"+q+" → "+e+" gold","lc-gold");}P.gold+=tot;log("Total: "+tot+" gold","lc-good");renderStatus();},"btn-gold");
+  addBtn("Sell City Materials",()=>{const s=Object.entries(P.materials).filter(([m,q])=>CITY_MATS.has(m)&&q>0);if(!s.length){log("No City materials to sell.","lc-warn");return;}let tot=0;for(const[m,q]of s){const[lo,hi]=SELL_PRICES[m]||[1,2];let e=0;for(let i=0;i<q;i++)e+=rnd(lo,hi);tot+=e;P.materials[m]=0;log("  "+m+" ×"+q+" → "+e+" gold","lc-gold");}P.gold+=tot;log("Total: "+tot+" gold","lc-good");renderStatus();},"btn-blue");
+  addBtn("Sell Desert Materials",()=>{const s=Object.entries(P.materials).filter(([m,q])=>DESERT_MATS.has(m)&&q>0);if(!s.length){log("No Desert materials to sell.","lc-warn");return;}let tot=0;for(const[m,q]of s){const[lo,hi]=SELL_PRICES[m]||[3,5];let e=0;for(let i=0;i<q;i++)e+=rnd(lo,hi);tot+=e;P.materials[m]=0;log("  "+m+" ×"+q+" → "+e+" gold","lc-gold");}P.gold+=tot;log("Total: "+tot+" gold","lc-good");renderStatus();},"btn-gold");
+  addBtn("Back",craftsman,"btn-red");}
+
+// INVENTORY
+function inventory(){setTitle("Inventory");clearBtns();log("— Your Possessions —","lc-dim");
+  log("Weapons:","lc-head");
+  for(const[wn,wd]of Object.entries(P.inventory)){
+    const eq=wn===P.equipped?" ✦ (equipped)":"";const enc=Object.entries(wd[4]||{}).map(([e,t])=>e+" T"+t).join(", ");
+    log("  "+wn+eq+"  "+wd[0]+"–"+wd[1]+" dmg"+(enc?"  ·  "+enc:""),"lc-info");
+    if(wn!==P.equipped)addBtn("Equip: "+wn,()=>{P.equipped=wn;log(wn+" equipped.","lc-good");renderStatus();inventory();});}
+  log("Armour:","lc-head");
+  if(!Object.keys(P.armor_inventory).length)log("  No armour crafted.","lc-dim");
+  for(const[an,ad]of Object.entries(P.armor_inventory)){const eq=P.armor[ad.slot]===an?" ✦ (equipped)":"";
+    log("  "+an+eq+"  ["+ad.slot+"]  "+ad.effect,"lc-info");
+    if(!eq)addBtn("Equip: "+an,()=>{P.armor[ad.slot]=an;log(an+" equipped.","lc-good");renderStatus();inventory();});}
+  if(P.has_sapphire_amulet){log("Key Items:","lc-head");log("  💎 Sapphire Amulet — take to the Witch's Hut","lc-mag");}
+  addBtn("Back",mainMenu,"btn-red");}
+
+// SETTINGS
+function settings(){setTitle("Settings");clearBtns();
+  addBtn("Save — Record Incantation",doSave,"btn-blue");addBtn("Load — Paste Incantation",doLoad,"btn-blue");
+  addBtn("System Test",doDebug,"btn-blue");addBtn("Version & Patch Notes",patchNotes);
+  addBtn("Quit to Title",()=>splash(),"btn-red");addBtn("Back",mainMenu);}
+
+function doSave(){const inc=encode(pSer(P));
+  const d=document.getElementById("incantation-display");d.textContent=inc;d.classList.add("visible");
+  overlay("Incantation Recorded","Transcribe this spell and keep it safe.",[],null,false);
+  const ob=document.getElementById("overlay-btns");ob.innerHTML="";
+  const close=document.createElement("button");close.className="btn";close.textContent="Close";close.onclick=()=>{hideOverlay();d.classList.remove("visible");};ob.appendChild(close);
+  const copy=document.createElement("button");copy.className="btn btn-gold";copy.textContent="Copy to Clipboard";copy.onclick=()=>{navigator.clipboard.writeText(inc).then(()=>{copy.textContent="Copied!";setTimeout(()=>copy.textContent="Copy to Clipboard",2000);});};ob.appendChild(copy);}
+
+function doLoad(){overlay("Load Incantation","Paste your incantation below:",[],v=>{const d=decode(v);if(d){P=pDes(d);hideOverlay();log("The spell takes hold. Welcome back, "+P.name+".","lc-good");mainMenu();}else{log("That incantation is invalid.","lc-warn");hideOverlay();settings();}},true,"Paste incantation here...");}
+
+// ════════════════════════════════════════════
+// SYSTEM TEST WIZARD
+// ════════════════════════════════════════════
+function doDebug(){
+  overlay("System Test","Enter passphrase:",[],pass=>{
+    hideOverlay();
+    if(pass!=="bLu"){log("Passphrase incorrect.","lc-warn");settings();return;}
+    stLevel();
+  },true,"Passphrase...");
+}
+
+function stLevel(){
+  clearLog();_logQ=[];setTitle("System Test — Level");clearBtns();
+  log("— System Test —","lc-head");
+  log("Select a starting level:","lc-dim");
+  addBtn("Level 7  (Meadows)",()=>stWeapon(7));
+  addBtn("Level 13  (Abandoned City)",()=>stWeapon(13));
+  addBtn("Cancel",()=>{settings();},"btn-red");
+}
+
+function stWeapon(lvl){
+  clearLog();_logQ=[];setTitle("System Test — Weapon");clearBtns();
+  log("Select a weapon (Tier 3):","lc-dim");
+  addBtn("🤛 Fists  —  Iron Tempest  (4–7)",()=>stArmor(lvl,"Iron Tempest",[4,7,3,"Fists",{}]));
+  addBtn("🗡 Dagger  —  Venom Fang  (5–8)",()=>stArmor(lvl,"Venom Fang",[5,8,3,"Dagger",{}]));
+  if(lvl>=13){
+    addBtn("⚔ Sword  —  Royal Claymore  (7–11)",()=>stPet(lvl,"Royal Claymore",[7,11,3,"Sword",{}]));
+  }
+  addBtn("Back",()=>stLevel(),"btn-red");
+}
+
+function stPet(lvl,wn,wd){
+  clearLog();_logQ=[];setTitle("System Test — Pet");clearBtns();
+  log("Select a companion (Tier 3):","lc-dim");
+  addBtn("🧚 Elfish Sprite  (HP 60)",()=>stArmor(lvl,wn,wd,{name:"Elfish Sprite",hp:60,tier:2}));
+  addBtn("🐉 Baby Dragon  (HP 90)",()=>stArmor(lvl,wn,wd,{name:"Baby Dragon",hp:90,tier:2}));
+  addBtn("Back",()=>stWeapon(lvl),"btn-red");
+}
+
+function stArmor(lvl,wn,wd,pet){
+  // For fists/dagger at lvl 7, skip pet selection (pet=undefined)
+  if(lvl>=13&&pet===undefined){stPet(lvl,wn,wd);return;}
+  clearLog();_logQ=[];setTitle("System Test — Armor");clearBtns();
+  log("Select an armor set:","lc-dim");
+  addBtn("🌿 Meadows Fur Set",()=>stApply(lvl,wn,wd,pet,"meadows"));
+  if(lvl>=13){
+    addBtn("🛡 City Guard Set",()=>stApply(lvl,wn,wd,pet,"city"));
+  }
+  addBtn("Back",()=>{lvl>=13?stPet(lvl,wn,wd):stWeapon(lvl);},"btn-red");
+}
+
+function stApply(lvl,wn,wd,pet,armorKey){
+  const baseHp=75+(lvl-1)*15;
+  P.level=lvl;P.base_max_hp=baseHp;P.xp=0;P.gold=1700;
+  // All SP awarded — no enchants pre-assigned, player spends them
+  P.skill_points=lvl-1;
+  P.awakened=true;P.mana=25;P.max_mana=25;
+  P.has_sapphire_amulet=false;P.craftsman_met=true;P.pets_unlocked=(lvl>=13);
+  P.beastmaster_snarked=new Set(lvl>=13?["1","2"]:["1"]);
+  // Seen monsters
+  const z1=ZONES["1"].monsters.map(m=>m.name);
+  const z2=ZONES["2"].monsters.map(m=>m.name);
+  const z3=ZONES["3"].monsters.map(m=>m.name);
+  P.seen_monsters=new Set(lvl>=13?[...z1,...z2]:z1);
+  // Weapon
+  P.inventory={[wn]:wd};P.equipped=wn;
+  // Pet
+  P.pet=pet||null;
+  // Armor
+  if(armorKey==="meadows"){
+    P.armor={Head:"Fur Cap",Chest:"Fur Chestpiece",Arms:"Fur Bracers",Legs:"Fur Leggings"};
+    P.armor_inventory={"Fur Cap":{slot:"Head",effect:"0-1 DMG reduction per hit",set:"Meadows Fur Set"},"Fur Chestpiece":{slot:"Chest",effect:"0-1 DMG reduction per hit",set:"Meadows Fur Set"},"Fur Bracers":{slot:"Arms",effect:"0-1 DMG reduction per hit",set:"Meadows Fur Set"},"Fur Leggings":{slot:"Legs",effect:"0-1 DMG reduction per hit",set:"Meadows Fur Set"}};
+  } else if(armorKey==="city"){
+    P.armor={Head:"Guard Helm",Chest:"Guard Chestplate",Arms:"Guard Gauntlets",Legs:"Guard Greaves"};
+    P.armor_inventory={"Guard Helm":{slot:"Head",effect:"0-2 DMG reduction per hit",set:"City Guard Set"},"Guard Chestplate":{slot:"Chest",effect:"0-2 DMG reduction per hit",set:"City Guard Set"},"Guard Gauntlets":{slot:"Arms",effect:"0-2 DMG reduction per hit",set:"City Guard Set"},"Guard Greaves":{slot:"Legs",effect:"0-2 DMG reduction per hit",set:"City Guard Set"}};
+  } else if(armorKey==="desert"){
+    P.armor={Head:"Sand Veil",Chest:"Sandwrapped Chest",Arms:"Sand Gauntlets",Legs:"Sand Greaves"};
+    P.armor_inventory={"Sand Veil":{slot:"Head",effect:"0-2 DMG reduction per hit",set:"Sandwrapped Armor"},"Sandwrapped Chest":{slot:"Chest",effect:"0-2 DMG reduction per hit",set:"Sandwrapped Armor"},"Sand Gauntlets":{slot:"Arms",effect:"0-2 DMG reduction per hit",set:"Sandwrapped Armor"},"Sand Greaves":{slot:"Legs",effect:"0-2 DMG reduction per hit",set:"Sandwrapped Armor"}};
+  }
+  P.max_hp=effectiveMaxHp(P);P.hp=P.max_hp;
+  clearLog();_logQ=[];
+  log("✦ System Test applied — Level "+lvl+", "+wn+", "+(pet?pet.name+" (T3), ":"")+armorKey+" armor.","lc-good");
+  log("  HP: "+P.hp+"  SP: "+P.skill_points+"  Gold: "+P.gold,"lc-info");
+  renderStatus();mainMenu();
+}
+
+function applyDebug(wn,wd){P.level=7;P.max_hp=165;P.base_max_hp=165;P.hp=165;P.gold=1700;P.xp=0;P.skill_points=0;P.awakened=true;P.mana=20;P.max_mana=20;P.last_zone="1";
+  P.armor={Head:"Fur Cap",Chest:"Fur Chestpiece",Arms:"Fur Bracers",Legs:"Fur Leggings"};
+  P.armor_inventory={"Fur Cap":{slot:"Head",effect:"0-1 DMG reduction per hit",set:"Meadows Fur Set"},"Fur Chestpiece":{slot:"Chest",effect:"0-1 DMG reduction per hit",set:"Meadows Fur Set"},"Fur Bracers":{slot:"Arms",effect:"0-1 DMG reduction per hit",set:"Meadows Fur Set"},"Fur Leggings":{slot:"Legs",effect:"0-1 DMG reduction per hit",set:"Meadows Fur Set"}};
+  P.seen_monsters=new Set(ZONES["1"].monsters.map(m=>m.name));P.has_sapphire_amulet=false;P.craftsman_met=true;P.beastmaster_snarked.add("1");P.inventory={[wn]:wd};P.equipped=wn;log("Debug state applied.","lc-good");}
+
+function applyDebug13(wn,wd,pet){
+  // Level 13: 75 + 12*15 = 255 base HP; City set adds 10*13=130 → 385 effective
+  // 12 SP earned; 8 spent (2 enchants: 2+1+1 SP each) → 4 remaining
+  P.level=13;P.base_max_hp=255;P.xp=0;P.gold=1700;P.skill_points=4;
+  P.awakened=true;P.mana=20;P.max_mana=20;P.last_zone="2";P.has_sapphire_amulet=false;
+  P.craftsman_met=true;P.pets_unlocked=true;
+  P.beastmaster_snarked=new Set(["1","2"]);
+  P.armor={Head:"Guard Helm",Chest:"Guard Chestplate",Arms:"Guard Gauntlets",Legs:"Guard Greaves"};
+  P.armor_inventory={
+    "Guard Helm":      {slot:"Head", effect:"0-2 DMG reduction per hit",set:"City Guard Set"},
+    "Guard Chestplate":{slot:"Chest",effect:"0-2 DMG reduction per hit",set:"City Guard Set"},
+    "Guard Gauntlets": {slot:"Arms", effect:"0-2 DMG reduction per hit",set:"City Guard Set"},
+    "Guard Greaves":   {slot:"Legs", effect:"0-2 DMG reduction per hit",set:"City Guard Set"}
+  };
+  const z1=ZONES["1"].monsters.map(m=>m.name);
+  const z2=ZONES["2"].monsters.map(m=>m.name);
+  P.seen_monsters=new Set([...z1,...z2]);
+  P.inventory={[wn]:wd};P.equipped=wn;
+  P.pet=pet;
+  P.max_hp=effectiveMaxHp(P);P.hp=P.max_hp;
+  log("Debug state applied — Level 13, City Guard Set, "+wn+", "+pet.name+" (T3).","lc-good");
+  renderStatus();
+}
+
+function patchNotes(){log("— Legends of Eugor  v"+VERSION+" —","lc-head");for(const l of PATCH_NOTES)log(l||" ","lc-dim");settings();}
+
+// DEATH
+function deathScreen(killer){
+  const killerLine=killer?"You were slain by "+killer+"!":"You have fallen in battle.";
+  overlay("You Have Perished",killerLine+"\n\nWhat path forward?",
+    [{label:"View Chronicle",cb:()=>{
+        hideOverlay();
+        renderStatus();setTitle("What shall you do?");clearBtns();
+        addBtn("Begin Anew",()=>{clearLog();_logQ=[];startGame();});
+        addBtn("Restore from Incantation",()=>{clearLog();_logQ=[];doLoad();});
+        addBtn("Return to Title",()=>{clearLog();_logQ=[];splash();});
+      }},
+     {label:"Begin Anew",cb:()=>{hideOverlay();clearLog();_logQ=[];startGame();}},
+     {label:"Restore Incantation",cb:()=>{hideOverlay();clearLog();_logQ=[];doLoad();}},
+     {label:"Title",cb:()=>{hideOverlay();clearLog();_logQ=[];splash();}}]);
+}
+
+// ════════════════════════════════════════════
+// OVERLAY
+// ════════════════════════════════════════════
+function overlay(title,body,btns,inputCb,withInput=false,ph=""){
+  document.getElementById("overlay-title").textContent=title;
+  document.getElementById("overlay-title").className=title.toLowerCase().includes("perish")?"death":"";
+  document.getElementById("overlay-body").textContent=body;
+  const ob=document.getElementById("overlay-btns");ob.innerHTML="";
+  for(const{label,cb}of btns){const b=document.createElement("button");b.className="btn";b.textContent=label;b.onclick=cb;ob.appendChild(b);}
+  const iw=document.getElementById("overlay-input-wrap");const oi=document.getElementById("overlay-input");
+  if(withInput){iw.style.display="flex";oi.placeholder=ph;oi.value="";setTimeout(()=>oi.focus(),60);
+    document.getElementById("overlay-input-confirm").onclick=()=>{const v=oi.value.trim();if(v&&inputCb)inputCb(v);};
+    oi.onkeydown=e=>{if(e.key==="Enter"){const v=oi.value.trim();if(v&&inputCb)inputCb(v);}};}
+  else iw.style.display="none";
+  document.getElementById("overlay").classList.add("visible");
+}
+function hideOverlay(){document.getElementById("overlay").classList.remove("visible");document.getElementById("incantation-display").classList.remove("visible");}
+
+// ════════════════════════════════════════════
+// SPLASH & INIT
+// ════════════════════════════════════════════
+function splash(){P=null;
+  overlay("Legends of Eugor","A tale of grit, gold, and glory.\n\nVersion "+VERSION,
+    [{label:"Begin Your Journey",cb:()=>{hideOverlay();startGame();}},
+     {label:"Restore from Incantation",cb:()=>{overlay("Restore",  "Paste your incantation:",[],v=>{const d=decode(v);if(d){P=pDes(d);hideOverlay();log("Welcome back, "+P.name+". The road continues.","lc-good");mainMenu();}else{log("That incantation is invalid.","lc-warn");splash();}},true,"Paste incantation...");}}]);}
+
+function startGame(){overlay("The Awakening","What name shall the chronicles remember?",[],name=>{
+  if(!name)return;P=newPlayer(name);hideOverlay();
+  logSep();
+  log("You wake up in a field, bloody and beaten, with nothing but your bare hands.","lc-dim");
+  log("Next to you is a note that reads:","lc-dim");
+  log('  "Explore Eugor, save the world. Find the Beastmaster."',"lc-info");
+  logSep();
+  P.fresh_start=false;mainMenu();},true,"Enter your name...");}
+
+// Boot
+document.getElementById("version-tag").textContent="v"+VERSION;
+splash();
+</script>
+</body>
+</html>
