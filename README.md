@@ -1,8 +1,11 @@
-v0.3.02 - (New Version)
-* Reduce damage range of oasis phantom to 30-35 (from 30-40) and health to 120 (from 140)
-* Reduce damage range of dune stalker to 35-40 (from 35-45) and health to 180 (from 200)
-* Reduce baby dragon burning chance to 35% and reduce the burning damamge to 1/2/3 for each upgrade tier
-* Increase the block change to 15% (from 10%)
+v0.3.02 — 
+* Starting mana increased to 25.
+* Baby Dragon: burn chance 35%, burn dmg 1/2/3 per tier, block 15%, max HP 75.
+* Oasis Phantom and Dune Stalker HP and damage reduced.
+* Dangerous Desert renamed to Regnad Desert.
+* New: Arcane Shards drop from zone 3+ monsters.
+* New: Witch's Hut Mana Upgrade (spend Arcane Shards + gold for +5 mana).
+* Townspeople dialogue added for the Arcane Shard.
 
 v0.3.01 — 
 * All monsters now have explicit damage ranges (atk_lo–atk_hi).
