@@ -753,18 +753,16 @@ body {
 // ════════════════════════════════════════════
 // DATA
 // ════════════════════════════════════════════
-const VERSION = "0.3.02";
+const VERSION = "0.3.03";
 const PATCH_NOTES = [
-  "v0.3.02 — Starting mana increased to 25.",
-  "  Baby Dragon: burn chance 35%, burn dmg 1/2/3 per tier, block 15%, max HP 75.",
-  "  Oasis Phantom and Dune Stalker HP and damage reduced.",
-  "  Dangerous Desert renamed to Regnad Desert.",
-  "  New: Arcane Shards drop from zone 3+ monsters.",
-  "  New: Witch's Hut Mana Upgrade (spend Arcane Shards + gold for +5 mana).",
-  "  Townspeople dialogue added for the Arcane Shard.",
+  "v0.3.03 — Inn mana restore now scales with max mana (25%–100%).",
+  "  Mana fully restored on level-up.",
+  "  Armor crafting view highlights missing materials in red.",
+  "  Ancient Sphinx HP reduced to 240, damage range 40–45.",
   "",
-  "v0.3.01 — All monsters now have explicit damage ranges (atk_lo–atk_hi).",
-  "  Sand Worm HP and damage reduced. System Test improvements."
+  "v0.3.02 — Starting mana 25. Baby Dragon rebalanced.",
+  "  Oasis Phantom and Dune Stalker nerfed. Regnad Desert renamed.",
+  "  Arcane Shards added. Witch Mana Upgrade feature."
 ];
 
 const ENCHANTMENTS = {
@@ -845,7 +843,7 @@ const ZONES={
     {name:"Desert Viper",hp:45,atk_lo:19,atk_hi:25,xp:290,gold:100,w:25},
     {name:"Oasis Phantom",hp:120,atk_lo:30,atk_hi:35,xp:900,gold:340,w:10},
     {name:"Dune Stalker",hp:180,atk_lo:35,atk_hi:40,xp:1400,gold:520,w:7},
-    {name:"Ancient Sphinx",hp:320,atk_lo:38,atk_hi:52,xp:2000,gold:900,w:3}]},
+    {name:"Ancient Sphinx",hp:240,atk_lo:40,atk_hi:45,xp:2000,gold:900,w:3}]},
   "4":{name:"The Dungeon",range:"Lv 19–24",crit:0.20,monsters:[
     {name:"Dark Knight",hp:280,atk_lo:48,atk_hi:62,xp:1200,gold:450,w:40},
     {name:"The Lich King",hp:850,atk_lo:88,atk_hi:112,xp:6500,gold:4500,w:2}]},
@@ -935,7 +933,7 @@ function levelUp(p){
     p.base_max_hp=(p.base_max_hp||p.max_hp)+15;
     p.max_hp=effectiveMaxHp(p);
     p.hp=p.max_hp;
-    if(p.awakened){const mg=rnd(2,6);p.mana=Math.min(p.max_mana,p.mana+mg);msgs.push(`✦ Level Up! Reached level ${p.level}! +${mg} Mana!`);}
+    if(p.awakened){p.mana=p.max_mana;msgs.push(`✦ Level Up! Reached level ${p.level}! Mana fully restored!`);}
     else msgs.push(`✦ Level Up! Reached level ${p.level}!`);
   }
   return msgs;
@@ -964,6 +962,14 @@ function _addLine(text,cls){
   // Mirror to mobile chronicle drawer
   const mob=document.getElementById("chronicle-log-mobile");
   if(mob){const d2=document.createElement("div");d2.className="log-line "+cls;d2.textContent=text;mob.appendChild(d2);mob.scrollTop=mob.scrollHeight;}
+}
+function logHTML(html,cls="lc-default"){
+  // Like log() but renders HTML markup — used for craft material lines with colour coding
+  const el=document.getElementById("log");
+  const d=document.createElement("div");d.className="log-line "+cls;d.innerHTML=html;
+  el.appendChild(d);el.scrollTop=el.scrollHeight;
+  const mob=document.getElementById("chronicle-log-mobile");
+  if(mob){const d2=document.createElement("div");d2.className="log-line "+cls;d2.innerHTML=html;mob.appendChild(d2);mob.scrollTop=mob.scrollHeight;}
 }
 function logSep(){
   const el=document.getElementById("log");
@@ -1215,7 +1221,7 @@ function town(){clearLog();_logQ=[];setTitle("Town of Efil");clearBtns();log("�
 
 function doInn(){if(P.gold<innCost(P)){log("You cannot afford to rest here.","lc-warn");return;}
   P.gold-=innCost(P);P.hp=P.max_hp;let msg="You rest deeply. All wounds healed.";
-  if(P.awakened){const mg=rnd(5,20);P.mana=Math.min(P.max_mana,P.mana+mg);msg+="  Mana restored (+"+mg+").";}
+  if(P.awakened){const lo=Math.round(P.max_mana*0.25);const hi=P.max_mana;const mg=rnd(lo,hi);P.mana=Math.min(P.max_mana,P.mana+mg);msg+="  Mana restored (+"+mg+").";}
   if(P.pet){P.pet.hp=petMaxHp(P.pet);msg+="  "+PET_DEFS[P.pet.name].icon+" Your companion rests well.";}
   clearLog();_logQ=[];log(msg,"lc-good");renderStatus();}
 
@@ -1409,8 +1415,9 @@ function craftsman(){clearLog();_logQ=[];setTitle("Craftsman's Anvil");clearBtns
 function craftSet(recipes,setName,effect){setTitle(setName);clearBtns();
   for(const[name,r]of Object.entries(recipes)){const crafted=name in P.armor_inventory;
     const ok=P.gold>=r.gold&&Object.entries(r.mats).every(([m,q])=>(P.materials[m]||0)>=q);
-    const ms=Object.entries(r.mats).map(([m,q])=>(P.materials[m]||0)+"/"+q+" "+m).join(", ");
-    log(name+" ["+r.slot+"] — "+r.gold+" gold  ·  "+ms+(crafted?"  ✦ Crafted":""),"lc-dim");
+    const matParts=Object.entries(r.mats).map(([m,q])=>{const have=P.materials[m]||0;const enough=have>=q;const txt=have+"/"+q+" "+m;return enough?txt:"<span style='color:#c0392b;font-weight:600'>"+txt+"</span>";});
+    const matStr=matParts.join(", ");
+    logHTML(name+" ["+r.slot+"] — "+r.gold+" gold  ·  "+matStr+(crafted?"  ✦ Crafted":""),"lc-dim");
     if(!crafted){const b=addBtn("Craft: "+name+"  ("+r.gold+" gold)",()=>{
       if(P.gold<r.gold||!Object.entries(r.mats).every(([m,q])=>(P.materials[m]||0)>=q)){log("You lack the required materials or gold.","lc-warn");return;}
       P.gold-=r.gold;for(const[m,q]of Object.entries(r.mats))P.materials[m]=(P.materials[m]||0)-q;
