@@ -753,23 +753,22 @@ body {
 // ════════════════════════════════════════════
 // DATA
 // ════════════════════════════════════════════
-const VERSION = "0.3.11";
+const VERSION = "0.3.12";
 const PATCH_NOTES = [
-  "v0.3.11 — Furious Strike: +4/6/9 bonus damage on proc (T1/T2/T3).",
-  "  Impact: damage reduction increased to 4/8/12.",
-  "  Like Water: T2 reduces 2–4 DMG, T3 reduces 4–6 DMG.",
-  "  Baby Dragon max HP fixed to 75 at T2. Block is now 50% chance.",
-  "  Elfish Sprite heal chance increased to 20%.",
+  "v0.3.12 — Regnad Desert gold drops reduced slightly.",
+  "  Desert common/rare material drop rate increased to 60%.",
+  "  Legendary monsters guarantee their material on first kill (all zones).",
+  "  Furious Strike bonus damage is now a range: 1–4 / 2–6 / 3–9.",
+  "  Scorpion Crawler HP 60, Desert Viper HP 70.",
   "",
-  "v0.3.1 — New enchantments: Twisting Blade, Blurred Images,",
-  "  Ravenous Poison, Heart Strike. Biting Sand cost fixed to 2.",
-  "  New enchants require prerequisites to unlock."
+  "v0.3.11 — Furious Strike +4/6/9 bonus dmg. Impact -4/8/12.",
+  "  Like Water T2/T3 buffed. Dragon block 50%. Sprite heal 20%."
 ];
 
 const ENCHANTMENTS = {
   Fists:{
     "Furious Strike":{icon:"🔥",desc:"Chance to strike a second time instantly, dealing bonus damage.",cost:1,
-      t1:{chance:0.10,bonus_dmg:4,label:"10% extra strike +4 bonus dmg"},t2:{chance:0.25,bonus_dmg:6,label:"25% extra strike +6 bonus dmg"},t3:{chance:0.40,bonus_dmg:9,label:"40% extra strike +9 bonus dmg"}},
+      t1:{chance:0.10,bonus_dmg:[1,4],label:"10% extra strike +1–4 bonus dmg"},t2:{chance:0.25,bonus_dmg:[2,6],label:"25% extra strike +2–6 bonus dmg"},t3:{chance:0.40,bonus_dmg:[3,9],label:"40% extra strike +3–9 bonus dmg"}},
     "Impact":{icon:"👊",desc:"Chance to reduce the damage of the next enemy attack.",cost:1,
       t1:{chance:0.10,dmg_reduce:4,label:"10% chance, -4 DMG"},t2:{chance:0.25,dmg_reduce:8,label:"25% chance, -8 DMG"},t3:{chance:0.40,dmg_reduce:12,label:"40% chance, -12 DMG"}},
     "Like Water":{icon:"💧",desc:"On being hit, chance to reduce all future DMG taken.",cost:2,
@@ -861,11 +860,11 @@ const ZONES={
     {name:"Ghost of Eugor",hp:70,atk_lo:14,atk_hi:18,xp:300,gold:110,w:10},
     {name:"Clockwork Tiger",hp:110,atk_lo:13,atk_hi:17,xp:800,gold:300,w:5}]},
   "3":{name:"Regnad Desert",range:"Lv 13–18",crit:0.15,monsters:[
-    {name:"Sand Worm",hp:85,atk_lo:18,atk_hi:26,xp:400,gold:130,w:25},
-    {name:"Scorpion Crawler",hp:55,atk_lo:16,atk_hi:20,xp:260,gold:90,w:30},
-    {name:"Desert Viper",hp:45,atk_lo:19,atk_hi:25,xp:290,gold:100,w:25},
-    {name:"Oasis Phantom",hp:120,atk_lo:30,atk_hi:35,xp:900,gold:340,w:10},
-    {name:"Dune Stalker",hp:180,atk_lo:35,atk_hi:40,xp:1400,gold:520,w:7},
+    {name:"Sand Worm",hp:85,atk_lo:18,atk_hi:26,xp:400,gold:110,w:25},
+    {name:"Scorpion Crawler",hp:60,atk_lo:16,atk_hi:20,xp:260,gold:75,w:30},
+    {name:"Desert Viper",hp:70,atk_lo:19,atk_hi:25,xp:290,gold:80,w:25},
+    {name:"Oasis Phantom",hp:120,atk_lo:30,atk_hi:35,xp:900,gold:280,w:10},
+    {name:"Dune Stalker",hp:180,atk_lo:35,atk_hi:40,xp:1400,gold:420,w:7},
     {name:"Ancient Sphinx",hp:240,atk_lo:40,atk_hi:45,xp:2000,gold:900,w:3}]},
   "4":{name:"The Dungeon",range:"Lv 19–24",crit:0.20,monsters:[
     {name:"Dark Knight",hp:280,atk_lo:48,atk_hi:62,xp:1200,gold:450,w:40},
@@ -895,6 +894,8 @@ const DESERT_RECIPES={
 
 // Arcane Shard: legendary monsters in zones 3+
 const ARCANE_LEGENDARY=new Set(["Ancient Sphinx","The Lich King","Abyssal Leviathan"]);
+// Legendary monsters that guarantee a material drop on first kill
+const ZONE_LEGENDARIES=new Set(["Alpha Wolf","Clockwork Tiger","Ancient Sphinx","The Lich King","Abyssal Leviathan"]);
 // Mana upgrade table: [crystals, gold] per upgrade index (each gives +5 max mana)
 const MANA_UPGRADE_COSTS=[
   [2,100],[5,300],[9,600],[14,1000],[19,1500],[25,2200],
@@ -934,10 +935,11 @@ function newPlayer(name){
     armor:{Head:null,Chest:null,Arms:null,Legs:null},armor_inventory:{},materials:{},
     seen_monsters:new Set(),last_zone:null,zones_visited:new Set(),has_sapphire_amulet:false,
     beastmaster_snarked:new Set(),craftsman_met:false,fresh_start:true,pet:null,pets_unlocked:false,
-    pending_messages:[],arcane_shards:0,found_arcane_shard:false,mana_upgrades:0,witch_crystal_talked:false};
+    pending_messages:[],arcane_shards:0,found_arcane_shard:false,mana_upgrades:0,witch_crystal_talked:false,
+    legendary_first_kills:new Set()};
 }
-function pSer(p){return{...p,seen_monsters:[...p.seen_monsters],zones_visited:[...p.zones_visited],beastmaster_snarked:[...p.beastmaster_snarked]};}
-function pDes(d){return{...d,seen_monsters:new Set(d.seen_monsters||[]),zones_visited:new Set(d.zones_visited||[]),beastmaster_snarked:new Set(d.beastmaster_snarked||[]),pending_messages:d.pending_messages||[],pets_unlocked:d.pets_unlocked||false,pet:d.pet||null,base_max_hp:d.base_max_hp||d.max_hp||75,arcane_shards:d.arcane_shards||0,found_arcane_shard:d.found_arcane_shard||false,mana_upgrades:d.mana_upgrades||0,witch_crystal_talked:d.witch_crystal_talked||false};}
+function pSer(p){return{...p,seen_monsters:[...p.seen_monsters],zones_visited:[...p.zones_visited],beastmaster_snarked:[...p.beastmaster_snarked],legendary_first_kills:[...(p.legendary_first_kills||[])]};}
+function pDes(d){return{...d,seen_monsters:new Set(d.seen_monsters||[]),zones_visited:new Set(d.zones_visited||[]),beastmaster_snarked:new Set(d.beastmaster_snarked||[]),pending_messages:d.pending_messages||[],pets_unlocked:d.pets_unlocked||false,pet:d.pet||null,base_max_hp:d.base_max_hp||d.max_hp||75,arcane_shards:d.arcane_shards||0,found_arcane_shard:d.found_arcane_shard||false,mana_upgrades:d.mana_upgrades||0,witch_crystal_talked:d.witch_crystal_talked||false,legendary_first_kills:new Set(d.legendary_first_kills||[])};}
 
 function xpToNext(p){let b=Math.floor(50*Math.pow(p.level,1.6));if(p.level<=3)b=Math.floor(b*1.85);else if(p.level<=6)b=Math.floor(b*1.55);return b;}
 function innCost(p){return p.level*6;}
@@ -1133,7 +1135,7 @@ function runCombat(zid,onWin,onLose){
       else if(en==="Impact"){if(roll(td.chance)){P.mana-=ed.cost;cs.impact=(cs.impact||0)+td.dmg_reduce;log("  👊 Impact! Next attack reduced by "+td.dmg_reduce+" (Mana: "+P.mana+")","lc-info");}}
       else if(en==="Blinding Toxin"){if(!cs.blind&&roll(td.proc_chance)){P.mana-=ed.cost;cs.blind=true;cs.blind_chance=td.half_chance;log("  🕶️ Blinding Toxin! Foe has "+Math.round(td.half_chance*100)+"% chance each strike to deal half damage! (Mana: "+P.mana+")","lc-warn");}}
       else if(roll(td.chance||0)){P.mana-=ed.cost;
-        if(en==="Furious Strike"){const b=rnd(weap[0],weap[1])+(td.bonus_dmg||0);extra+=b;log("  🔥 Furious Strike! +"+b+" damage (Mana: "+P.mana+")","lc-good");}
+        if(en==="Furious Strike"){const bd=td.bonus_dmg||[0,0];const b=rnd(weap[0],weap[1])+rnd(bd[0],bd[1]);extra+=b;log("  🔥 Furious Strike! +"+b+" damage (Mana: "+P.mana+")","lc-good");}
         else if(en==="Envenom"){const d=rnd(...td.dmg);extra+=d;log("  🧪 Envenom! +"+d+" poison damage (Mana: "+P.mana+")","lc-good");}
         else if(en==="Debilitate"){monster.atk_lo=Math.max(0,monster.atk_lo-td.atk_reduce);monster.atk_hi=Math.max(1,monster.atk_hi-td.atk_reduce);log("  🤢 Debilitate! Foe's attack reduced (now "+monster.atk_lo+"–"+monster.atk_hi+") (Mana: "+P.mana+")","lc-info");}
       }
@@ -1245,15 +1247,30 @@ function runCombat(zid,onWin,onLose){
         const zm=ZONES[zid].monsters.map(m=>m.name);if(zm.every(n=>P.seen_monsters.has(n)))P.pending_messages.push(ZONES[zid].name+" Bestiary complete! Seek the Beastmaster.");}
       else P.seen_monsters.add(monster.name);
       const lms=levelUp(P);for(const m of lms)log(m,"lc-good");
-      if(zid==="1"){if(roll(0.55)){const mat=M_DROPS[monster.name];if(mat){P.materials[mat]=(P.materials[mat]||0)+1;log("  You recovered: "+mat,"lc-info");}}
+      if(zid==="1"){
+        const mat=M_DROPS[monster.name];
+        if(mat){const firstLegendary=ZONE_LEGENDARIES.has(monster.name)&&!P.legendary_first_kills.has(monster.name);
+          if(firstLegendary){P.legendary_first_kills.add(monster.name);P.materials[mat]=(P.materials[mat]||0)+1;log("  ✦ First kill! You recovered: "+mat,"lc-gold");}
+          else if(roll(0.55)){P.materials[mat]=(P.materials[mat]||0)+1;log("  You recovered: "+mat,"lc-info");}}
         if(!hasDagger(P)&&roll(0.18)){P.inventory["Rusty Dagger"]=[2,5,0,"Dagger",{}];P.pending_messages.push("A Rusty Dagger was found on the body.");log("  🗡  A Rusty Dagger glints in the grass!","lc-gold");}}
-      if(zid==="2"){if(roll(0.55)){const mat=CITY_DROPS[monster.name];if(mat){P.materials[mat]=(P.materials[mat]||0)+1;log("  You recovered: "+mat,"lc-info");}}
+      if(zid==="2"){
+        const mat=CITY_DROPS[monster.name];
+        if(mat){const firstLegendary=ZONE_LEGENDARIES.has(monster.name)&&!P.legendary_first_kills.has(monster.name);
+          if(firstLegendary){P.legendary_first_kills.add(monster.name);P.materials[mat]=(P.materials[mat]||0)+1;log("  ✦ First kill! You recovered: "+mat,"lc-gold");}
+          else if(roll(0.55)){P.materials[mat]=(P.materials[mat]||0)+1;log("  You recovered: "+mat,"lc-info");}}
         if(!Object.values(P.inventory).some(w=>w[3]==="Sword")&&roll(0.18)){P.inventory["Guard Sword"]=[4,8,0,"Sword",{}];P.pending_messages.push("A Guard Sword was found — check your inventory.");log("  ⚔  A Guard Sword lies amid the rubble!","lc-gold");}}
-      if(zid==="3"){if(roll(0.40)){const mat=DESERT_DROPS[monster.name];if(mat){P.materials[mat]=(P.materials[mat]||0)+1;log("  You recovered: "+mat,"lc-info");}}
+      if(zid==="3"){
+        const mat=DESERT_DROPS[monster.name];
+        if(mat){const firstLegendary=ZONE_LEGENDARIES.has(monster.name)&&!P.legendary_first_kills.has(monster.name);
+          if(firstLegendary){P.legendary_first_kills.add(monster.name);P.materials[mat]=(P.materials[mat]||0)+1;log("  ✦ First kill! You recovered: "+mat,"lc-gold");}
+          else if(roll(0.60)){P.materials[mat]=(P.materials[mat]||0)+1;log("  You recovered: "+mat,"lc-info");}}
         if(!Object.values(P.inventory).some(w=>w[3]==="Spear")&&roll(0.20)){P.inventory["Dull Spear"]=[3,6,0,"Spear",{}];P.pending_messages.push("A Dull Spear was found in the sand.");log("  🪓 A Dull Spear lies half-buried in the dunes!","lc-gold");}
         const shardChance=ARCANE_LEGENDARY.has(monster.name)?0.06:0.02;
         if(roll(shardChance)){P.arcane_shards=(P.arcane_shards||0)+1;if(!P.found_arcane_shard){P.found_arcane_shard=true;P.pending_messages.push("You discovered a strange glowing crystal! Talk to the townspeople to learn more.");}log("  💎 An Arcane Shard catches the light! ("+P.arcane_shards+" total)","lc-mag");}}
-      if(zid==="4"||zid==="5"){const shardChance=ARCANE_LEGENDARY.has(monster.name)?0.06:0.02;
+      if(zid==="4"||zid==="5"){
+        const dropTable=zid==="4"?{"Dark Knight":null,"The Lich King":null}:{"Abyssal Leviathan":null};// no mat drops defined yet for Z4/Z5
+        const shardChance=ARCANE_LEGENDARY.has(monster.name)?0.06:0.02;
+        if(ZONE_LEGENDARIES.has(monster.name)&&!P.legendary_first_kills.has(monster.name)){P.legendary_first_kills.add(monster.name);}
         if(roll(shardChance)){P.arcane_shards=(P.arcane_shards||0)+1;if(!P.found_arcane_shard){P.found_arcane_shard=true;P.pending_messages.push("You discovered a strange glowing crystal! Talk to the townspeople to learn more.");}log("  💎 An Arcane Shard catches the light! ("+P.arcane_shards+" total)","lc-mag");}}
       renderStatus();showPending();setTimeout(()=>onWin(),500);
     } else {
