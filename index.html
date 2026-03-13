@@ -925,6 +925,9 @@ function clearLog(){
   document.getElementById("log").innerHTML="";
   const mob=document.getElementById("chronicle-log-mobile");
   if(mob)mob.innerHTML="";
+  // Dismiss the pending banner — player has moved on
+  const ban=document.getElementById("pending-banner");
+  if(ban){ban.classList.remove("visible");ban.innerHTML="";}
 }
 
 function toggleChronicle(){
@@ -944,9 +947,13 @@ function addBtn(label,cb,cls=""){
 
 function showPending(){
   const ban=document.getElementById("pending-banner");
-  if(!P||!P.pending_messages.length){ban.classList.remove("visible");return;}
+  if(!P||!P.pending_messages.length){return;}
   ban.innerHTML="";ban.classList.add("visible");
-  for(const m of P.pending_messages){const d=document.createElement("div");d.textContent="📜 "+m;ban.appendChild(d);}
+  for(const m of P.pending_messages){
+    const d=document.createElement("div");d.textContent="📜 "+m;ban.appendChild(d);
+    // Also write to Chronicle so it persists in the log
+    log("📜 "+m,"lc-good");
+  }
   P.pending_messages=[];
 }
 
