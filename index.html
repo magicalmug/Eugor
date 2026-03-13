@@ -683,8 +683,11 @@ body {
     <div class="stat-row" style="margin-top:8px"><span class="stat-label">Experience</span><span class="stat-val blue" id="s-xp">0 / 85</span></div>
     <div class="bar-outer"><div class="bar-fill bar-xp" id="bar-xp" style="width:0%"></div></div>
     <div id="mana-row" style="display:none">
-      <div class="stat-row" style="margin-top:8px"><span class="stat-label">Mana</span><span class="stat-val mag" id="s-mana">20 / 20</span></div>
+      <div class="stat-row" style="margin-top:8px"><span class="stat-label">Mana</span><span class="stat-val mag" id="s-mana">25 / 25</span></div>
       <div class="bar-outer"><div class="bar-fill bar-mana" id="bar-mana" style="width:100%"></div></div>
+    </div>
+    <div id="shard-row" style="display:none">
+      <div class="stat-row" style="margin-top:6px"><span class="stat-label">Arcane Shards</span><span class="stat-val mag" id="s-shards">💎 0</span></div>
     </div>
   </div>
 
@@ -750,16 +753,18 @@ body {
 // ════════════════════════════════════════════
 // DATA
 // ════════════════════════════════════════════
-const VERSION = "0.3.01";
+const VERSION = "0.3.02";
 const PATCH_NOTES = [
-  "v0.3.01 — All monsters now have explicit damage ranges (atk_lo–atk_hi).",
-  "  Sand Worm HP and damage reduced.",
-  "  System Test: Spear removed from L13 weapons; Sandwrapped removed from armor.",
-  "  System Test: No enchants pre-assigned; full SP awarded to spend freely.",
+  "v0.3.02 — Starting mana increased to 25.",
+  "  Baby Dragon: burn chance 35%, burn dmg 1/2/3 per tier, block 15%, max HP 75.",
+  "  Oasis Phantom and Dune Stalker HP and damage reduced.",
+  "  Dangerous Desert renamed to Regnad Desert.",
+  "  New: Arcane Shards drop from zone 3+ monsters.",
+  "  New: Witch's Hut Mana Upgrade (spend Arcane Shards + gold for +5 mana).",
+  "  Townspeople dialogue added for the Arcane Shard.",
   "",
-  "v0.3.00 — Renamed to Legends of Eugor. Dull Spear weapon added.",
-  "  All weapons upgraded to Tier 5. Desert Bestiary expanded.",
-  "  Sandwrapped Armor set added. System Test menu added."
+  "v0.3.01 — All monsters now have explicit damage ranges (atk_lo–atk_hi).",
+  "  Sand Worm HP and damage reduced. System Test improvements."
 ];
 
 const ENCHANTMENTS = {
@@ -834,12 +839,12 @@ const ZONES={
     {name:"Steam Golem",hp:55,atk_lo:12,atk_hi:16,xp:180,gold:65,w:25},
     {name:"Ghost of Eugor",hp:70,atk_lo:14,atk_hi:18,xp:300,gold:110,w:10},
     {name:"Clockwork Tiger",hp:110,atk_lo:13,atk_hi:17,xp:800,gold:300,w:5}]},
-  "3":{name:"Dangerous Desert",range:"Lv 13–18",crit:0.15,monsters:[
+  "3":{name:"Regnad Desert",range:"Lv 13–18",crit:0.15,monsters:[
     {name:"Sand Worm",hp:85,atk_lo:18,atk_hi:26,xp:400,gold:130,w:25},
     {name:"Scorpion Crawler",hp:55,atk_lo:16,atk_hi:20,xp:260,gold:90,w:30},
     {name:"Desert Viper",hp:45,atk_lo:19,atk_hi:25,xp:290,gold:100,w:25},
-    {name:"Oasis Phantom",hp:140,atk_lo:30,atk_hi:40,xp:900,gold:340,w:10},
-    {name:"Dune Stalker",hp:200,atk_lo:35,atk_hi:45,xp:1400,gold:520,w:7},
+    {name:"Oasis Phantom",hp:120,atk_lo:30,atk_hi:35,xp:900,gold:340,w:10},
+    {name:"Dune Stalker",hp:180,atk_lo:35,atk_hi:40,xp:1400,gold:520,w:7},
     {name:"Ancient Sphinx",hp:320,atk_lo:38,atk_hi:52,xp:2000,gold:900,w:3}]},
   "4":{name:"The Dungeon",range:"Lv 19–24",crit:0.20,monsters:[
     {name:"Dark Knight",hp:280,atk_lo:48,atk_hi:62,xp:1200,gold:450,w:40},
@@ -867,13 +872,21 @@ const DESERT_RECIPES={
   "Sand Greaves":     {slot:"Legs", mats:{"Sandstone Slab":1,"Scorched Scale":3,"Scorpion Carapace":2},gold:420}
 };
 
+// Arcane Shard: legendary monsters in zones 3+
+const ARCANE_LEGENDARY=new Set(["Ancient Sphinx","The Lich King","Abyssal Leviathan"]);
+// Mana upgrade table: [crystals, gold] per upgrade index (each gives +5 max mana)
+const MANA_UPGRADE_COSTS=[
+  [2,100],[5,300],[9,600],[14,1000],[19,1500],[25,2200],
+  [32,3100],[40,4200],[48,5500],[57,7000],[67,9000],[78,11500],[100,15000]
+];
+
 const PET_DEFS={
   "Elfish Sprite":{icon:"🧚",base_hp:40,absorb_chance:0.05,upgrade_costs:[300,600],hp_upgrades:[10,10],
     atk_upgrades:[[1,6],[2,8],[3,10]],heal_upgrades:[[2,8],[3,10],[4,12]],atk_chance:0.30,heal_chance:0.10,
     desc:"30% chance to add 1–6 damage to your attack. 10% chance on hit to heal you for 2–8 health."},
-  "Baby Dragon":{icon:"🐉",base_hp:60,absorb_chance:0.05,upgrade_costs:[300,600],hp_upgrades:[15,15],
-    burn_upgrades:[2,3,4],burn_turns:2,burn_stacks_max:3,block_chance:0.10,atk_chance:0.40,
-    desc:"40% chance to add burning damage each turn for 2 turns (stacks x3). 10% chance to block the next attack."}
+  "Baby Dragon":{icon:"🐉",base_hp:45,absorb_chance:0.05,upgrade_costs:[300,600],hp_upgrades:[15,15],
+    burn_upgrades:[1,2,3],burn_turns:2,burn_stacks_max:3,block_chance:0.15,atk_chance:0.35,
+    desc:"35% chance to add burning damage each turn for 2 turns (stacks x3). 15% chance to block the next attack."}
 };
 
 // ════════════════════════════════════════════
@@ -896,13 +909,14 @@ function decode(s){try{const r=s.trim().replace(/rune/g,"=").replace(/altar/g,"+
 // ════════════════════════════════════════════
 function newPlayer(name){
   return{name:name.slice(0,10),hp:75,max_hp:75,base_max_hp:75,level:1,xp:0,gold:0,skill_points:0,level_cap:30,
-    awakened:false,mana:0,max_mana:20,equipped:"Fists",inventory:{"Fists":[1,4,0,"Fists",{}]},
+    awakened:false,mana:0,max_mana:25,equipped:"Fists",inventory:{"Fists":[1,4,0,"Fists",{}]},
     armor:{Head:null,Chest:null,Arms:null,Legs:null},armor_inventory:{},materials:{},
     seen_monsters:new Set(),last_zone:null,zones_visited:new Set(),has_sapphire_amulet:false,
-    beastmaster_snarked:new Set(),craftsman_met:false,fresh_start:true,pet:null,pets_unlocked:false,pending_messages:[]};
+    beastmaster_snarked:new Set(),craftsman_met:false,fresh_start:true,pet:null,pets_unlocked:false,
+    pending_messages:[],arcane_shards:0,found_arcane_shard:false,mana_upgrades:0,witch_crystal_talked:false};
 }
 function pSer(p){return{...p,seen_monsters:[...p.seen_monsters],zones_visited:[...p.zones_visited],beastmaster_snarked:[...p.beastmaster_snarked]};}
-function pDes(d){return{...d,seen_monsters:new Set(d.seen_monsters||[]),zones_visited:new Set(d.zones_visited||[]),beastmaster_snarked:new Set(d.beastmaster_snarked||[]),pending_messages:d.pending_messages||[],pets_unlocked:d.pets_unlocked||false,pet:d.pet||null,base_max_hp:d.base_max_hp||d.max_hp||75};}
+function pDes(d){return{...d,seen_monsters:new Set(d.seen_monsters||[]),zones_visited:new Set(d.zones_visited||[]),beastmaster_snarked:new Set(d.beastmaster_snarked||[]),pending_messages:d.pending_messages||[],pets_unlocked:d.pets_unlocked||false,pet:d.pet||null,base_max_hp:d.base_max_hp||d.max_hp||75,arcane_shards:d.arcane_shards||0,found_arcane_shard:d.found_arcane_shard||false,mana_upgrades:d.mana_upgrades||0,witch_crystal_talked:d.witch_crystal_talked||false};}
 
 function xpToNext(p){let b=Math.floor(50*Math.pow(p.level,1.6));if(p.level<=3)b=Math.floor(b*1.85);else if(p.level<=6)b=Math.floor(b*1.55);return b;}
 function innCost(p){return p.level*6;}
@@ -1012,6 +1026,8 @@ function renderStatus(){
   const mr=document.getElementById("mana-row");
   if(P.awakened){mr.style.display="block";document.getElementById("s-mana").textContent=P.mana+" / "+P.max_mana;document.getElementById("bar-mana").style.width=clamp(P.mana/P.max_mana*100,0,100)+"%";}
   else mr.style.display="none";
+  const shardRow=document.getElementById("shard-row");
+  if(shardRow){if(P.found_arcane_shard){shardRow.style.display="block";document.getElementById("s-shards").textContent="💎 "+P.arcane_shards;}else shardRow.style.display="none";}
   const w=P.inventory[P.equipped];
   document.getElementById("s-weapon").textContent=P.equipped;
   document.getElementById("s-weapon-stats").textContent=w[0]+"–"+w[1]+" damage";
@@ -1163,7 +1179,11 @@ function runCombat(zid,onWin,onLose){
       if(zid==="2"){if(roll(0.55)){const mat=CITY_DROPS[monster.name];if(mat){P.materials[mat]=(P.materials[mat]||0)+1;log("  You recovered: "+mat,"lc-info");}}
         if(!Object.values(P.inventory).some(w=>w[3]==="Sword")&&roll(0.18)){P.inventory["Guard Sword"]=[4,8,0,"Sword",{}];P.pending_messages.push("A Guard Sword was found — check your inventory.");log("  ⚔  A Guard Sword lies amid the rubble!","lc-gold");}}
       if(zid==="3"){if(roll(0.40)){const mat=DESERT_DROPS[monster.name];if(mat){P.materials[mat]=(P.materials[mat]||0)+1;log("  You recovered: "+mat,"lc-info");}}
-        if(!Object.values(P.inventory).some(w=>w[3]==="Spear")&&roll(0.20)){P.inventory["Dull Spear"]=[3,6,0,"Spear",{}];P.pending_messages.push("A Dull Spear was found in the sand.");log("  🪓 A Dull Spear lies half-buried in the dunes!","lc-gold");}}
+        if(!Object.values(P.inventory).some(w=>w[3]==="Spear")&&roll(0.20)){P.inventory["Dull Spear"]=[3,6,0,"Spear",{}];P.pending_messages.push("A Dull Spear was found in the sand.");log("  🪓 A Dull Spear lies half-buried in the dunes!","lc-gold");}
+        const shardChance=ARCANE_LEGENDARY.has(monster.name)?0.06:0.02;
+        if(roll(shardChance)){P.arcane_shards=(P.arcane_shards||0)+1;if(!P.found_arcane_shard){P.found_arcane_shard=true;P.pending_messages.push("You discovered a strange glowing crystal! Talk to the townspeople to learn more.");}log("  💎 An Arcane Shard catches the light! ("+P.arcane_shards+" total)","lc-mag");}}
+      if(zid==="4"||zid==="5"){const shardChance=ARCANE_LEGENDARY.has(monster.name)?0.06:0.02;
+        if(roll(shardChance)){P.arcane_shards=(P.arcane_shards||0)+1;if(!P.found_arcane_shard){P.found_arcane_shard=true;P.pending_messages.push("You discovered a strange glowing crystal! Talk to the townspeople to learn more.");}log("  💎 An Arcane Shard catches the light! ("+P.arcane_shards+" total)","lc-mag");}}
       renderStatus();showPending();setTimeout(()=>onWin(),500);
     } else {
       log("☩  Your light fades... you have perished.","lc-dmg");setTimeout(()=>onLose(monster.name),700);
@@ -1207,6 +1227,7 @@ function blacksmith(){clearLog();_logQ=[];setTitle("Blacksmith's Forge");clearBt
     const cost=wd[2]===0?40:(wd[2]+1)*P.level*20;const tag=wn===P.equipped?" ✦":"";
     if(wd[2]<maxT)addBtn("Upgrade: "+wn+tag+"  ("+cost+" gold)",()=>doUpgrade(wn),"btn-gold");
     else{const b=addBtn(wn+tag+"  [Masterwork]",()=>{});b.classList.add("btn-disabled");}}
+  if(P.found_arcane_shard)addBtn("💎 Ask about the crystal",()=>{clearLog();_logQ=[];log('"Oh I might be able to use that later."',"lc-info");blacksmith();},"btn-blue");
   addBtn("Leave",town,"btn-red");}
 
 function doUpgrade(wn){const wd=P.inventory[wn];const maxT=WEAPON_MAX_TIER[wd[3]]||3;
@@ -1226,6 +1247,7 @@ function beastmaster(){clearLog();_logQ=[];setTitle("Beastmaster's Lodge");clear
   if(cD&&!P.pets_unlocked&&!P.beastmaster_snarked.has("2")){log('"Now that you\'ve proven your worth, I can entrust you to take care of my animals."',"lc-info");P.pets_unlocked=true;P.beastmaster_snarked.add("2");}
   addBtn("Bestiary",bestiary);addBtn("Quest Status",questStatus,"btn-gold");
   if(P.pets_unlocked)addBtn("🐾 Companions",petsMenu,"btn-gold");
+  if(P.found_arcane_shard)addBtn("💎 Ask about the crystal",()=>{clearLog();_logQ=[];log('"My animals are frightened by this strange magic."',"lc-warn");beastmaster();},"btn-blue");
   addBtn("Leave",town,"btn-red");}
 
 function bestiary(){
@@ -1276,15 +1298,19 @@ function petsMenu(){clearLog();_logQ=[];setTitle("Companions");clearBtns();
 function witch(){clearLog();_logQ=[];setTitle("Witch's Hut");clearBtns();log("— The Witch's Hut —","lc-dim");
   if(!P.awakened){
     if(P.has_sapphire_amulet){log('"Oh what a wonderful amulet! I can use this to awaken your magic power!"',"lc-mag");
-      addBtn("Awaken the Spirit within",()=>{P.awakened=true;P.has_sapphire_amulet=false;P.mana=20;clearLog();_logQ=[];log("✦ Spirit Awakened. Mana flows through your veins.","lc-mag");P.pending_messages.push("Visit the Witch to enchant your weapon.");renderStatus();witch();},"btn-mag");}
+      addBtn("Awaken the Spirit within",()=>{P.awakened=true;P.has_sapphire_amulet=false;P.mana=25;clearLog();_logQ=[];log("✦ Spirit Awakened. Mana flows through your veins.","lc-mag");P.pending_messages.push("Visit the Witch to enchant your weapon.");renderStatus();witch();},"btn-mag");}
     else log('"Begone! Bring me the scholar\'s stone."',"lc-warn");
+    if(P.found_arcane_shard&&!P.witch_crystal_talked)addBtn("💎 Ask about the crystal",()=>{P.witch_crystal_talked=true;clearLog();_logQ=[];log('"Ah! An arcane crystal! With enough of these and a small fee, I can increase your mana!"',"lc-mag");witch();},"btn-blue");
     addBtn("Leave",town,"btn-red");
   } else {
     log("✦ Mana: "+P.mana+" / "+P.max_mana,"lc-mag");
+    if(P.arcane_shards>0)log("  💎 Arcane Shards: "+P.arcane_shards,"lc-mag");
     addBtn("Add Enchantment  (2 SP)",addEnchant,"btn-mag");
     addBtn("Upgrade Enchantment  (1 SP)",upgradeEnchant,"btn-mag");
     addBtn("Reset Skill Points  (1,000 gold)",doResetSP,"btn-red");
     addBtn("Study the Grimoire",grimoire);
+    if(P.found_arcane_shard&&!P.witch_crystal_talked)addBtn("💎 Ask about the crystal",()=>{P.witch_crystal_talked=true;clearLog();_logQ=[];log('"Ah! An arcane crystal! With enough of these and a small fee, I can increase your mana!"',"lc-mag");witch();},"btn-blue");
+    if(P.witch_crystal_talked)addBtn("💎 Increase Mana",doManaUpgrade,"btn-mag");
     addBtn("Leave",town,"btn-red");}}
 
 function doResetSP(){
@@ -1307,6 +1333,28 @@ function doResetSP(){
   log("  All enchantments have been removed.","lc-warn");
   renderStatus();witch();
 }
+
+function doManaUpgrade(){
+  clearLog();_logQ=[];setTitle("Increase Mana");clearBtns();
+  const idx=P.mana_upgrades||0;
+  if(idx>=MANA_UPGRADE_COSTS.length){
+    log('"You have reached the limits of what I can do for you."',"lc-mag");
+    addBtn("Back",witch,"btn-red");return;}
+  const[crystals,gold]=MANA_UPGRADE_COSTS[idx];
+  log("— Mana Upgrade ("+(idx+1)+" of "+MANA_UPGRADE_COSTS.length+") —","lc-head");
+  log("  Current Max Mana: "+P.max_mana,"lc-mag");
+  log("  Cost: 💎 "+crystals+" Arcane Shard"+(crystals!==1?"s":"")+" + "+gold+" gold","lc-dim");
+  log("  Reward: +5 Maximum Mana","lc-good");
+  log("  You have: 💎 "+P.arcane_shards+" shards,  "+P.gold+" gold","lc-dim");
+  const canAfford=P.arcane_shards>=crystals&&P.gold>=gold;
+  const btn=addBtn("✦ Perform the ritual  (💎 "+crystals+" + "+gold+" gold)",()=>{
+    if(P.arcane_shards<crystals||P.gold<gold){log("You lack the required shards or gold.","lc-warn");return;}
+    P.arcane_shards-=crystals;P.gold-=gold;P.max_mana+=5;P.mana_upgrades=(P.mana_upgrades||0)+1;
+    clearLog();_logQ=[];log("✦ The Witch weaves her magic... your spirit expands!","lc-mag");
+    log("  Maximum Mana increased to "+P.max_mana+"!","lc-good");
+    renderStatus();witch();},"btn-mag");
+  if(!canAfford)btn.classList.add("btn-disabled");
+  addBtn("Back",witch,"btn-red");}
 
 function grimoire(){clearLog();_logQ=[];setTitle("The Grimoire");clearBtns();
   log("— The Grimoire of Enchantments —","lc-head");
@@ -1355,6 +1403,7 @@ function craftsman(){clearLog();_logQ=[];setTitle("Craftsman's Anvil");clearBtns
   addBtn("City Guard Set",()=>craftSet(CITY_RECIPES,"City Guard Set","0–2 damage reduction per hit"),"btn-blue");
   addBtn("Sandwrapped Armor",()=>craftSet(DESERT_RECIPES,"Sandwrapped Armor","0–2 damage reduction per hit"),"btn-gold");
   addBtn("Sell Materials",sellMats,"btn-gold");addBtn("View Materials",()=>{clearLog();_logQ=[];const ms=Object.entries(P.materials).filter(([,q])=>q>0);if(!ms.length)log("You carry no materials.","lc-dim");else for(const[m,q]of ms)log("  "+m+": "+q,"lc-info");});
+  if(P.found_arcane_shard)addBtn("💎 Ask about the crystal",()=>{clearLog();_logQ=[];log('"I can\'t fashion armor out of this."',"lc-info");craftsman();},"btn-blue");
   addBtn("Leave",town,"btn-red");}
 
 function craftSet(recipes,setName,effect){setTitle(setName);clearBtns();
@@ -1463,8 +1512,7 @@ function stApply(lvl,wn,wd,pet,armorKey){
   P.level=lvl;P.base_max_hp=baseHp;P.xp=0;P.gold=1700;
   // All SP awarded — no enchants pre-assigned, player spends them
   P.skill_points=lvl-1;
-  P.awakened=true;P.mana=20;P.max_mana=20;
-  P.last_zone=lvl>=13?"3":lvl>=7?"2":"1";
+  P.awakened=true;P.mana=25;P.max_mana=25;
   P.has_sapphire_amulet=false;P.craftsman_met=true;P.pets_unlocked=(lvl>=13);
   P.beastmaster_snarked=new Set(lvl>=13?["1","2"]:["1"]);
   // Seen monsters
