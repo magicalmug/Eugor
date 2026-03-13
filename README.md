@@ -1,8 +1,14 @@
-v0.3.01 - (New Version)
-* Remove Spear from level 13 system test menu when selecting a weapon
-* Remove Sandwrapped Armor from level 13 system test when selecting armor
-* Don't choose any skills for me in the system test, just assign the appropriate number of skill points.
-* Slightly reduce the damage dealt and HP of the Sand Worm in the Desert
+v0.3.02 - (New Version)
+* Reduce damage range of oasis phantom to 30-35 (from 30-40) and health to 120 (from 140)
+* Reduce damage range of dune stalker to 35-40 (from 35-45) and health to 180 (from 200)
+* Reduce baby dragon burning chance to 35% and reduce the burning damamge to 1/2/3 for each upgrade tier
+* Increase the block change to 15% (from 10%)
+
+v0.3.01 — 
+* All monsters now have explicit damage ranges (atk_lo–atk_hi).
+* Sand Worm HP and damage reduced.
+* System Test: Spear removed from L13 weapons; Sandwrapped removed from armor.
+* System Test: No enchants pre-assigned; full SP awarded to spend freely.
 
 v0.3.00 — 
 * Renamed to Legends of Eugor.
