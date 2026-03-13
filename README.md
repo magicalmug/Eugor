@@ -1,4 +1,14 @@
 v0.3.00 - (New Version)
+* Increase drop rate of tattered cloth
+* Add new weapon - Dull Spear
+* Add upgrades to blacksmith for T5 to all weapons
+* New Skills for Dull Spear
+  * Penetrating Strike 1 mana, chance to cause bleeding effect, dealing 1 damage for 1 turn.  T2 and T3 upgrades increase only duration. 
+  * Exploit weakness 1 mana, 15% chance to hit.  if Target is bleeding, consumes the bleed to deal 1.5x damage.  Upgrades increase damage to 1.75x and 2.0x
+  * Biting Sand, 10% chance on hit to afflict enemy once per battle.  when using exploit weakness, gives a 20% chance to not consume the mark and deals an additional 10 damage.  T2 and T3 increases chance to not consume by 5% and 10%, and increases flat damage added to 15 and 20.
+* Flesh out Desert Bestiary, three common, two rare, one legendary 
+* Add crafting materials for Sandwrapped Armor.  scaled material and gold costs like previous sets.  Armor set bonus gives a 10% flat chance to reduce the next damage taken by 2-8.
+
 v0.2.05 — 
 * New game Chronicle intro text added.
 * Blacksmith and Beastmaster now greet the player.
