@@ -750,18 +750,14 @@ body {
 // ════════════════════════════════════════════
 // DATA
 // ════════════════════════════════════════════
-const VERSION = "0.2.04";
+const VERSION = "0.2.05";
 const PATCH_NOTES = [
-  "v0.2.04 — Game renamed to Heroes of Eugor.",
-  "  Town of Eugor renamed Town of Efil.",
-  "  Grimoire now has per-weapon submenus (Fists / Dagger / Sword).",
-  "  Clockwork Tiger now drops Tiger Fur (was Dragon Scale).",
-  "  Guard Chestplate recipe updated to use Tiger Fur.",
-  "  City Guard Set HP bonus now correctly applied to Max HP.",
+  "v0.2.05 — New game Chronicle intro text added.",
+  "  Blacksmith and Beastmaster now greet the player.",
+  "  Six new level-13 debug codes added (thirteen-[weapon]-[pet]).",
   "",
-  "v0.2.03 — Briar Fox HP reduced. World Map → Explore Eugor.",
-  "  Chronicle clears on new action, not on battle return.",
-  "  Meadows gold increased. Grimoire rewritten. Death screen improved."
+  "v0.2.04 — Renamed to Heroes of Eugor. Town of Efil.",
+  "  Grimoire weapon submenus. Tiger Fur drop. City Guard HP fix."
 ];
 
 const ENCHANTMENTS = {
@@ -1128,7 +1124,9 @@ function doInn(){if(P.gold<innCost(P)){log("You cannot afford to rest here.","lc
   clearLog();_logQ=[];log(msg,"lc-good");renderStatus();}
 
 // BLACKSMITH
-function blacksmith(){clearLog();_logQ=[];setTitle("Blacksmith's Forge");clearBtns();log("— The Forge —","lc-dim");
+function blacksmith(){clearLog();_logQ=[];setTitle("Blacksmith's Forge");clearBtns();
+  log("— The Forge —","lc-dim");
+  log('"I can upgrade your weapons... for a price."',"lc-gold");
   for(const wn of Object.keys(P.inventory)){const wd=P.inventory[wn];const maxT=WEAPON_MAX_TIER[wd[3]]||3;
     const cost=wd[2]===0?40:(wd[2]+1)*P.level*20;const tag=wn===P.equipped?" ✦":"";
     if(wd[2]<maxT)addBtn("Upgrade: "+wn+tag+"  ("+cost+" gold)",()=>doUpgrade(wn),"btn-gold");
@@ -1143,7 +1141,9 @@ function doUpgrade(wn){const wd=P.inventory[wn];const maxT=WEAPON_MAX_TIER[wd[3]
   if(wasEq)P.equipped=nn;clearLog();_logQ=[];log("The hammer falls. "+nn+" is forged!","lc-gold");renderStatus();blacksmith();}
 
 // BEASTMASTER
-function beastmaster(){clearLog();_logQ=[];setTitle("Beastmaster's Lodge");clearBtns();log("— The Lodge —","lc-dim");
+function beastmaster(){clearLog();_logQ=[];setTitle("Beastmaster's Lodge");clearBtns();
+  log("— The Lodge —","lc-dim");
+  log('"Fill out the Bestiary pages for some special rewards."',"lc-info");
   const mM=ZONES["1"].monsters.map(m=>m.name);const cM=ZONES["2"].monsters.map(m=>m.name);
   const mD=mM.every(n=>P.seen_monsters.has(n));const cD=cM.every(n=>P.seen_monsters.has(n));
   if(mD&&!P.has_sapphire_amulet&&!P.awakened&&!P.beastmaster_snarked.has("1")){log('"Oh, you again. Ever heard of checking your quest status? Just a thought."',"lc-warn");P.beastmaster_snarked.add("1");}
@@ -1332,12 +1332,42 @@ function doLoad(){overlay("Load Incantation","Paste your incantation below:",[],
 function doDebug(){overlay("The Debug Chamber","Speak your code:",[],code=>{hideOverlay();
   if(code==="seven-fists"){applyDebug("Master's Hand",[3,6,2,"Fists",{"Furious Strike":2,"Impact":2}]);}
   else if(code==="seven-dagger"){applyDebug("Glistening Dagger",[4,7,2,"Dagger",{"Envenom":2,"Debilitate":2}]);}
+  else if(code==="thirteen-fists-fairy"){applyDebug13("Iron Tempest",[4,7,3,"Fists",{"Furious Strike":3,"Impact":3}],{name:"Elfish Sprite",hp:60,tier:2});}
+  else if(code==="thirteen-fists-dragon"){applyDebug13("Iron Tempest",[4,7,3,"Fists",{"Furious Strike":3,"Impact":3}],{name:"Baby Dragon",hp:90,tier:2});}
+  else if(code==="thirteen-dagger-fairy"){applyDebug13("Venom Fang",[5,8,3,"Dagger",{"Envenom":3,"Debilitate":3}],{name:"Elfish Sprite",hp:60,tier:2});}
+  else if(code==="thirteen-dagger-dragon"){applyDebug13("Venom Fang",[5,8,3,"Dagger",{"Envenom":3,"Debilitate":3}],{name:"Baby Dragon",hp:90,tier:2});}
+  else if(code==="thirteen-sword-fairy"){applyDebug13("Royal Claymore",[7,11,3,"Sword",{"Puncture":3,"Bleed":3}],{name:"Elfish Sprite",hp:60,tier:2});}
+  else if(code==="thirteen-sword-dragon"){applyDebug13("Royal Claymore",[7,11,3,"Sword",{"Puncture":3,"Bleed":3}],{name:"Baby Dragon",hp:90,tier:2});}
   else log("That code is unknown.","lc-warn");mainMenu();},true,"Enter code...");}
 
 function applyDebug(wn,wd){P.level=7;P.max_hp=165;P.base_max_hp=165;P.hp=165;P.gold=1700;P.xp=0;P.skill_points=0;P.awakened=true;P.mana=20;P.max_mana=20;P.last_zone="1";
   P.armor={Head:"Fur Cap",Chest:"Fur Chestpiece",Arms:"Fur Bracers",Legs:"Fur Leggings"};
   P.armor_inventory={"Fur Cap":{slot:"Head",effect:"0-1 DMG reduction per hit",set:"Meadows Fur Set"},"Fur Chestpiece":{slot:"Chest",effect:"0-1 DMG reduction per hit",set:"Meadows Fur Set"},"Fur Bracers":{slot:"Arms",effect:"0-1 DMG reduction per hit",set:"Meadows Fur Set"},"Fur Leggings":{slot:"Legs",effect:"0-1 DMG reduction per hit",set:"Meadows Fur Set"}};
   P.seen_monsters=new Set(ZONES["1"].monsters.map(m=>m.name));P.has_sapphire_amulet=false;P.craftsman_met=true;P.beastmaster_snarked.add("1");P.inventory={[wn]:wd};P.equipped=wn;log("Debug state applied.","lc-good");}
+
+function applyDebug13(wn,wd,pet){
+  // Level 13: 75 + 12*15 = 255 base HP; City set adds 10*13=130 → 385 effective
+  // 12 SP earned; 8 spent (2 enchants: 2+1+1 SP each) → 4 remaining
+  P.level=13;P.base_max_hp=255;P.xp=0;P.gold=1700;P.skill_points=4;
+  P.awakened=true;P.mana=20;P.max_mana=20;P.last_zone="2";P.has_sapphire_amulet=false;
+  P.craftsman_met=true;P.pets_unlocked=true;
+  P.beastmaster_snarked=new Set(["1","2"]);
+  P.armor={Head:"Guard Helm",Chest:"Guard Chestplate",Arms:"Guard Gauntlets",Legs:"Guard Greaves"};
+  P.armor_inventory={
+    "Guard Helm":      {slot:"Head", effect:"0-2 DMG reduction per hit",set:"City Guard Set"},
+    "Guard Chestplate":{slot:"Chest",effect:"0-2 DMG reduction per hit",set:"City Guard Set"},
+    "Guard Gauntlets": {slot:"Arms", effect:"0-2 DMG reduction per hit",set:"City Guard Set"},
+    "Guard Greaves":   {slot:"Legs", effect:"0-2 DMG reduction per hit",set:"City Guard Set"}
+  };
+  const z1=ZONES["1"].monsters.map(m=>m.name);
+  const z2=ZONES["2"].monsters.map(m=>m.name);
+  P.seen_monsters=new Set([...z1,...z2]);
+  P.inventory={[wn]:wd};P.equipped=wn;
+  P.pet=pet;
+  P.max_hp=effectiveMaxHp(P);P.hp=P.max_hp;
+  log("Debug state applied — Level 13, City Guard Set, "+wn+", "+pet.name+" (T3).","lc-good");
+  renderStatus();
+}
 
 function patchNotes(){log("— Heroes of Eugor  v"+VERSION+" —","lc-head");for(const l of PATCH_NOTES)log(l||" ","lc-dim");settings();}
 
@@ -1385,8 +1415,11 @@ function splash(){P=null;
 
 function startGame(){overlay("The Awakening","What name shall the chronicles remember?",[],name=>{
   if(!name)return;P=newPlayer(name);hideOverlay();
-  logSep();log("You awaken bleeding in a meadow, stripped of all but your bare hands.","lc-dim");
-  log("A distant howl carries through the grass. Something stirs nearby.","lc-dim");logSep();
+  logSep();
+  log("You wake up in a field, bloody and beaten, with nothing but your bare hands.","lc-dim");
+  log("Next to you is a note that reads:","lc-dim");
+  log('  "Explore Eugor, save the world. Find the Beastmaster."',"lc-info");
+  logSep();
   P.fresh_start=false;mainMenu();},true,"Enter your name...");}
 
 // Boot
