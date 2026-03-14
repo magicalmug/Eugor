@@ -1,4 +1,11 @@
-v0.3.15 - New Version
+v0.3.16 New Version
+
+v0.3.15
+* Crafting screen: ingredients on separate lines; hidden once crafted.
+* Mobile: HP/XP/Mana pinned to top. Status drawer added (bottom-left tab).
+* Envenom: 20%/40%/60% chance; 2–5 / 3–6 / 4–7 poison per tier.
+* Debilitate: T2 now -2 ATK; T3 -2 ATK at 60% chance.
+* Ravenous Poison: 20%/25%/30% chance at T1/T2/T3.
 
 v0.3.14 - 
 * for the patch notes, put the version (v0.3.14 for this version) in black font, and start the changes on a new line.  Do this for all versions.
