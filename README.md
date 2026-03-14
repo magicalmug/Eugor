@@ -1,4 +1,9 @@
 v0.3.17 (new version)
+* Increase penetrating Strike chance to 40% and 55% for T2 and T3 upgrades
+* Add a chance to inflict puncture on hit for the puncture skill.  T1 is 25% T2 is 35% and T3 50%. Puncture can only stack three times. make the icon a sword.
+* The bleed skill for the sword should also stack only three times.
+* Add a new skill called Coupe De Grace, costs 3 mana.  The first time the enemy has all three stacks of puncture and bleed, the next attack consumes the bleed and puncture stacks to deal 36 damage.  This skill is only available when puncture and bleed have been taken.
+* Mobile - on the in Battle screen when fighting, add the monsters name. mention details found in the Chronicle.  when the battle is over, return to the main menu screen but add any crafting drops to the announcement banner.
 
 v0.3.16
 * XP required to level increased for levels 13–30.
