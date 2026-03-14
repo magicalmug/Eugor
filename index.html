@@ -757,6 +757,9 @@ body {
   flex-shrink: 0;
 }
 
+.mv-gold-row { margin-top: 2px; border-top: 1px solid var(--parch-deep); padding-top: 3px; }
+.mv-gold-val { font-size: 11px; color: var(--gold-leaf); font-weight: bold; font-style: italic; }
+
 @media (max-width: 900px) {
   #status-tab { display: block; }
   #status-drawer { display: flex; }
@@ -900,6 +903,10 @@ body {
     <div class="mv-bar-wrap"><div class="mv-bar mv-bar-mana" id="mv-bar-mana"></div></div>
     <span class="mv-val" id="mv-mana">0/25</span>
   </div>
+  <div class="mv-row mv-gold-row">
+    <span class="mv-label">💰</span>
+    <span class="mv-gold-val" id="mv-gold">0 gold</span>
+  </div>
 </div>
 
 </div><!-- /frame -->
@@ -908,20 +915,20 @@ body {
 // ════════════════════════════════════════════
 // DATA
 // ════════════════════════════════════════════
-const VERSION = "0.3.15";
+const VERSION = "0.3.16";
 const PATCH_NOTES = [
+  {ver:"v0.3.16",lines:[
+    "XP required to level increased for levels 13–30.",
+    "Meadows Set bonus: 40% on attack, recover 2–6 HP.",
+    "Mobile: Gold shown on top vitals bar.",
+    "Inventory restructured into Weapons / Armor Sets submenus."
+  ]},
   {ver:"v0.3.15",lines:[
     "Crafting screen: ingredients on separate lines; hidden once crafted.",
-    "Mobile: HP/XP/Mana pinned to top. Status drawer added (bottom-left tab).",
+    "Mobile: HP/XP/Mana pinned to top. Status drawer added.",
     "Envenom: 20%/40%/60% chance; 2–5 / 3–6 / 4–7 poison per tier.",
     "Debilitate: T2 now -2 ATK; T3 -2 ATK at 60% chance.",
     "Ravenous Poison: 20%/25%/30% chance at T1/T2/T3."
-  ]},
-  {ver:"v0.3.14",lines:[
-    "Patch notes version headers shown in black.",
-    "Crafted items shown in green in the crafting menu.",
-    "Sandwrapped Chest now requires Sphinx Stone ×1.",
-    "Sandstone Slab (Dune Stalker) drop rate increased to 70%."
   ]}
 ];
 
@@ -1101,7 +1108,7 @@ function newPlayer(name){
 function pSer(p){return{...p,seen_monsters:[...p.seen_monsters],zones_visited:[...p.zones_visited],beastmaster_snarked:[...p.beastmaster_snarked],legendary_first_kills:[...(p.legendary_first_kills||[])]};}
 function pDes(d){return{...d,seen_monsters:new Set(d.seen_monsters||[]),zones_visited:new Set(d.zones_visited||[]),beastmaster_snarked:new Set(d.beastmaster_snarked||[]),pending_messages:d.pending_messages||[],pets_unlocked:d.pets_unlocked||false,pet:d.pet||null,base_max_hp:d.base_max_hp||d.max_hp||75,arcane_shards:d.arcane_shards||0,found_arcane_shard:d.found_arcane_shard||false,mana_upgrades:d.mana_upgrades||0,witch_crystal_talked:d.witch_crystal_talked||false,legendary_first_kills:new Set(d.legendary_first_kills||[])};}
 
-function xpToNext(p){let b=Math.floor(50*Math.pow(p.level,1.6));if(p.level<=3)b=Math.floor(b*1.85);else if(p.level<=6)b=Math.floor(b*1.55);return b;}
+function xpToNext(p){let b=Math.floor(50*Math.pow(p.level,1.6));if(p.level<=3)b=Math.floor(b*1.85);else if(p.level<=6)b=Math.floor(b*1.55);else if(p.level<=12)b=b;else if(p.level<=18)b=Math.floor(b*1.4);else if(p.level<=24)b=Math.floor(b*1.7);else b=Math.floor(b*2.2);return b;}
 function innCost(p){return p.level*6;}
 function petMaxHp(pet){if(!pet)return 0;const pd=PET_DEFS[pet.name];return pd.base_hp+pd.hp_upgrades.slice(0,pet.tier).reduce((a,b)=>a+b,0);}
 function hasDagger(p){return Object.values(p.inventory).some(w=>w[3]==="Dagger");}
@@ -1204,7 +1211,7 @@ function renderStatusDrawer(){
   let armorHtml="<div class='armor-grid'>";
   for(const[sl,v]of Object.entries(P.armor))armorHtml+="<div class='armor-slot'>"+sl+": <span>"+(v||"—")+"</span></div>";
   armorHtml+="</div>";
-  if(isMeadowsDone(P))armorHtml+="<div class='set-bonus'>✦ Meadows Set: 30% chance to recover 1–4 HP on hit</div>";
+  if(isMeadowsDone(P))armorHtml+="<div class='set-bonus'>✦ Meadows Set: 40% chance to recover 2–6 HP on attack</div>";
   else if(isCityDone(P))armorHtml+="<div class='set-bonus'>✦ City Guard Set: +"+(10*P.level)+" Max HP active</div>";
   else if(isDesertDone(P))armorHtml+="<div class='set-bonus'>✦ Sandwrapped Set: 10% chance to reduce next hit by 2–8</div>";
   sec("Armour",armorHtml);
@@ -1262,6 +1269,8 @@ function renderStatus(){
     document.getElementById("mv-bar-xp").style.width=clamp(P.xp/xpToNext(P)*100,0,100)+"%";
     if(P.awakened){mvMana.style.display="flex";document.getElementById("mv-mana").textContent=P.mana+"/"+P.max_mana;document.getElementById("mv-bar-mana").style.width=clamp(P.mana/P.max_mana*100,0,100)+"%";}
     else mvMana.style.display="none";
+    const mvGold=document.getElementById("mv-gold");
+    if(mvGold)mvGold.textContent=P.gold+" gold";
   }
   const shardRow=document.getElementById("shard-row");
   if(shardRow){if(P.found_arcane_shard){shardRow.style.display="block";document.getElementById("s-shards").textContent="💎 "+P.arcane_shards;}else shardRow.style.display="none";}
@@ -1272,7 +1281,7 @@ function renderStatus(){
   const ag=document.getElementById("s-armor");ag.innerHTML="";
   for(const[sl,v]of Object.entries(P.armor)){const d=document.createElement("div");d.className="armor-slot";d.innerHTML=sl+": <span>"+(v||"—")+"</span>";ag.appendChild(d);}
   const sb=document.getElementById("s-set-bonus");
-  if(isMeadowsDone(P)){sb.style.display="block";sb.textContent="✦ Meadows Set: 30% chance to recover 1–4 HP on hit";}
+  if(isMeadowsDone(P)){sb.style.display="block";sb.textContent="✦ Meadows Set: 40% chance to recover 2–6 HP on attack";}
   else if(isCityDone(P)){sb.style.display="block";sb.textContent="✦ City Guard Set: +"+(10*P.level)+" Max HP active";}
   else if(isDesertDone(P)){sb.style.display="block";sb.textContent="✦ Sandwrapped Set: 10% chance to reduce next hit by 2–8";}
   else sb.style.display="none";
@@ -1415,6 +1424,7 @@ function runCombat(zid,onWin,onLose){
     line+=" = "+total+"  — "+monster.name+": "+Math.max(0,monster.hp)+" HP";
     log(line,"lc-atk");
     if(monster.hp<=0){finish();return;}
+    if(isMeadowsDone(P)&&roll(0.40)){const h=rnd(2,6);P.hp=Math.min(P.max_hp,P.hp+h);log("  ✦ Fur Set blessing — recovered "+h+" HP. (You: "+P.hp+")","lc-good");}
     if(cs.bleed>0){monster.hp-=cs.bleed;log("  💉 Bleed: "+cs.bleed+" damage seeps. "+monster.name+": "+Math.max(0,monster.hp)+" HP","lc-dmg");if(monster.hp<=0){finish();return;}}
     if((cs.pen_bleed_turns||0)>0){monster.hp-=1;cs.pen_bleed_turns--;log("  🪓 Penetrating bleed: 1 damage. "+monster.name+": "+Math.max(0,monster.hp)+" HP  ("+cs.pen_bleed_turns+" turn(s) left)","lc-dmg");if(monster.hp<=0){finish();return;}}
     if((cs.raven_stacks||0)>0){const rtot=cs.raven_stacks*cs.raven_dmg;monster.hp-=rtot;log("  ☠️ Ravenous Poison: "+rtot+" damage ("+cs.raven_stacks+"×"+cs.raven_dmg+"). "+monster.name+": "+Math.max(0,monster.hp)+" HP","lc-dmg");if(monster.hp<=0){finish();return;}}
@@ -1437,7 +1447,6 @@ function runCombat(zid,onWin,onLose){
     // Blurred Images: retaliate on each hit
     if(cs.blurred&&(cs.blurred_retaliate||0)>0){monster.hp-=cs.blurred_retaliate;log("  🌫️ Blurred Images retaliates! "+cs.blurred_retaliate+" damage to "+monster.name+"! ("+Math.max(0,monster.hp)+" HP)","lc-good");if(monster.hp<=0){finish();return;}}
     likeWater();
-    if(isMeadowsDone(P)&&roll(0.30)){const h=rnd(1,4);P.hp=Math.min(P.max_hp,P.hp+h);log("  ✦ Fur Set blessing — recovered "+h+" HP. (You: "+P.hp+")","lc-good");}
     if(isDesertDone(P)&&!cs.sand_shield&&roll(0.10)){cs.sand_shield=true;log("  🏜️ Sandwrapped Set — next hit reduced by 2–8!","lc-info");}
     if(cs.sand_shield&&final>0){const red2=rnd(2,8);P.hp=Math.min(P.max_hp,P.hp+Math.min(red2,final));cs.sand_shield=false;log("  🏜️ Sand absorbs "+Math.min(red2,final)+" damage!","lc-good");}
     renderStatus();
@@ -1739,19 +1748,43 @@ function sellMats(){setTitle("Sell Materials");clearBtns();
   addBtn("Back",craftsman,"btn-red");}
 
 // INVENTORY
-function inventory(){setTitle("Inventory");clearBtns();log("— Your Possessions —","lc-dim");
-  log("Weapons:","lc-head");
-  for(const[wn,wd]of Object.entries(P.inventory)){
-    const eq=wn===P.equipped?" ✦ (equipped)":"";const enc=Object.entries(wd[4]||{}).map(([e,t])=>e+" T"+t).join(", ");
-    log("  "+wn+eq+"  "+wd[0]+"–"+wd[1]+" dmg"+(enc?"  ·  "+enc:""),"lc-info");
-    if(wn!==P.equipped)addBtn("Equip: "+wn,()=>{P.equipped=wn;log(wn+" equipped.","lc-good");renderStatus();inventory();});}
-  log("Armour:","lc-head");
-  if(!Object.keys(P.armor_inventory).length)log("  No armour crafted.","lc-dim");
-  for(const[an,ad]of Object.entries(P.armor_inventory)){const eq=P.armor[ad.slot]===an?" ✦ (equipped)":"";
-    log("  "+an+eq+"  ["+ad.slot+"]  "+ad.effect,"lc-info");
-    if(!eq)addBtn("Equip: "+an,()=>{P.armor[ad.slot]=an;log(an+" equipped.","lc-good");renderStatus();inventory();});}
-  if(P.has_sapphire_amulet){log("Key Items:","lc-head");log("  💎 Sapphire Amulet — take to the Witch's Hut","lc-mag");}
+function inventory(){clearLog();_logQ=[];setTitle("Inventory");clearBtns();
+  log("— Your Possessions —","lc-dim");
+  addBtn("⚔  Weapons",inventoryWeapons,"btn-gold");
+  addBtn("🛡  Armor Sets",inventoryArmor,"btn-blue");
+  if(P.has_sapphire_amulet){log("  💎 Sapphire Amulet — take to the Witch's Hut","lc-mag");}
   addBtn("Back",mainMenu,"btn-red");}
+
+function inventoryWeapons(){clearLog();_logQ=[];setTitle("Weapons");clearBtns();
+  log("— Weapons —","lc-dim");
+  for(const[wn,wd]of Object.entries(P.inventory)){
+    const eq=wn===P.equipped;
+    const enc=Object.entries(wd[4]||{}).map(([e,t])=>e+" T"+t).join(", ");
+    log("  "+(eq?"✦ ":"")+wn+"  "+wd[0]+"–"+wd[1]+" dmg"+(eq?" (equipped)":"")+(enc?"  ·  "+enc:""),"lc-info");
+    if(!eq)addBtn("Equip: "+wn,()=>{P.equipped=wn;log(wn+" equipped.","lc-good");renderStatus();inventoryWeapons();});}
+  addBtn("Back",inventory,"btn-red");}
+
+function inventoryArmor(){clearLog();_logQ=[];setTitle("Armor Sets");clearBtns();
+  log("— Armor Sets —","lc-dim");
+  // Group armor_inventory by set
+  const sets={};
+  for(const[an,ad]of Object.entries(P.armor_inventory)){
+    const s=ad.set||"Other";if(!sets[s])sets[s]=[];sets[s].push([an,ad]);}
+  if(!Object.keys(sets).length){log("  No armour crafted yet.","lc-dim");}
+  for(const setName of Object.keys(sets)){
+    const pieces=sets[setName];
+    const equippedCount=pieces.filter(([an,ad])=>P.armor[ad.slot]===an).length;
+    log("  "+setName+"  ("+equippedCount+"/"+pieces.length+" equipped)","lc-info");
+    addBtn(setName,()=>inventoryArmorSet(setName,pieces),"btn-blue");}
+  addBtn("Back",inventory,"btn-red");}
+
+function inventoryArmorSet(setName,pieces){clearLog();_logQ=[];setTitle(setName);clearBtns();
+  log("— "+setName+" —","lc-dim");
+  for(const[an,ad]of pieces){
+    const eq=P.armor[ad.slot]===an;
+    log("  "+(eq?"✦ ":"")+an+"  ["+ad.slot+"]  "+ad.effect+(eq?" (equipped)":""),"lc-info");
+    if(!eq)addBtn("Equip: "+an,()=>{P.armor[ad.slot]=an;log(an+" equipped.","lc-good");renderStatus();inventoryArmorSet(setName,pieces);});}
+  addBtn("Back",inventoryArmor,"btn-red");}
 
 // SETTINGS
 function settings(){setTitle("Settings");clearBtns();
@@ -1886,13 +1919,16 @@ function applyDebug13(wn,wd,pet){
 }
 
 function patchNotes(){
+  clearLog();_logQ=[];
+  setTitle("Version & Patch Notes");clearBtns();
   logHTML("— Legends of Eugor  v"+VERSION+" —","lc-head");
+  logSep();
   for(const entry of PATCH_NOTES){
     logHTML("<span style='color:#1a1209;font-weight:700;font-family:MedievalSharp,serif'>"+entry.ver+"</span>","lc-default");
-    for(const l of entry.lines)log("  "+l,"lc-dim");
-    log(" ","lc-dim");
+    for(const l of entry.lines)log("  · "+l,"lc-dim");
+    log("","lc-dim");
   }
-  settings();
+  addBtn("Back",settings,"btn-red");
 }
 
 // DEATH
