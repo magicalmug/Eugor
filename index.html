@@ -638,8 +638,134 @@ body {
   #s-weapon-stats { font-size: 13px !important; }
   #s-enchants { font-size: 12px !important; }
 }
+/* ── MOBILE STATUS DRAWER ── */
+#status-drawer {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 150;
+  flex-direction: column;
+  height: 70vh;
+  background: var(--parch);
+  border-top: 3px solid var(--border-ink);
+  box-shadow: 0 -8px 32px rgba(44,31,14,0.4);
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+#status-drawer.open { transform: translateY(0); }
+#status-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px 8px;
+  border-bottom: 1px solid var(--parch-deep);
+  background: linear-gradient(180deg, var(--parch-dark) 0%, var(--parch) 100%);
+  flex-shrink: 0;
+}
+#status-drawer-title {
+  font-family: 'MedievalSharp', serif;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  color: var(--ink-faded);
+  text-transform: uppercase;
+}
+#status-close {
+  background: none;
+  border: 1px solid var(--border-ink);
+  color: var(--ink-faded);
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 12px;
+  padding: 3px 10px;
+  cursor: pointer;
+  border-radius: 2px;
+}
+#status-close:active { background: var(--parch-dark); }
+#status-drawer-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+  min-height: 0;
+}
+#status-drawer-content .stat-block { margin-bottom: 12px; box-shadow: none; border: 1px solid var(--parch-deep); }
+#status-tab {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 16px;
+  z-index: 151;
+  background: linear-gradient(180deg, var(--parch) 0%, var(--parch-dark) 100%);
+  border: 2px solid var(--border-ink);
+  border-bottom: none;
+  color: var(--ink-light);
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 13px;
+  padding: 7px 16px 5px;
+  cursor: pointer;
+  box-shadow: 0 -2px 8px var(--shadow);
+  border-radius: 6px 6px 0 0;
+  letter-spacing: 0.3px;
+}
+#status-tab:active { background: var(--parch-dark); }
+
+/* ── MOBILE VITALS BAR ── */
+#mobile-vitals {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 140;
+  background: linear-gradient(180deg, var(--parch-dark) 0%, var(--parch) 100%);
+  border-bottom: 2px solid var(--border-ink);
+  padding: 6px 12px 5px;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+.mv-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+.mv-row:last-child { margin-bottom: 0; }
+.mv-label {
+  font-family: 'MedievalSharp', serif;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--ink-faded);
+  width: 20px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.mv-bar-wrap {
+  flex: 1;
+  height: 6px;
+  background: var(--parch-deep);
+  border: 1px solid var(--border-ink);
+  overflow: hidden;
+  border-radius: 2px;
+}
+.mv-bar {
+  height: 100%;
+  transition: width 0.4s ease;
+  border-radius: 2px;
+}
+.mv-bar-hp   { background: linear-gradient(90deg, #6b1220, #a02030); width: 100%; }
+.mv-bar-xp   { background: linear-gradient(90deg, #1a3a6b, #2a5a9b); width: 0%; }
+.mv-bar-mana { background: linear-gradient(90deg, #3a1a5a, #6a3a9a); width: 100%; }
+.mv-val {
+  font-size: 10px;
+  color: var(--ink);
+  min-width: 44px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  #status-tab { display: block; }
+  #status-drawer { display: flex; }
+  #mobile-vitals { display: block; }
+  #left-panel { display: none; }
+  #app { padding-top: 0; }
+  #header { margin-top: 58px; }
+}
 </style>
-</head>
 <body>
 <div id="frame">
 <div id="app">
@@ -747,26 +873,55 @@ body {
   <div id="chronicle-log-mobile"></div>
 </div>
 
+<!-- MOBILE STATUS TAB + DRAWER -->
+<button id="status-tab" onclick="toggleStatus()">⚔ Status</button>
+<div id="status-drawer">
+  <div id="status-drawer-header">
+    <span id="status-drawer-title">Status</span>
+    <button id="status-close" onclick="toggleStatus()">✕ Close</button>
+  </div>
+  <div id="status-drawer-content"></div>
+</div>
+
+<!-- MOBILE VITALS BAR (fixed top) -->
+<div id="mobile-vitals">
+  <div class="mv-row">
+    <span class="mv-label">HP</span>
+    <div class="mv-bar-wrap"><div class="mv-bar mv-bar-hp" id="mv-bar-hp"></div></div>
+    <span class="mv-val" id="mv-hp">75/75</span>
+  </div>
+  <div class="mv-row">
+    <span class="mv-label">XP</span>
+    <div class="mv-bar-wrap"><div class="mv-bar mv-bar-xp" id="mv-bar-xp"></div></div>
+    <span class="mv-val" id="mv-xp">0</span>
+  </div>
+  <div class="mv-row" id="mv-mana-row" style="display:none">
+    <span class="mv-label">MP</span>
+    <div class="mv-bar-wrap"><div class="mv-bar mv-bar-mana" id="mv-bar-mana"></div></div>
+    <span class="mv-val" id="mv-mana">0/25</span>
+  </div>
+</div>
+
 </div><!-- /frame -->
 
 <script>
 // ════════════════════════════════════════════
 // DATA
 // ════════════════════════════════════════════
-const VERSION = "0.3.14";
+const VERSION = "0.3.15";
 const PATCH_NOTES = [
+  {ver:"v0.3.15",lines:[
+    "Crafting screen: ingredients on separate lines; hidden once crafted.",
+    "Mobile: HP/XP/Mana pinned to top. Status drawer added (bottom-left tab).",
+    "Envenom: 20%/40%/60% chance; 2–5 / 3–6 / 4–7 poison per tier.",
+    "Debilitate: T2 now -2 ATK; T3 -2 ATK at 60% chance.",
+    "Ravenous Poison: 20%/25%/30% chance at T1/T2/T3."
+  ]},
   {ver:"v0.3.14",lines:[
-    "Patch notes version headers now shown in black.",
+    "Patch notes version headers shown in black.",
     "Crafted items shown in green in the crafting menu.",
     "Sandwrapped Chest now requires Sphinx Stone ×1.",
     "Sandstone Slab (Dune Stalker) drop rate increased to 70%."
-  ]},
-  {ver:"v0.3.13",lines:[
-    "Empty name defaults to Hero.",
-    "Ancient Sphinx HP 220, damage 36–40.",
-    "Oasis Phantom HP 130, damage 28–32.",
-    "Dune Stalker damage 32–36.",
-    "System Test pet HP derived from game data (bug fix)."
   ]}
 ];
 
@@ -785,15 +940,15 @@ const ENCHANTMENTS = {
   },
   Dagger:{
     "Envenom":{icon:"🧪",desc:"Deals poison damage on hit.",cost:1,
-      t1:{chance:0.25,dmg:[2,5],label:"25% chance, 2-5 poison"},t2:{chance:0.50,dmg:[2,5],label:"50% chance, 2-5 poison"},t3:{chance:0.70,dmg:[2,5],label:"70% chance, 2-5 poison"}},
+      t1:{chance:0.20,dmg:[2,5],label:"20% chance, 2–5 poison"},t2:{chance:0.40,dmg:[3,6],label:"40% chance, 3–6 poison"},t3:{chance:0.60,dmg:[4,7],label:"60% chance, 4–7 poison"}},
     "Debilitate":{icon:"🤢",desc:"Weakens enemy attack permanently.",cost:1,
-      t1:{chance:0.20,atk_reduce:1,label:"20% chance, -1 ATK"},t2:{chance:0.40,atk_reduce:1,label:"40% chance"},t3:{chance:0.60,atk_reduce:1,label:"60% chance"}},
+      t1:{chance:0.20,atk_reduce:1,label:"20% chance, -1 ATK"},t2:{chance:0.40,atk_reduce:2,label:"40% chance, -2 ATK"},t3:{chance:0.60,atk_reduce:2,label:"60% chance, -2 ATK"}},
     "Blinding Toxin":{icon:"🕶️",desc:"10% on attack to blind; enemy attacks halved chance per hit.",cost:2,
       t1:{proc_chance:0.10,half_chance:0.03,label:"10% blind: 3% half-DMG/attack"},t2:{proc_chance:0.10,half_chance:0.06,label:"6% half-DMG/attack"},t3:{proc_chance:0.10,half_chance:0.09,label:"9% half-DMG/attack"}},
-    "Ravenous Poison":{icon:"☠️",desc:"At fight start, 20% chance to stack envenom's poison on the target for the whole fight. Requires Envenom and Debilitate.",cost:3,prereqs:["Envenom","Debilitate"],
+    "Ravenous Poison":{icon:"☠️",desc:"At fight start, chance to stack envenom's poison on the target for the whole fight. Requires Envenom and Debilitate.",cost:3,prereqs:["Envenom","Debilitate"],
       t1:{chance:0.20,stacks:1,label:"20% on start: 1 poison stack persists all fight"},
-      t2:{chance:0.20,stacks:2,label:"20% on start: 2 poison stacks persist all fight"},
-      t3:{chance:0.20,stacks:3,label:"20% on start: 3 poison stacks persist all fight"}}
+      t2:{chance:0.25,stacks:2,label:"25% on start: 2 poison stacks persist all fight"},
+      t3:{chance:0.30,stacks:3,label:"30% on start: 3 poison stacks persist all fight"}}
   },
   Sword:{
     "Puncture":{icon:"🩸",desc:"Expands enemy ATK low range each hit.",cost:1,
@@ -1024,6 +1179,42 @@ function toggleChronicle(){
   if(drawer.classList.contains("open"))mob.scrollTop=mob.scrollHeight;
 }
 
+function toggleStatus(){
+  const drawer=document.getElementById("status-drawer");
+  drawer.classList.toggle("open");
+  if(drawer.classList.contains("open"))renderStatusDrawer();
+}
+
+function renderStatusDrawer(){
+  if(!P)return;
+  const el=document.getElementById("status-drawer-content");
+  el.innerHTML="";
+  // Helper to make a stat-block section
+  function sec(title,html){const d=document.createElement("div");d.className="stat-block";d.innerHTML="<div class='block-title'>"+title+"</div>"+html;el.appendChild(d);}
+  sec("The Adventurer","<div class='stat-row'><span class='stat-label'>Name</span><span class='stat-val'>"+P.name+"</span></div>"
+    +"<div class='stat-row'><span class='stat-label'>Level</span><span class='stat-val'>"+P.level+"</span></div>"
+    +"<div class='stat-row'><span class='stat-label'>Skill Points</span><span class='stat-val'>"+P.skill_points+"</span></div>"
+    +"<div class='stat-row'><span class='stat-label'>Gold</span><span class='stat-val gold'>"+P.gold+"</span></div>"
+    +(P.found_arcane_shard?"<div class='stat-row'><span class='stat-label'>Arcane Shards</span><span class='stat-val mag'>💎 "+P.arcane_shards+"</span></div>":""));
+  const w=P.inventory[P.equipped];
+  const enc=Object.entries(w[4]||{}).map(([k,v])=>k+" (T"+v+")").join(" · ");
+  sec("Weapon","<div class='stat-val'>"+P.equipped+"</div>"
+    +"<div style='color:var(--ink-faded);font-size:11px;font-style:italic'>"+w[0]+"–"+w[1]+" damage</div>"
+    +(enc?"<div style='color:#5a2a6a;font-size:11px;font-style:italic;margin-top:2px'>"+enc+"</div>":""));
+  let armorHtml="<div class='armor-grid'>";
+  for(const[sl,v]of Object.entries(P.armor))armorHtml+="<div class='armor-slot'>"+sl+": <span>"+(v||"—")+"</span></div>";
+  armorHtml+="</div>";
+  if(isMeadowsDone(P))armorHtml+="<div class='set-bonus'>✦ Meadows Set: 30% chance to recover 1–4 HP on hit</div>";
+  else if(isCityDone(P))armorHtml+="<div class='set-bonus'>✦ City Guard Set: +"+(10*P.level)+" Max HP active</div>";
+  else if(isDesertDone(P))armorHtml+="<div class='set-bonus'>✦ Sandwrapped Set: 10% chance to reduce next hit by 2–8</div>";
+  sec("Armour",armorHtml);
+  if(P.pet){const pd=PET_DEFS[P.pet.name];const mhp=petMaxHp(P.pet);
+    sec("Companion","<div style='font-weight:bold;color:var(--rust)'>"+pd.icon+" "+P.pet.name+" (Tier "+(P.pet.tier+1)+")</div>"
+      +"<div class='stat-row' style='margin-top:4px'><span class='stat-label'>Health</span><span class='stat-val red'>"+P.pet.hp+" / "+mhp+"</span></div>");}
+  const mats=Object.entries(P.materials).filter(([,q])=>q>0);
+  sec("Materials","<div class='mats-text'>"+(mats.length?mats.map(([k,v])=>k+": "+v).join(" · "):"None gathered.")+"</div>");
+}
+
 
 function setTitle(t){document.getElementById("action-title").textContent=t;}
 function clearBtns(){document.getElementById("btn-grid").innerHTML="";}
@@ -1062,6 +1253,16 @@ function renderStatus(){
   const mr=document.getElementById("mana-row");
   if(P.awakened){mr.style.display="block";document.getElementById("s-mana").textContent=P.mana+" / "+P.max_mana;document.getElementById("bar-mana").style.width=clamp(P.mana/P.max_mana*100,0,100)+"%";}
   else mr.style.display="none";
+  // Mobile vitals bar
+  const mvMana=document.getElementById("mv-mana-row");
+  if(mvMana){
+    document.getElementById("mv-hp").textContent=Math.max(0,P.hp)+"/"+P.max_hp;
+    document.getElementById("mv-bar-hp").style.width=clamp(P.hp/P.max_hp*100,0,100)+"%";
+    document.getElementById("mv-xp").textContent="Lv "+P.level;
+    document.getElementById("mv-bar-xp").style.width=clamp(P.xp/xpToNext(P)*100,0,100)+"%";
+    if(P.awakened){mvMana.style.display="flex";document.getElementById("mv-mana").textContent=P.mana+"/"+P.max_mana;document.getElementById("mv-bar-mana").style.width=clamp(P.mana/P.max_mana*100,0,100)+"%";}
+    else mvMana.style.display="none";
+  }
   const shardRow=document.getElementById("shard-row");
   if(shardRow){if(P.found_arcane_shard){shardRow.style.display="block";document.getElementById("s-shards").textContent="💎 "+P.arcane_shards;}else shardRow.style.display="none";}
   const w=P.inventory[P.equipped];
@@ -1511,16 +1712,24 @@ function craftsman(){clearLog();_logQ=[];setTitle("Craftsman's Anvil");clearBtns
 function craftSet(recipes,setName,effect){setTitle(setName);clearBtns();
   for(const[name,r]of Object.entries(recipes)){const crafted=name in P.armor_inventory;
     const ok=P.gold>=r.gold&&Object.entries(r.mats).every(([m,q])=>(P.materials[m]||0)>=q);
-    const matParts=Object.entries(r.mats).map(([m,q])=>{const have=P.materials[m]||0;const enough=have>=q;const txt=have+"/"+q+" "+m;return enough?txt:"<span style='color:#c0392b;font-weight:600'>"+txt+"</span>";});
-    const matStr=matParts.join(", ");
-    logHTML(name+" ["+r.slot+"] — "+r.gold+" gold  ·  "+matStr+(crafted?"  <span style='color:#2d6a2d;font-weight:600'>✦ Crafted</span>":""),"lc-dim");
-    if(!crafted){const b=addBtn("Craft: "+name+"  ("+r.gold+" gold)",()=>{
-      if(P.gold<r.gold||!Object.entries(r.mats).every(([m,q])=>(P.materials[m]||0)>=q)){log("You lack the required materials or gold.","lc-warn");return;}
-      P.gold-=r.gold;for(const[m,q]of Object.entries(r.mats))P.materials[m]=(P.materials[m]||0)-q;
-      P.armor_inventory[name]={slot:r.slot,effect,set:setName};
-      if(!P.armor[r.slot]){P.armor[r.slot]=name;log(name+" crafted and donned.","lc-good");}
-      else log(name+" crafted and stored in your pack.","lc-info");
-      renderStatus();craftsman();},"btn-blue");if(!ok)b.classList.add("btn-disabled");}}
+    // Header line: name, slot, gold, crafted status
+    if(crafted){
+      logHTML(name+" ["+r.slot+"] — "+r.gold+" gold  <span style='color:#2d6a2d;font-weight:600'>✦ Crafted</span>","lc-dim");
+    } else {
+      logHTML(name+" ["+r.slot+"] — "+r.gold+" gold","lc-dim");
+      // Ingredient lines — only show when not yet crafted
+      for(const[m,q]of Object.entries(r.mats)){
+        const have=P.materials[m]||0;const enough=have>=q;
+        const txt="    "+have+"/"+q+" "+m;
+        logHTML(enough?txt:"<span style='color:#c0392b;font-weight:600'>"+txt+"</span>","lc-dim");
+      }
+      const b=addBtn("Craft: "+name+"  ("+r.gold+" gold)",()=>{
+        if(P.gold<r.gold||!Object.entries(r.mats).every(([m,q])=>(P.materials[m]||0)>=q)){log("You lack the required materials or gold.","lc-warn");return;}
+        P.gold-=r.gold;for(const[m,q]of Object.entries(r.mats))P.materials[m]=(P.materials[m]||0)-q;
+        P.armor_inventory[name]={slot:r.slot,effect,set:setName};
+        if(!P.armor[r.slot]){P.armor[r.slot]=name;log(name+" crafted and donned.","lc-good");}
+        else log(name+" crafted and stored in your pack.","lc-info");
+        renderStatus();craftsman();},"btn-blue");if(!ok)b.classList.add("btn-disabled");}}
   addBtn("No Thanks",craftsman,"btn-red");}
 
 function sellMats(){setTitle("Sell Materials");clearBtns();
