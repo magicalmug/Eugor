@@ -1,4 +1,10 @@
-v0.3.16 New Version
+v0.3.17 (new version)
+
+v0.3.16
+· XP required to level increased for levels 13–30.
+· Meadows Set bonus: 40% on attack, recover 2–6 HP.
+· Mobile: Gold shown on top vitals bar.
+· Inventory restructured into Weapons / Armor Sets submenus.
 
 v0.3.15
 * Crafting screen: ingredients on separate lines; hidden once crafted.
